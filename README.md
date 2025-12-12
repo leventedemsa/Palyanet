@@ -42,6 +42,3 @@ frontend/
    ├─ Navbar.tsx
    └─ Footer.tsx
 ```
-   ├─ Navbar.tsx
-   └─ Footer.tsx
-
