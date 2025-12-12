@@ -25,6 +25,8 @@ _Záró Dolgozat – Demsa Levente & Tóth Kornél_
 npm run dev
 ```
 ## 📁 Projekt mappastruktúra
+
+```txt
 frontend/
 ├─ app/
 │  ├─ page.tsx
@@ -36,7 +38,7 @@ frontend/
 │  │  └─ register/
 │  │     └─ page.tsx
 │  │
-│  |
+│
 └─ components/
    ├─ Navbar.tsx
    └─ Footer.tsx
