@@ -24,6 +24,10 @@ body {
   background: var(--bg-main);
   color: var(--text-main);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ==========================
@@ -64,21 +68,48 @@ nav {
 }
 
 /* ==========================
-   BUTTONS
+   BUTTONS (GLOBAL)
 ========================== */
+.btn,
 button {
   background: var(--accent);
-  border: none;
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
   color: white;
-  font-weight: 500;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1.1rem;
+
+  font-weight: 600;
   cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
+.btn:hover,
 button:hover {
-  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.25);
 }
+
+.btn:active,
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+}
+
 
 /* ==========================
    INPUTS
@@ -144,4 +175,26 @@ input:focus {
 .auth-switch a {
   color: var(--accent);
   font-weight: 500;
+}
+/* ==========================
+   LAYOUT
+========================== */
+.site-content {
+  flex: 1;              /* kitölti a maradék helyet */
+  padding-top: 5rem;    /* navbar miatt */
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+/* ==========================
+   FOOTER
+========================== */
+.site-footer {
+  height: 4rem;
+  border-top: 1px solid var(--border);
+  background: #161616;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }

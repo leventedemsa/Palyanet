@@ -1,17 +1,29 @@
+"use client";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Navbar() {
+  const pathname = usePathname();
+
+  let rightHref = "/auth";
+  let rightText = "Bejelentkezés";
+
+  if (pathname === "/auth") {
+    rightHref = "/";
+    rightText = "Főoldal";
+  } else if (pathname === "/auth/register") {
+    rightHref = "/";
+    rightText = "Főoldal";
+  }
+
   return (
-    <nav className="w-full h-16 bg-white shadow fixed top-0 left-0 z-50 flex items-center px-6 justify-between">
+    <nav>
       <Link href="/" className="text-xl font-semibold">
         SportPálya
       </Link>
 
-      <Link
-        href="/auth"
-        className="px-4 py-2 rounded-xl border hover:bg-gray-100 transition"
-      >
-        Bejelentkezés
+      <Link href={rightHref} className="btn btn-outline">
+        {rightText}
       </Link>
     </nav>
   );
