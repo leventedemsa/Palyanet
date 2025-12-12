@@ -37,7 +37,7 @@ frontend/
 │  │  ├─ page.tsx
 │  │  └─ register/
 │  │     └─ page.tsx
-│  │
+│  
 │
 └─ components/
    ├─ Navbar.tsx
