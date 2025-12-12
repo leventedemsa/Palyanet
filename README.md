@@ -40,5 +40,4 @@ frontend/
 └─ components/
    ├─ Navbar.tsx
    └─ Footer.tsx
--------------------------
 
