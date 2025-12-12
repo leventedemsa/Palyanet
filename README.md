@@ -37,8 +37,11 @@ frontend/
 │  │  ├─ page.tsx
 │  │  └─ register/
 │  │     └─ page.tsx
-│  
 │
+└─ components/
+   ├─ Navbar.tsx
+   └─ Footer.tsx
+```
 └─ components/
    ├─ Navbar.tsx
    └─ Footer.tsx
