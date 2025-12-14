@@ -1,25 +1,16 @@
-# Pályanet – Sportpálya Foglaló Webalkalmazás
-_Záró Dolgozat – Demsa Levente & Tóth Kornél_
-
----
 
 ## 🛠️ Használt technológiák
-
 ### Frontend
 - Next.js (React)
 - HTML
 - CSS
 - JavaScript
-
 ### Backend
 - Node.js
 - Express
-
 ### Adatbázis
 - Microsoft SQL Server (MSSQL)
-
----
-## ▶️ Projekt indítása
+# ▶️ Projekt indítása
 - Fejlesztői szerver indítása:
 ```bash
 npm run dev
@@ -35,14 +26,19 @@ frontend/
 │  │
 │  ├─ auth/
 │  │  ├─ page.tsx
+│  │  ├─ Auth.module.css
 │  │  └─ register/
 │  │     └─ page.tsx
 │
 └─ components/
    ├─ Navbar.tsx
-   └─ Footer.tsx
+   ├─ Navbar.module.css
+   ├─ Footer.tsx
+   └─ Footer.module.css
 ```
 ## TODO:
 - Home oldal feldobása
 - Fake Bejelentkezés
 - Oldalskeletonok
+
+_Záró Dolgozat – Demsa Levente & Tóth Kornél_
