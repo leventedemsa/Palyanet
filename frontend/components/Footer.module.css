@@ -1,0 +1,16 @@
+.footer {
+  height: 4rem;
+  border-top: 1px solid var(--border);
+  background: #161616;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.footer span {
+  opacity: 0.9;
+}
