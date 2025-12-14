@@ -42,3 +42,7 @@ frontend/
    ├─ Navbar.tsx
    └─ Footer.tsx
 ```
+## TODO:
+- Home oldal feldobása
+- Fake Bejelentkezés
+- Oldalskeletonok
