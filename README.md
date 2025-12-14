@@ -1,51 +1,44 @@
 # Pályanet – Sportpálya Foglaló Webalkalmazás
 _Záró Dolgozat – Demsa Levente & Tóth Kornél_
 
-## 📌 Leírás
-A **Pályanet** egy webes alkalmazás, amely összeköti a sportpálya-tulajdonosokat a sportolni vágyó magánszemélyekkel.  
-Célunk egy **egyszerű**, **átlátható** és **gyors** foglalási rendszer létrehozása, amely Magyarországon jelenleg nem érhető el egységes formában.
-
-Az oldal lehetőséget biztosít:
-- sportpályák böngészésére,
-- időpontok foglalására,
-- saját pályák létrehozására és kezelésére,
-- foglalások nyomon követésére.
-
 ---
 
-## 🎯 Fő funkciók
+## 🛠️ Használt technológiák
 
-### 🏃‍♂️ Bérlők számára
-- Regisztráció és bejelentkezés  
-- Sportpályák keresése és szűrése  
-- Pályaadatlap és elérhető időpontok megtekintése  
-- Foglalás leadása  
-- Foglalások kezelése (megtekintés, lemondás)  
-- Foglalás visszaigazolások és értesítések  
+### Frontend
+- Next.js (React)
+- HTML
+- CSS
+- JavaScript
 
-### ⚽ Pályatulajdonosok számára
-- Tulajdonosi regisztráció és bejelentkezés  
-- Sportpálya létrehozása és szerkesztése  
-- Foglalási naptár megtekintése  
-- Foglalások elfogadása vagy elutasítása  
-- Értesítések új foglalásról  
+### Backend
+- Node.js
+- Express
+
+### Adatbázis
+- Microsoft SQL Server (MSSQL)
 
 ---
+## ▶️ Projekt indítása
+- Fejlesztői szerver indítása:
+```bash
+npm run dev
+```
+## 📁 Projekt mappastruktúra
 
-## 🛠️ Technológiák
-
-**Frontend:**
-- HTML, CSS, JavaScript  
-- többi még ?
-
-**Backend:**
-- Node.js + Express
-
-**Adatbázis:**
-- MSSQL
-
----
-
-## 📁 Projekt szerkezete
-- még nincs kifejlesztve
-
+```txt
+frontend/
+├─ app/
+│  ├─ page.tsx
+│  ├─ layout.tsx
+│  ├─ globals.css
+│  │
+│  ├─ auth/
+│  │  ├─ page.tsx
+│  │  └─ register/
+│  │     └─ page.tsx
+│
+└─ components/
+   ├─ Navbar.tsx
+   └─ Footer.tsx
+```
