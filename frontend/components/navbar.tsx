@@ -10,12 +10,17 @@ export default function Navbar() {
   return (
     <nav className={styles.nav}>
       <Link href="/" className={styles.logo}>
-        SportPálya
+        Pályanet
       </Link>
+      <div className={styles.right}>
+        <Link href="/contact" className={styles.link}>
+          Kapcsolat
+        </Link>
 
-      <Link href={isAuth ? "/" : "/auth"} className={styles.action}>
-        {isAuth ? "Főoldal" : "Bejelentkezés"}
-      </Link>
+        <Link href={isAuth ? "/" : "/auth"} className={styles.action}>
+          {isAuth ? "Főoldal" : "Bejelentkezés"}
+        </Link>
+      </div>
     </nav>
   );
 }

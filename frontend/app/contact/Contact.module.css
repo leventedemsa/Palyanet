@@ -1,0 +1,95 @@
+.page {
+  min-height: calc(100vh - 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.2rem;
+
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.08),
+    0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+.title {
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.75rem;
+  color: var(--text-main);
+}
+
+.description {
+  color: var(--text-muted);
+  margin-bottom: 1.6rem;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input,
+.textarea {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.95rem;
+  color: var(--text-main);
+
+  outline: none;
+  resize: none;
+
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: rgba(37, 99, 235, 0.55);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+}
+
+.button {
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.25);
+}
+
+.button:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
+}

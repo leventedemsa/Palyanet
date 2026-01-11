@@ -1,16 +1,17 @@
 .footer {
   height: 4rem;
-  border-top: 1px solid var(--border);
-  background: #161616;
+  min-height: 4rem;   
+  flex-shrink: 0;     
+
+  background: #ffffff;
+  border-top: 1px solid rgba(15, 23, 42, 0.08);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: var(--text-muted);
+  color: rgba(15, 23, 42, 0.55);
   font-size: 0.85rem;
-}
 
-.footer span {
-  opacity: 0.9;
+  box-shadow: 0 -1px 0 rgba(15, 23, 42, 0.03);
 }
