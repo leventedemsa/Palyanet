@@ -15,8 +15,7 @@
 ```bash
 npm run dev
 ```
-## 📁 Projekt mappastruktúra
-
+## 📁 Projekt mappastruktúra (outdated)
 ```txt
 frontend/
 ├─ app/
@@ -37,8 +36,9 @@ frontend/
    └─ Footer.module.css
 ```
 ## TODO:
-- Home oldal feldobása
-- Fake Bejelentkezés
-- Oldalskeletonok
+- Home oldal feldobása 🟡 - 80%
+- Teljes projekt átdolgozása, át-struktúrálása - 0%
+- Backend elkezdése (GET kérés az SQL adatbázisból) - 0% 
+- CSS átdolgozása, tisztázása - 0%
 
 _Záró Dolgozat – Demsa Levente & Tóth Kornél_
