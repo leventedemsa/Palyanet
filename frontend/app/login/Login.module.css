@@ -1,0 +1,126 @@
+.page {
+  min-height: calc(100vh - 6rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.75rem 1.5rem;
+
+  background: rgba(15, 22, 33, 0.75);
+  border: 1px solid rgba(255, 122, 24, 0.25);
+  border-radius: 12px;
+
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.title {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.subtitle {
+  margin: 0 0 1.25rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.input {
+  height: 42px;
+  padding: 0 0.9rem;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+
+  color: var(--text-main);
+  outline: none;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.input:focus {
+  border-color: rgba(255, 122, 24, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.12);
+}
+
+/* BEJELENTKEZES GOMB  */
+.loginButton {
+  background: rgba(255, 122, 24, 0.12);
+  border: 1px solid rgba(255, 122, 24, 0.45);
+  border-radius: 12px;
+  padding: 0.55rem 1.1rem;
+
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease,
+    box-shadow 160ms ease;
+}
+
+.loginButton:hover {
+  background: rgba(255, 122, 24, 0.2);
+  border-color: rgba(255, 122, 24, 0.75);
+  color: orange;
+  transform: translateY(-1px);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+}
+
+
+.footerRow {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.link {
+  color: rgba(255, 122, 24, 0.9);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.link:hover {
+  text-decoration: underline;
+  color: orange;
+}

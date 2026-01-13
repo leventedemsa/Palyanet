@@ -1,66 +1,39 @@
-@import "tailwindcss";
-
 :root {
-  /* Backgrounds */
-  --bg-main: #f6f7fb;
-  --bg-card: #ffffff;
-  --bg-input: #ffffff;
+  --bg-main: #090c0f;
+  --bg-glass: rgba(22, 26, 34, 0.75);
+  --bg-card: #0f1621;
 
-  /* Text */
-  --text-main: #0f172a;          /* slate-900 */
-  --text-muted: #64748b;         /* slate-500 */
+  --text-main: #e8eef6;
+  --text-muted: #a9b4c0;
 
-  /* Borders & UI */
-  --border: rgba(15, 23, 42, 0.12);
+  --accent: #f97316;
+  --accent-hover: #fb923c;
 
-  /* Accent (modern blue) */
-  --accent: #2563eb;
+  --border-dark: rgba(255, 255, 255, 0.08);
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+
+  background-color: var(--bg-main);
+  color: var(--text-main);
 }
 
 body {
-  margin: 0;
-  background: var(--bg-main);
-  color: var(--text-main);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
-
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
-  /* smoother text rendering */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
-
-.site-content {
-  flex: 1;    
-  padding-top: 4rem;       
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-/* ===== Global UI polish ===== */
-
+  
 input,
 button,
 textarea,
 select {
   font-family: inherit;
-}
-
-::selection {
-  background: rgba(37, 99, 235, 0.2);
-}
-
-/* subtle default focus ring */
-:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
-  border-radius: 6px;
 }
