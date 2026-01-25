@@ -1,0 +1,126 @@
+.page {
+  padding-bottom: 3rem;
+}
+
+/* ===== SECTION ===== */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4.5rem 1rem 2.5rem;
+}
+
+.title {
+  font-size: 2.4rem;
+  font-weight: 850;
+  text-align: center;
+  margin-bottom: 0.6rem;
+  color: var(--text-main);
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+/* ===== GRID ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+/* ===== PANEL (ugyanaz mint home) ===== */
+.panel {
+  background: linear-gradient(
+      180deg,
+      rgba(255, 122, 24, 0.06),
+      rgba(255, 122, 24, 0.01)
+    ),
+    var(--bg-card);
+
+  border: 1px solid rgba(255, 122, 24, 0.75);
+  border-radius: 18px;
+  padding: 1.6rem;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.panelTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin-bottom: 0.8rem;
+}
+
+.text {
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0 0 0.4rem;
+}
+
+/* ===== FORM ===== */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.input,
+.textarea {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
+  color: var(--text-main);
+  font-family: inherit;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: rgba(255, 122, 24, 0.6);
+  box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.12);
+}
+
+/* ===== BUTTON ===== */
+.button {
+  margin-top: 0.5rem;
+  align-self: flex-start;
+
+  background: rgba(255, 122, 24, 0.12);
+  border: 1px solid rgba(255, 122, 24, 0.45);
+  border-radius: 12px;
+  padding: 0.55rem 1.2rem;
+
+  color: var(--text-main);
+  font-weight: 700;
+  cursor: pointer;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 120ms ease;
+}
+
+.button:hover {
+  background: rgba(255, 122, 24, 0.2);
+  border-color: rgba(255, 122, 24, 0.75);
+  color: orange;
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 820px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
