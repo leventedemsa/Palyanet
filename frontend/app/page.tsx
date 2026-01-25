@@ -6,7 +6,7 @@ import styles from "./Home.module.css";
 export default function Home() {
   return (
     <main className={styles.page}>
-      {/* BEVEZETŐ */}
+      {/* BEVEZETŐ_ */}
       <section className={styles.mainSection}>
         <h1 className={styles.title}>Pályanet</h1>
         <p className={styles.subtitle}>
