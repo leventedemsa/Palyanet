@@ -10,7 +10,7 @@ export default function KapcsolatPage() {
         </p>
 
         <div className={styles.grid}>
-          {/* INFO PANEL */}
+          {/* INFO PANEL_ */}
           <div className={styles.panel}>
             <h3 className={styles.panelTitle}>Elérhetőségek</h3>
             <p className={styles.text}>
