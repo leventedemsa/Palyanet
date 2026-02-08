@@ -37,3 +37,65 @@ textarea,
 select {
   font-family: inherit;
 }
+
+/* ===== TÉMÁK ===== */
+
+/* Világos mód */
+html[data-theme="light"] {
+  --bg-main: #ffffff; /* Háttér */
+  --bg-glass: rgba(255, 255, 255, 0.9);
+  --bg-card: #ffefe8; /* Kártyák szine */
+
+  --text-main: #141a29;
+  --text-muted: #ca7026; /* ← ERŐSEBB, JÓL LÁTHATÓ (az eredeti nem látszodna)*/
+
+  --accent: #ec6e14;
+  --accent-hover: #fb923c;
+
+  --border-dark: rgba(0, 0, 0, 0.15);
+}
+
+
+/* ===== NAGY KONTRASZT ===== */
+html[data-theme="contrast"] {
+  --bg-main: #000000;
+  --bg-glass: #000000;
+  --bg-card: #000000;
+
+  --text-main: #ffffff;
+  --text-muted: #ffffff;
+
+  --accent: #ffff00;        /* élénk sárga hogy jobban látszodjon*/
+  --accent-hover: #ffff00;
+
+  --border-dark: #ffffff;
+
+  color-scheme: dark;
+}
+
+
+html[data-theme="contrast"] * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="contrast"] a {
+  color: #00ffff;
+  text-decoration: underline;
+  font-weight: 900;
+}
+
+html[data-theme="contrast"] button {
+  background: #000000;
+  color: #ffff00;
+  border: 3px solid #ffffff;
+  font-weight: 900;
+}
+
+html[data-theme="contrast"] .card,
+html[data-theme="contrast"] .panel {
+  background: #000000;
+  border: 3px solid #ffffff;
+}
+/* ===== TÉMÁK VÉGE===== */
