@@ -6,16 +6,23 @@
   padding: 2rem 1rem;
 }
 
+/* === UGYANAZ MINT CONTACT PANEL === */
 .card {
   width: 100%;
   max-width: 460px;
-  padding: 1.75rem 1.5rem;
+  padding: 1.6rem;
 
-  background: rgba(15, 22, 33, 0.75);
-  border: 1px solid rgba(255, 122, 24, 0.25);
-  border-radius: 12px;
+  background: linear-gradient(
+      180deg,
+      rgba(255, 122, 24, 0.06),
+      rgba(255, 122, 24, 0.01)
+    ),
+    var(--bg-card);
 
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 122, 24, 0.75);
+  border-radius: 18px;
+
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .title {
@@ -49,31 +56,40 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
+/* === EGYSÉGES INPUT DESIGN === */
 .input,
 .select {
-  height: 42px;
-  padding: 0 0.9rem;
-
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.6rem 0.75rem;
 
   color: var(--text-main);
+  font-family: inherit;
   outline: none;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
 .input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
 }
 
 .input:focus,
 .select:focus {
-  border-color: rgba(255, 122, 24, 0.55);
-  box-shadow: 0 0 0 3px rgba(255, 122, 24, 0.12);
+  border-color: rgba(255, 122, 24, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(255, 122, 24, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 
-/* REGISZTRACIO GOMB  */
+/* === BUTTON === */
 .registerButton {
+  margin-top: 0.5rem;
+
   background: rgba(255, 122, 24, 0.12);
   border: 1px solid rgba(255, 122, 24, 0.45);
   border-radius: 12px;
@@ -82,13 +98,11 @@
   color: var(--text-main);
   font-weight: 700;
   cursor: pointer;
-  text-decoration: none;
 
   transition:
     background-color 160ms ease,
     border-color 160ms ease,
-    transform 120ms ease,
-    box-shadow 160ms ease;
+    transform 120ms ease;
 }
 
 .registerButton:hover {
@@ -100,10 +114,7 @@
 
 .registerButton:active {
   transform: translateY(0);
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
 }
-
-
 
 .footerRow {
   margin-top: 1rem;
