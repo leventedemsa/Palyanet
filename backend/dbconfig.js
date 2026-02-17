@@ -6,10 +6,11 @@ const config = {
     password: process.env.DB_PASSWORD,
     server: process.env.DB_SERVER,
     database: process.env.DB_NAME,
-    port: parseInt(process.env.DB_PORT, 10),
+    port: parseInt(process.env.DB_PORT),
     options: {
         encrypt: false,
         enableArithAbort: true,
+        TrustServerCertificate: true,
     },
 };
 module.exports = config;

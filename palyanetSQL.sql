@@ -97,3 +97,36 @@ CREATE TABLE Log (
     CONSTRAINT FK_Log_Felhasznalo FOREIGN KEY (felhasznalo_id)
         REFERENCES Felhasznalok(felhasznalo_id)
 );
+
+INSERT INTO Felhasznalok (nev, email, jelszo_hash, telefon, szerep, profil_kep_url, utoljara_belepett, aktiv)
+VALUES
+(
+    N'Kovács Péter',
+    N'peter.kovacs@email.com',
+    N'$2b$10$examplehash1',
+    N'+36301234567',
+    N'tulajdonos',
+    N'https://example.com/profilok/peter.jpg',
+    SYSDATETIME(),
+    1
+),
+(
+    N'Nagy Anna',
+    N'anna.nagy@email.com',
+    N'$2b$10$examplehash2',
+    N'+36309876543',
+    N'berlo',
+    N'https://example.com/profilok/anna.jpg',
+    SYSDATETIME(),
+    1
+),
+(
+    N'Szabó Márk',
+    N'mark.szabo@email.com',
+    N'$2b$10$examplehash3',
+    N'+36305551234',
+    N'admin',
+    N'https://example.com/profilok/mark.jpg',
+    NULL,
+    1
+);
