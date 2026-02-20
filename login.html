@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="hu" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pályanet - Bejelentkezés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      [data-bs-theme="dark"] body.bg-body-secondary {
+        background-color: #0f1216 !important;
+      }
+      [data-bs-theme="dark"] .bg-light-subtle {
+        background-color: #141922 !important;
+      }
+      [data-bs-theme="dark"] .bg-body-tertiary {
+        background-color: #151a22 !important;
+      }
+      [data-bs-theme="dark"] .border {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+      [data-bs-theme="dark"] .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+    </style>
+  </head>
+
+  <body class="bg-body-secondary d-flex flex-column min-vh-100">
+    <header>
+      <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
+        <div class="container">
+          <a class="navbar-brand fw-bold" href="/">
+            <img src="/palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
+            Pályanet
+          </a>
+
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto align-items-lg-center gap-2">
+              <a class="nav-link" href="/contact.html">Kapcsolat</a>
+              <a class="nav-link" href="/register.html">Regisztráció</a>
+
+              <div class="nav-item ms-lg-2">
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container py-5 flex-fill">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+          <section class="rounded-4 p-4 p-md-5 bg-body-tertiary border shadow-sm">
+            <h1 class="h4 fw-bold mb-4 text-center">Bejelentkezés</h1>
+
+            <form class="needs-validation" novalidate>
+              <div class="mb-3">
+                <label for="identifier" class="form-label">Email cím vagy felhasználónév</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="identifier"
+                  name="identifier"
+                  placeholder="example@gmail.com vagy johndoe"
+                  autocomplete="username"
+                  required
+                />
+                <div class="invalid-feedback">Kérlek add meg az email címedet vagy a felhasználónevedet.</div>
+              </div>
+
+              <div class="mb-3">
+                <label for="password" class="form-label">Jelszó</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  required
+                />
+                <div class="invalid-feedback">Kérlek add meg a jelszavad.</div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" />
+                  <label class="form-check-label" for="rememberMe">Emlékezz rám</label>
+                </div>
+
+                <a href="/forgot-password.html" class="link-opacity-75 text-decoration-none"> Elfelejtetted a jelszavad? </a>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100">Bejelentkezés</button>
+            </form>
+
+            <div class="text-center mt-3 small">
+              Nincs még fiókod?
+              <a href="/register.html" class="link-opacity-75">Regisztrálj</a>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-light-subtle text-center py-4 mt-5">
+      <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const htmlEl = document.documentElement;
+      const btn = document.getElementById("themeToggle");
+
+      function setTheme(theme) {
+        htmlEl.setAttribute("data-bs-theme", theme);
+        localStorage.setItem("theme", theme);
+
+        if (theme === "dark") {
+          btn.textContent = "☀️ Light";
+          btn.classList.remove("btn-outline-secondary");
+          btn.classList.add("btn-outline-light");
+        } else {
+          btn.textContent = "🌙 Dark";
+          btn.classList.remove("btn-outline-light");
+          btn.classList.add("btn-outline-secondary");
+        }
+      }
+
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(saved ?? (prefersDark ? "dark" : "light"));
+
+      btn.addEventListener("click", () => {
+        const current = htmlEl.getAttribute("data-bs-theme") || "light";
+        setTheme(current === "dark" ? "light" : "dark");
+      });
+    </script>
+
+    <!-- Bootstrap form validáció -->
+    <script>
+      (() => {
+        "use strict";
+        const forms = document.querySelectorAll(".needs-validation");
+        Array.from(forms).forEach((form) => {
+          form.addEventListener(
+            "submit",
+            (event) => {
+              if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+              }
+              form.classList.add("was-validated");
+            },
+            false,
+          );
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="hu" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pályanet</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+      [data-bs-theme="dark"] body.bg-body-secondary {
+        background-color: #0f1216 !important;
+      }
+
+      [data-bs-theme="dark"] .bg-light-subtle {
+        background-color: #141922 !important;
+      }
+
+      [data-bs-theme="dark"] .bg-body-tertiary {
+        background-color: #151a22 !important;
+      }
+
+      [data-bs-theme="dark"] .border {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+
+      [data-bs-theme="dark"] .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+    </style>
+  </head>
+
+  <body class="bg-body-secondary d-flex flex-column min-vh-100">
+    <header>
+      <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
+        <div class="container">
+          <a class="navbar-brand fw-bold" href="#">
+            <img src="/palyanetlogo.png" alt="Logo" width="30" height="24" class="me-2" />
+            Pályanet
+          </a>
+
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto align-items-lg-center gap-2">
+              <a class="nav-link" href="/contact.html">Kapcsolat</a>
+              <a class="nav-link" href="/login.html">Bejelentkezés</a>
+
+              <div class="nav-item ms-lg-2">
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="container py-5 flex-fill">
+      <section class="rounded-4 p-4 p-md-5 bg-body-tertiary border shadow-sm">
+        <div class="row justify-content-center text-center">
+          <div class="col-lg-8">
+            <h1 class="display-5 fw-bold mb-3">Pályanet</h1>
+            <p class="lead mb-4">
+              Webes sportpálya-foglaló rendszer, amely összeköti a pályatulajdonosokat és a bérlőket. Átlátható keresés, egyszerű foglalás
+              és gyors visszajelzés – egy helyen.
+            </p>
+
+            <div class="d-flex flex-column align-items-center gap-3">
+              <span class="text-body-secondary">Jelentkezz most:</span>
+              <a href="/register.html" class="btn btn-success btn-lg"> Regisztráció </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-5">
+        <div class="text-center mb-4">
+          <h2 class="h3 fw-bold">Miről szól a Pályanet?</h2>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h5 fw-semibold">A probléma</h3>
+                <p class="mb-0">
+                  A sportpályák bérlése gyakran széttagolt: különböző felületeken, nehezen összehasonlítható információkkal és bonyolult
+                  időpont-egyeztetéssel működik. A Pályanet célja, hogy ezt egy egységes, magyar nyelvű, könnyen kezelhető rendszerben oldja
+                  meg.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h5 fw-semibold">A megoldás</h3>
+                <p class="mb-0">
+                  A bérlők egy felületen kereshetnek sportág, helyszín, ár és időpont alapján, majd lefoglalhatják a számukra megfelelő
+                  pályát. A pályatulajdonosok kezelhetik pályáikat, foglalásaikat és a naptárat, így a teljes folyamat átláthatóvá válik.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mt-5">
+        <div class="text-center mb-4">
+          <h2 class="h3 fw-bold">Fő funkciók</h2>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h6 fw-semibold mb-2">🔎 Keresés és szűrés</h3>
+                <p class="mb-0 text-body-secondary">Pályák böngészése sportág, helyszín, ár és időpont alapján – gyorsan, átláthatóan.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h6 fw-semibold mb-2">📅 Foglalás kezelése</h3>
+                <p class="mb-0 text-body-secondary">Szabad idősáv kiválasztása, foglalás leadása, státusz követése.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h6 fw-semibold mb-2">🏟️ Pályaadatlapok</h3>
+                <p class="mb-0 text-body-secondary">Részletes információk: helyszín, sportág, ár és elérhetőség.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm">
+              <div class="card-body">
+                <h3 class="h6 fw-semibold mb-2">🔔 Értesítések</h3>
+                <p class="mb-0 text-body-secondary">Visszajelzés foglalásról és változásokról – később akár emailben is.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-light-subtle text-center py-4 mt-5">
+      <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const htmlEl = document.documentElement;
+      const btn = document.getElementById("themeToggle");
+
+      function setTheme(theme) {
+        htmlEl.setAttribute("data-bs-theme", theme);
+        localStorage.setItem("theme", theme);
+
+        if (theme === "dark") {
+          btn.textContent = "☀️ Light";
+          btn.classList.remove("btn-outline-secondary");
+          btn.classList.add("btn-outline-light");
+        } else {
+          btn.textContent = "🌙 Dark";
+          btn.classList.remove("btn-outline-light");
+          btn.classList.add("btn-outline-secondary");
+        }
+      }
+
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(saved ?? (prefersDark ? "dark" : "light"));
+
+      btn.addEventListener("click", () => {
+        const current = htmlEl.getAttribute("data-bs-theme") || "light";
+        setTheme(current === "dark" ? "light" : "dark");
+      });
+    </script>
+  </body>
+</html>
