@@ -1,64 +1,323 @@
-<!DOCTYPE html>
-<html lang="hu">
-<head>
-  <meta charset="UTF-8" />
-  <title>Pályák</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
+<!doctype html>
+<html lang="hu" data-bs-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pályanet - Pályák</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <h1>Pályák</h1>
+    <style>
+      [data-bs-theme="dark"] body.bg-body-secondary {
+        background-color: #0f1216 !important;
+      }
+      [data-bs-theme="dark"] .bg-light-subtle {
+        background-color: #141922 !important;
+      }
+      [data-bs-theme="dark"] .bg-body-tertiary {
+        background-color: #151a22 !important;
+      }
+      [data-bs-theme="dark"] .border {
+        border-color: rgba(255, 255, 255, 0.12) !important;
+      }
+      [data-bs-theme="dark"] .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.25);
+      }
 
-  <!-- SZŰRŐK -->
-  <div class="filters">
-    <select>
-      <option>Sportág</option>
-      <option>Foci</option>
-      <option>Tenisz</option>
-      <option>Kosár</option>
-    </select>
+      .palya-card {
+        height: 100%;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
 
-    <input type="text" placeholder="Helyszín" />
+      .palya-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+      }
 
-    <input type="number" placeholder="Max ár" />
+      .palya-card img {
+        height: 200px;
+        object-fit: cover;
+      }
 
-    <input type="date" />
+      .palya-info {
+        padding: 1.25rem;
+      }
 
-    <button>Keresés</button>
-  </div>
+      .palya-badge {
+        display: inline-block;
+        margin: 0.5rem 0;
+      }
 
-  <hr />
+      .palya-meta {
+        font-size: 0.95rem;
+        margin: 0.5rem 0;
+        color: #6c757d;
+      }
 
-  <!-- KÁRTYÁK -->
-  <div class="cards">
+      [data-bs-theme="dark"] .palya-meta {
+        color: #adb5bd;
+      }
 
-    <div class="card">
-      <img src="palyanetlogo.png" alt="pálya" width="200" />
+      .palya-owner {
+        margin-top: 1rem;
+        font-weight: 500;
+        border-top: 1px solid #dee2e6;
+        padding-top: 1rem;
+      }
 
-      <h3>Városi Focipálya</h3>
-      <span class="badge">Foci</span>
+      [data-bs-theme="dark"] .palya-owner {
+        border-color: rgba(255, 255, 255, 0.12);
+      }
+    </style>
+  </head>
 
-      <p>📍 Budapest</p>
-      <p>💰 8000 Ft / óra</p>
-      <p>👤 Tulaj: Kovács Béla</p>
+  <body class="bg-body-secondary d-flex flex-column min-vh-100">
+    <header>
+      <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
+        <div class="container">
+          <a class="navbar-brand fw-bold" href="/Palyanet/index.html">
+            <img src="/Palyanet/palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
+            Pályanet
+          </a>
 
-      <button>Részletek</button>
-    </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-    <div class="card">
-      <img src="palyanetlogo.png" alt="pálya" width="200" />
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto align-items-lg-center gap-2">
+              <a class="nav-link active" href="/Palyanet/palyak.html">Pályák</a>
+              <a class="nav-link" href="/Palyanet/contact.html">Kapcsolat</a>
+              <a class="nav-link" href="/Palyanet/login.html">Bejelentkezés</a>
 
-      <h3>Tenisz Center</h3>
-      <span class="badge">Tenisz</span>
+              <div class="nav-item ms-lg-2">
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
 
-      <p>📍 Győr</p>
-      <p>💰 6000 Ft / óra</p>
-      <p>👤 Tulaj: Nagy Anna</p>
+    <main class="container py-5 flex-fill">
+      <!-- SZŰRŐ SZAKASZ -->
+      <section class="mb-5">
+        <h1 class="h3 fw-bold mb-4">Pályák keresése</h1>
 
-      <button>Részletek</button>
-    </div>
+        <div class="rounded-4 p-4 bg-body-tertiary border shadow-sm">
+          <form class="row g-3">
+            <div class="col-md-3">
+              <label for="sportag" class="form-label">Sportág</label>
+              <select class="form-select" id="sportag">
+                <option selected value="">Összes</option>
+                <option value="foci">Foci</option>
+                <option value="tenisz">Tenisz</option>
+                <option value="kosar">Kosárlabda</option>
+                <option value="badminton">Badminton</option>
+                <option value="squash">Squash</option>
+              </select>
+            </div>
 
-  </div>
+            <div class="col-md-3">
+              <label for="helyszin" class="form-label">Helyszín</label>
+              <input type="text" class="form-control" id="helyszin" placeholder="pl. Budapest" />
+            </div>
 
-</body>
+            <div class="col-md-2">
+              <label for="maxar" class="form-label">Max ár/óra</label>
+              <input type="number" class="form-control" id="maxar" placeholder="Ft" min="0" />
+            </div>
+
+            <div class="col-md-2">
+              <label for="datum" class="form-label">Dátum</label>
+              <input type="date" class="form-control" id="datum" />
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn btn-primary w-100">Keresés</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- KÁRTYÁK SZAKASZ -->
+      <section>
+        <div class="row g-4">
+          <!-- KÁRTYA 1 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Városi Focipálya" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Városi Focipálya</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-success">Foci</span>
+                </div>
+
+                <p class="palya-meta">📍 Budapest, VIII. kerület</p>
+                <p class="palya-meta">💰 8000 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Kovács Béla</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KÁRTYA 2 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Tenisz Center" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Tenisz Center Győr</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-info">Tenisz</span>
+                </div>
+
+                <p class="palya-meta">📍 Győr, Belváros</p>
+                <p class="palya-meta">💰 6000 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Nagy Anna</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KÁRTYA 3 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Kosárlabda Pálya" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Kosárlabda Pálya</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-warning">Kosárlabda</span>
+                </div>
+
+                <p class="palya-meta">📍 Debrecen, Centrum</p>
+                <p class="palya-meta">💰 5500 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Szabó Péter</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KÁRTYA 4 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Badminton Club" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Badminton Club</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-danger">Badminton</span>
+                </div>
+
+                <p class="palya-meta">📍 Szeged, Downtown</p>
+                <p class="palya-meta">💰 4000 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Tóth Márta</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KÁRTYA 5 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Squash Court" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Premier Squash Court</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-secondary">Squash</span>
+                </div>
+
+                <p class="palya-meta">📍 Budapest, VI. kerület</p>
+                <p class="palya-meta">💰 7000 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Juhász Ferenc</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- KÁRTYA 6 -->
+          <div class="col-md-6 col-lg-4">
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="/Palyanet/palyanetlogo.png" class="card-img-top" alt="Foci Akadémia" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">Foci Akadémia</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-success">Foci</span>
+                </div>
+
+                <p class="palya-meta">📍 Kecskemét, Sportpark</p>
+                <p class="palya-meta">💰 6500 Ft / óra</p>
+
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">Horváth Gábor</p>
+                </div>
+
+                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-light-subtle text-center py-4 mt-5">
+      <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const htmlEl = document.documentElement;
+      const btn = document.getElementById("themeToggle");
+
+      function setTheme(theme) {
+        htmlEl.setAttribute("data-bs-theme", theme);
+        localStorage.setItem("theme", theme);
+
+        if (theme === "dark") {
+          btn.textContent = "☀️ Light";
+          btn.classList.remove("btn-outline-secondary");
+          btn.classList.add("btn-outline-light");
+        } else {
+          btn.textContent = "🌙 Dark";
+          btn.classList.remove("btn-outline-light");
+          btn.classList.add("btn-outline-secondary");
+        }
+      }
+
+      const saved = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(saved ?? (prefersDark ? "dark" : "light"));
+
+      btn.addEventListener("click", () => {
+        const current = htmlEl.getAttribute("data-bs-theme") || "light";
+        setTheme(current === "dark" ? "light" : "dark");
+      });
+    </script>
+  </body>
 </html>
