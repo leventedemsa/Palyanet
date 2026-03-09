@@ -1,31 +1,29 @@
 **TODO:**
 
-***1) forgot_password.html***
-- Cél: egyszerű “Jelszó visszaállítás” oldal, ahol emailt kérünk és van egy visszalépés a loginra.
-
-***2) user_profile.html***
+***1) user_profile.html (Kornél)***
 - Cél: bejelentkezés után a navbar jobb oldalán legyen egy “Profil” (vagy user ikon), arra katt → user_profile.html.
 - Itt legyen két opció:
 - Kijelentkezés
 - user_profile.html-be belemenni és ott ki írni a profil adatokat.
- 
-***3) palyak.html***
-- Cél: “Pályák” listázó oldal.
 
-Tartalom:
-- Oldalcím: “Pályák”
-- Szűrők (még csak UI):
-- Sportág (select)
-- Helyszín (input)
-- Ár max (select / input)
-- Dátum (input type=date)
-- Keresés gomb
+***2) redesign az összes weboldalra (Kornél) KÉSŐBB***
+- Tisztább modern kinézek, egységes minden oldalon.
 
-Kártyák:
-- Pálya neve
-- Sportág badge
+
+***3) Bejelentkezés + Regisztráció Autentikáció (Levente)***
+- Alap Bejelentkezés (GET)
+- Alap Regisztrálás (POST)
+
+***3)Kártya szűrő megcsinálása (Kornél)***
+Pályák szűrése:
+- Sportág
 - Helyszín
-- Ár / óra
-- Egy kép a pályáról
-- Alján a Tulajdonos neve
-- “Részletek” gomb (később mehet palya.html??)
+- Ár/óra
+- Dátum alapján
+
+***4) Kártya hozzádadása gombbal (Kornél)***
+- Kártya létrehozása, és adatbázisba feladása
+
+***5) Bejelentkezés utáni funkcionalitás(Levente)***
+- Bejelentkezés után jelenjen meg a Pályák opció a navbarban
+- Bejelentkezés után Jelenjen meg a Profil opció (ott lehessen kijelentkezni, és belépni a Profilodba)
