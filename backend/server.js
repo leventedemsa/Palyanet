@@ -15,6 +15,7 @@ app.get("/", (req, res) => {
   res.send("API működik");
 });
 
+// register
 app.post("/register", async (req, res) => {
   try {
     const {
@@ -98,6 +99,98 @@ app.post("/register", async (req, res) => {
   } catch (error) {
     console.error("Register hiba:", error);
     res.status(500).json({ message: "Szerverhiba történt." });
+  }
+});
+
+// login
+app.post("/login", async (req, res) => {
+  try {
+    const { identifier, password } = req.body;
+
+    if (!identifier || !password) {
+      return res.status(400).json({
+        message: "Az email/felhasználónév és a jelszó kötelező.",
+      });
+    }
+
+    const pool = await poolPromise;
+
+    const result = await pool
+      .request()
+      .input("identifier", sql.NVarChar(200), identifier)
+      .query(`
+        SELECT
+          felhasznalo_id,
+          username,
+          teljes_nev,
+          email,
+          jelszo_hash,
+          nem,
+          szerep,
+          aktiv
+        FROM Felhasznalok
+        WHERE email = @identifier OR username = @identifier
+      `);
+
+    const user = result.recordset[0];
+
+    if (!user) {
+      return res.status(401).json({
+        message: "Hibás belépési adatok.",
+      });
+    }
+
+    if (!user.aktiv) {
+      return res.status(403).json({
+        message: "Ez a fiók inaktív.",
+      });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, user.jelszo_hash);
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({
+        message: "Hibás belépési adatok.",
+      });
+    }
+
+    await pool
+      .request()
+      .input("felhasznalo_id", sql.Int, user.felhasznalo_id)
+      .query(`
+        UPDATE Felhasznalok
+        SET utoljara_belepett = SYSDATETIME()
+        WHERE felhasznalo_id = @felhasznalo_id
+      `);
+
+    const token = jwt.sign(
+      {
+        id: user.felhasznalo_id,
+        email: user.email,
+        username: user.username,
+        szerep: user.szerep,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    return res.json({
+      message: "Sikeres bejelentkezés.",
+      token,
+      user: {
+        felhasznalo_id: user.felhasznalo_id,
+        username: user.username,
+        teljes_nev: user.teljes_nev,
+        email: user.email,
+        nem: user.nem,
+        szerep: user.szerep,
+      },
+    });
+  } catch (error) {
+    console.error("Login hiba:", error);
+    return res.status(500).json({
+      message: "Szerverhiba történt.",
+    });
   }
 });
 

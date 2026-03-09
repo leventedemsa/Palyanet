@@ -58,7 +58,7 @@
           <section class="rounded-4 p-4 p-md-5 bg-body-tertiary border shadow-sm">
             <h1 class="h4 fw-bold mb-4 text-center">Bejelentkezés</h1>
 
-            <form class="needs-validation" novalidate>
+            <form id="loginForm" class="needs-validation" novalidate>
               <div class="mb-3">
                 <label for="identifier" class="form-label">Email cím vagy felhasználónév</label>
                 <input
@@ -143,25 +143,62 @@
       });
     </script>
 
-    <!-- Bootstrap form validáció -->
     <script>
-      (() => {
-        "use strict";
-        const forms = document.querySelectorAll(".needs-validation");
-        Array.from(forms).forEach((form) => {
-          form.addEventListener(
-            "submit",
-            (event) => {
-              if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-              }
-              form.classList.add("was-validated");
-            },
-            false,
-          );
+  (() => {
+    "use strict";
+
+    const form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (!form.checkValidity()) {
+        form.classList.add("was-validated");
+        return;
+      }
+
+      const identifier = document.getElementById("identifier").value.trim();
+      const password = document.getElementById("password").value;
+      const rememberMe = document.getElementById("rememberMe").checked;
+
+      try {
+        const response = await fetch("http://localhost:4000/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            identifier,
+            password,
+          }),
         });
-      })();
-    </script>
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.message || "Hibás bejelentkezés.");
+          return;
+        }
+
+        if (rememberMe) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+        } else {
+          sessionStorage.setItem("token", data.token);
+          sessionStorage.setItem("user", JSON.stringify(data.user));
+        }
+
+        alert("Sikeres bejelentkezés!");
+        window.location.href = "./index.html";
+      } catch (error) {
+        console.error("Login fetch hiba:", error);
+        alert("Nem sikerült kapcsolódni a szerverhez.");
+      }
+
+      form.classList.add("was-validated");
+    });
+  })();
+</script>
   </body>
 </html>
