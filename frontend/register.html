@@ -58,7 +58,7 @@
           <section class="rounded-4 p-4 p-md-5 bg-body-tertiary border shadow-sm">
             <h1 class="h4 fw-bold mb-4 text-center">Regisztráció</h1>
 
-            <form class="needs-validation" novalidate>
+            <form id="registerForm" class="needs-validation" novalidate>
               <div class="mb-3">
                 <label for="email" class="form-label">Email cím</label>
                 <input type="email" class="form-control" id="email" name="email" placeholder="example@gmail.com" required />
@@ -158,25 +158,65 @@
       });
     </script>
 
-    <!-- Bootstrap form validáció -->
-    <script>
-      (() => {
-        "use strict";
-        const forms = document.querySelectorAll(".needs-validation");
-        Array.from(forms).forEach((form) => {
-          form.addEventListener(
-            "submit",
-            (event) => {
-              if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-              }
-              form.classList.add("was-validated");
-            },
-            false,
-          );
-        });
-      })();
-    </script>
+   <script>
+  const registerForm = document.getElementById("registerForm");
+
+  registerForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const email = document.getElementById("email").value.trim();
+    const username = document.getElementById("username").value.trim();
+    const fullname = document.getElementById("fullname").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const gender = document.getElementById("gender").value;
+    const terms = document.getElementById("terms").checked;
+
+    if (!registerForm.checkValidity()) {
+      registerForm.classList.add("was-validated");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("A két jelszó nem egyezik.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:4000/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email,
+          username,
+          fullname,
+          password,
+          confirmPassword,
+          gender,
+          terms
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.message || "Hiba történt regisztráció közben.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      alert("Sikeres regisztráció!");
+      window.location.href = "./login.html";
+    } catch (error) {
+      console.error(error);
+      alert("Nem sikerült kapcsolódni a szerverhez.");
+    }
+  });
+</script>
   </body>
 </html>
