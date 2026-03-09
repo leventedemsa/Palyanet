@@ -1,0 +1,17 @@
+[33m1bb765d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mWIP[m[33m, [m[1;31morigin/WIP[m[33m)[m Auth modularis refaktor (login/register+szerepkor) frontend es backend-ben
+[33m9a53995[m autentikációs menü logika + szerepkör regisztrációnál
+[33mc98a00a[m Bejelentkezés rendszer hozzáadása
+[33m6e00115[m Regisztráció rendszer hozzáadása
+[33m1d28825[m Frissítve a TODO (Due: Márc 15)
+[33m44b44a3[m contact.html style fejlesztése és javitása
+[33mf3e5321[m index.html Bejelentkezés gomb style-ja light mod-ba javitva
+[33m91c22ac[m html oldalak kozotti univerzális linkek betéve (./), és index.html oldal modernizált style megcsinálva (dark és light módra optimalizálva)
+[33m4b25aba[m palyak.html added and updated
+[33mce2401d[m forgot-password.html added
+[33mf926d57[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Update README.md
+[33m7dcd736[m Add TODO section to README
+[33m088beda[m alap működő POST http kérés
+[33m6cda2f9[m mukodo get keres a backendbe (users tabla adatai)
+[33m54d625a[m fajl location fix + forgot-password.html
+[33mad3ed2b[m weboldal redesign struktura)
+[33m932db40[m Initial empty commit
