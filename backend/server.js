@@ -25,11 +25,17 @@ app.post("/register", async (req, res) => {
       password,
       confirmPassword,
       gender,
+      role,
       terms,
     } = req.body;
 
-    if (!email || !username || !fullname || !password || !confirmPassword) {
+    if (!email || !username || !fullname || !password || !confirmPassword || !role) {
       return res.status(400).json({ message: "Minden kötelező mezőt ki kell tölteni." });
+    }
+
+    const allowedRoles = ["palyatulajdonos", "berlo"];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Ervenytelen szerepkor." });
     }
 
     if (password !== confirmPassword) {
@@ -65,8 +71,9 @@ app.post("/register", async (req, res) => {
       .input("email", sql.NVarChar(200), email)
       .input("jelszo_hash", sql.NVarChar(300), passwordHash)
       .input("nem", sql.NVarChar(30), gender || null)
+      .input("szerep", sql.NVarChar(50), role)
       .query(`
-        INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, nem)
+        INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, nem, szerep)
         OUTPUT
           INSERTED.felhasznalo_id,
           INSERTED.username,
@@ -75,7 +82,7 @@ app.post("/register", async (req, res) => {
           INSERTED.nem,
           INSERTED.szerep,
           INSERTED.letrehozva
-        VALUES (@username, @teljes_nev, @email, @jelszo_hash, @nem)
+        VALUES (@username, @teljes_nev, @email, @jelszo_hash, @nem, @szerep)
       `);
 
     const user = result.recordset[0];

@@ -16,7 +16,7 @@ CREATE TABLE Felhasznalok (
     email NVARCHAR(200) NOT NULL UNIQUE,
     jelszo_hash NVARCHAR(300) NOT NULL,
     nem NVARCHAR(30) NULL,
-    szerep NVARCHAR(50) NOT NULL DEFAULT 'felhasznalo',
+    szerep NVARCHAR(50) NOT NULL DEFAULT 'berlo',
     profil_kep_url NVARCHAR(500) NULL,
     letrehozva DATETIME2(7) NOT NULL DEFAULT SYSDATETIME(),
     utoljara_belepett DATETIME2(7) NULL,
