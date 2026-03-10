@@ -249,6 +249,72 @@ footer {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
+.btn-accent {
+  background:linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+  border:none;
+  color:white;
+  font-weight:600;
+  padding:.8rem 2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 15px rgba(255,122,24,0.3);
+}
+
+.btn-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.2);
+  transition: left 0.4s ease;
+  z-index: 0;
+}
+
+.btn-accent:hover::before {
+  left: 100%;
+}
+
+.btn-accent:hover{
+  background:linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%);
+  transform:translateY(-4px);
+  box-shadow:0 15px 40px rgba(255,122,24,.5), 0 0 20px rgba(255,122,24,.3);
+}
+
+[data-bs-theme="dark"] .modal-content {
+  background: #11151d;
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+[data-bs-theme="dark"] .modal-header,
+[data-bs-theme="dark"] .modal-footer {
+  border-color: rgba(255,255,255,.06);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background: #0b0d12;
+  border-color: rgba(255,122,24,0.3);
+  color: #e8e8e8;
+}
+
+[data-bs-theme="dark"] .form-select option {
+  background: #1a1f2e;
+  color: #e8e8e8;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  border-color: var(--accent);
+  background: #0b0d12;
+  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.35);
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -270,7 +336,7 @@ footer {
     </style>
   </head>
 
-  <body class="bg-body-secondary d-flex flex-column min-vh-100">
+  <body class="d-flex flex-column min-vh-100" style="background:linear-gradient(135deg, rgba(255,122,24,0.08) 0%, transparent 50%);">
     <header>
       <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
         <div class="container">
@@ -309,11 +375,11 @@ footer {
               <label for="sportag" class="form-label">Sportág</label>
               <select class="form-select" id="sportag">
                 <option selected value="">Összes</option>
-                <option value="foci">Foci</option>
-                <option value="tenisz">Tenisz</option>
-                <option value="kosar">Kosárlabda</option>
-                <option value="badminton">Badminton</option>
-                <option value="squash">Squash</option>
+                <option value="Foci">Foci</option>
+                <option value="Tenisz">Tenisz</option>
+                <option value="Kosárlabda">Kosárlabda</option>
+                <option value="Badminton">Badminton</option>
+                <option value="Squash">Squash</option>
               </select>
             </div>
 
@@ -332,8 +398,14 @@ footer {
               <input type="date" class="form-control" id="datum" />
             </div>
 
-            <div class="col-md-2 d-flex align-items-end">
-              <button type="button" class="btn btn-primary w-100">Keresés</button>
+            <div class="col-md-2">
+              <label for="placeholder" class="form-label">&nbsp;</label>
+              <button type="button" class="btn btn-accent w-100" id="keresesBtn">Keresés</button>
+            </div>
+
+            <div class="col-md-2">
+              <label for="placeholder2" class="form-label">&nbsp;</label>
+              <button type="button" class="btn btn-accent w-100" id="ujPaylaBtn" data-bs-toggle="modal" data-bs-target="#ujPalyaModal">➕ Új pálya</button>
             </div>
           </form>
         </div>
@@ -341,147 +413,85 @@ footer {
 
       <!-- KÁRTYÁK SZAKASZ -->
       <section>
-        <div class="row g-4">
-          <!-- KÁRTYA 1 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Városi Focipálya" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Városi Focipálya</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-success">Foci</span>
-                </div>
-
-                <p class="palya-meta">📍 Budapest, VIII. kerület</p>
-                <p class="palya-meta">💰 8000 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Kovács Béla</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- KÁRTYA 2 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Tenisz Center" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Tenisz Center Győr</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-info">Tenisz</span>
-                </div>
-
-                <p class="palya-meta">📍 Győr, Belváros</p>
-                <p class="palya-meta">💰 6000 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Nagy Anna</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- KÁRTYA 3 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Kosárlabda Pálya" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Kosárlabda Pálya</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-warning">Kosárlabda</span>
-                </div>
-
-                <p class="palya-meta">📍 Debrecen, Centrum</p>
-                <p class="palya-meta">💰 5500 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Szabó Péter</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- KÁRTYA 4 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Badminton Club" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Badminton Club</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-danger">Badminton</span>
-                </div>
-
-                <p class="palya-meta">📍 Szeged, Downtown</p>
-                <p class="palya-meta">💰 4000 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Tóth Márta</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- KÁRTYA 5 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Squash Court" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Premier Squash Court</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-secondary">Squash</span>
-                </div>
-
-                <p class="palya-meta">📍 Budapest, VI. kerület</p>
-                <p class="palya-meta">💰 7000 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Juhász Ferenc</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- KÁRTYA 6 -->
-          <div class="col-md-6 col-lg-4">
-            <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="./palyanetlogo.png" class="card-img-top" alt="Foci Akadémia" />
-              <div class="palya-info">
-                <h5 class="card-title fw-bold">Foci Akadémia</h5>
-                <div class="palya-badge">
-                  <span class="badge bg-success">Foci</span>
-                </div>
-
-                <p class="palya-meta">📍 Kecskemét, Sportpark</p>
-                <p class="palya-meta">💰 6500 Ft / óra</p>
-
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">Horváth Gábor</p>
-                </div>
-
-                <button class="btn btn-outline-primary w-100 mt-3">Részletek</button>
-              </div>
-            </div>
-          </div>
+        <div class="row g-4" id="palyakContainer">
+          <!-- Dinamikus pályák ide kerülnek -->
         </div>
       </section>
+
     </main>
+
+    <!-- ===== ÚJ PÁLYA MODAL ===== -->
+    <div class="modal fade" id="ujPalyaModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Új pálya hozzáadása</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <form id="ujPalyaForm">
+              <div class="mb-3">
+                <label for="modalNev" class="form-label">Pálya neve *</label>
+                <input type="text" class="form-control" id="modalNev" required />
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="modalSportag" class="form-label">Sportág *</label>
+                  <select class="form-select" id="modalSportag" required>
+                    <option selected value="">Válassz sportágat</option>
+                    <option value="Foci">Foci</option>
+                    <option value="Tenisz">Tenisz</option>
+                    <option value="Kosárlabda">Kosárlabda</option>
+                    <option value="Badminton">Badminton</option>
+                    <option value="Squash">Squash</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="modalHelyszin" class="form-label">Helyszín *</label>
+                  <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required />
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="modalAr" class="form-label">Ár/óra (Ft) *</label>
+                  <input type="number" class="form-control" id="modalAr" min="0" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="modalKepUrl" class="form-label">Kép URL</label>
+                  <input type="url" class="form-control" id="modalKepUrl" />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="modalLeiras" class="form-label">Leírás</label>
+                <textarea class="form-control" id="modalLeiras" rows="3"></textarea>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="modalNyitas" class="form-label">Nyitás</label>
+                  <input type="time" class="form-control" id="modalNyitas" value="08:00" />
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="modalZaras" class="form-label">Zárás</label>
+                  <input type="time" class="form-control" id="modalZaras" value="20:00" />
+                </div>
+              </div>
+
+              <div class="alert alert-info">
+                <small>* Kötelező mezők</small>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+            <button type="button" class="btn btn-accent" id="ujPalyaKuldBtn">Hozzáadás</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <footer class="bg-light-subtle text-center py-4 mt-5">
       <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
@@ -517,6 +527,124 @@ footer {
         const current = htmlEl.getAttribute("data-bs-theme") || "light";
         setTheme(current === "dark" ? "light" : "dark");
       });
+
+      // ===== PÁLYÁK KEZELÉS =====
+      const API_URL = "http://localhost:4000/api/palyak";
+      const container = document.getElementById("palyakContainer");
+
+      // Pályák megjelenítése
+      function renderPalyak(palyak) {
+        container.innerHTML = "";
+        
+        if (palyak.length === 0) {
+          container.innerHTML = '<div class="col-12"><p class="text-center text-body-secondary">Nincsenek találatok</p></div>';
+          return;
+        }
+
+        palyak.forEach(palya => {
+          const card = document.createElement("div");
+          card.className = "col-md-6 col-lg-4";
+          card.innerHTML = `
+            <div class="card palya-card bg-body-tertiary border shadow-sm">
+              <img src="${palya.kep_url || './palyanetlogo.png'}" class="card-img-top" alt="${palya.nev}" style="height:200px; object-fit:cover;" />
+              <div class="palya-info">
+                <h5 class="card-title fw-bold">${palya.nev}</h5>
+                <div class="palya-badge">
+                  <span class="badge bg-primary">${palya.sportag}</span>
+                </div>
+                <p class="palya-meta">📍 ${palya.helyszin}</p>
+                <p class="palya-meta">💰 ${palya.ar_ora} Ft / óra</p>
+                <div class="palya-owner">
+                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
+                  <p class="mb-0 fw-semibold">${palya.teljes_nev || palya.username}</p>
+                </div>
+                <button class="btn btn-accent w-100 mt-3" onclick="alert('Foglalás hamarosan elérhető')">📅 Foglalás</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // Pályák betöltése az API-ról
+      async function loadPalyak(filters = {}) {
+        try {
+          const params = new URLSearchParams();
+          if (filters.sportag) params.append("sportag", filters.sportag);
+          if (filters.helyszin) params.append("helyszin", filters.helyszin);
+          if (filters.maxar) params.append("maxar", filters.maxar);
+
+          const response = await fetch(`${API_URL}?${params}`);
+          const palyak = await response.json();
+          renderPalyak(palyak);
+        } catch (error) {
+          console.error("Pályák betöltési hiba:", error);
+          container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Betöltési hiba</p></div>';
+        }
+      }
+
+      // Szűrő gomb
+      document.getElementById("keresesBtn").addEventListener("click", () => {
+        const filters = {
+          sportag: document.getElementById("sportag").value,
+          helyszin: document.getElementById("helyszin").value,
+          maxar: document.getElementById("maxar").value
+        };
+        loadPalyak(filters);
+      });
+
+      // Új pálya hozzáadása
+      document.getElementById("ujPalyaKuldBtn").addEventListener("click", async () => {
+        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+        
+        if (!user) {
+          alert("Bejelentkezés szükséges!");
+          window.location.href = "./login.html";
+          return;
+        }
+
+        console.log("User objektum:", user);
+
+        const formData = {
+          tulaj_id: user.felhasznalo_id || 1,
+          nev: document.getElementById("modalNev").value,
+          sportag: document.getElementById("modalSportag").value,
+          helyszin: document.getElementById("modalHelyszin").value,
+          ar_ora: parseInt(document.getElementById("modalAr").value),
+          leiras: document.getElementById("modalLeiras").value,
+          kep_url: document.getElementById("modalKepUrl").value,
+          nyitas: document.getElementById("modalNyitas").value,
+          zaras: document.getElementById("modalZaras").value
+        };
+
+        console.log("Küldött adatok:", formData);
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+          });
+
+          const responseData = await response.json();
+          console.log("API válasz:", responseData);
+
+          if (response.ok) {
+            alert("Pálya sikeresen hozzáadva!");
+            document.getElementById("ujPalyaForm").reset();
+            bootstrap.Modal.getInstance(document.getElementById("ujPalyaModal")).hide();
+            loadPalyak();
+          } else {
+            alert("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
+          }
+        } catch (error) {
+          console.error("Hiba:", error);
+          alert("Szövegalkalmazás hiba: " + error.message);
+        }
+      });
+
+      // Kezdeti betöltés
+      loadPalyak();
     </script>
   </body>
 </html>

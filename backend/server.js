@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
+const palyaRoutes = require("./routes/palyaRoutes");
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/auth", authRoutes);
+app.use("/api/palyak", palyaRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

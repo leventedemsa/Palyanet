@@ -490,6 +490,8 @@ footer {
 
       // Register endpoint currently returns user data without JWT; login page handles token creation.
 
+      localStorage.setItem("user", JSON.stringify(data.user));
+      
       alert("Sikeres regisztráció!");
       window.location.href = "./login.html";
     } catch (error) {
