@@ -108,8 +108,10 @@
 
     const palyakLink = findLink(menu, "palyak.html") || createLink("palyak.html", "Palyak");
     const contactLink = findLink(menu, "contact.html");
+    const profileLink = findLink(menu, "user_profile.html") || createLink("user_profile.html", "👤 Profil");
 
     palyakLink.classList.toggle("active", isCurrentPage("palyak.html"));
+    profileLink.classList.toggle("active", isCurrentPage("user_profile.html"));
     if (contactLink) {
       contactLink.classList.toggle("active", isCurrentPage("contact.html"));
     }
@@ -119,32 +121,15 @@
       if (contactLink) {
         menu.insertBefore(contactLink, themeItem);
       }
+      menu.insertBefore(profileLink, themeItem);
     } else {
       menu.appendChild(palyakLink);
       if (contactLink) {
         menu.appendChild(contactLink);
       }
+      menu.appendChild(profileLink);
     }
 
-    const logoutButton = document.createElement("button");
-    logoutButton.type = "button";
-    logoutButton.className = "nav-link btn btn-link p-0 border-0";
-    logoutButton.textContent = "Kijelentkezes";
-    logoutButton.setAttribute("data-auth-nav", "logout");
-    logoutButton.addEventListener("click", () => {
-      clearAuthStorage();
-      window.location.replace("./index.html");
-    });
 
-    const logoutItem = document.createElement("div");
-    logoutItem.className = "nav-item";
-    logoutItem.setAttribute("data-auth-nav", "logout");
-    logoutItem.appendChild(logoutButton);
-
-    if (themeItem) {
-      menu.insertBefore(logoutItem, themeItem);
-    } else {
-      menu.appendChild(logoutItem);
-    }
   });
 })();
