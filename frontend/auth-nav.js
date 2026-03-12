@@ -108,12 +108,57 @@
 
     const palyakLink = findLink(menu, "palyak.html") || createLink("palyak.html", "Palyak");
     const contactLink = findLink(menu, "contact.html");
+    const bookingsLink = findLink(menu, "bookings.html") || createLink("bookings.html", "📋 Foglalások");
     const profileLink = findLink(menu, "user_profile.html") || createLink("user_profile.html", "👤 Profil");
 
     palyakLink.classList.toggle("active", isCurrentPage("palyak.html"));
+    bookingsLink.classList.toggle("active", isCurrentPage("bookings.html"));
     profileLink.classList.toggle("active", isCurrentPage("user_profile.html"));
     if (contactLink) {
       contactLink.classList.toggle("active", isCurrentPage("contact.html"));
+    }
+
+    // Hide 'Foglalások' menu item for renters
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.szerep === "berlo") {
+      // Do not add bookingsLink to menu
+    } else {
+      if (themeItem) {
+        menu.insertBefore(bookingsLink, themeItem);
+      } else {
+        menu.appendChild(bookingsLink);
+      }
+    }
+
+    // Add badge to Foglalások menu for owners
+    if (user && user.szerep === "palyatulajdonos") {
+      bookingsLink.innerHTML += ' <span id="bookingsBadge" style="display:none;background:#d32f2f;color:white;border-radius:50%;padding:0 7px;font-size:0.9em;vertical-align:middle;margin-left:4px;">0</span>';
+      // Fetch unread count and update badge
+      fetch(`http://localhost:4000/api/notifications/unread-count/${user.felhasznalo_id}`)
+        .then(res => res.json())
+        .then(data => {
+          const badge = document.getElementById("bookingsBadge");
+          if (data.count > 0) {
+            badge.textContent = data.count;
+            badge.style.display = "inline-block";
+          } else {
+            badge.style.display = "none";
+          }
+        });
+      // Optionally, setInterval for auto-refresh
+      setInterval(() => {
+        fetch(`http://localhost:4000/api/notifications/unread-count/${user.felhasznalo_id}`)
+          .then(res => res.json())
+          .then(data => {
+            const badge = document.getElementById("bookingsBadge");
+            if (data.count > 0) {
+              badge.textContent = data.count;
+              badge.style.display = "inline-block";
+            } else {
+              badge.style.display = "none";
+            }
+          });
+      }, 5000);
     }
 
     if (themeItem) {
@@ -121,12 +166,14 @@
       if (contactLink) {
         menu.insertBefore(contactLink, themeItem);
       }
+      menu.insertBefore(bookingsLink, themeItem);
       menu.insertBefore(profileLink, themeItem);
     } else {
       menu.appendChild(palyakLink);
       if (contactLink) {
         menu.appendChild(contactLink);
       }
+      menu.appendChild(bookingsLink);
       menu.appendChild(profileLink);
     }
 

@@ -333,6 +333,118 @@ footer {
   background: linear-gradient(180deg, var(--accent-soft), var(--accent));
 }
 
+/* Notification Styles */
+.notification-icon {
+  position: relative;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: all 0.3s ease;
+}
+
+.notification-icon:hover {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid rgba(255,122,24,0.2);
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  margin-top: 10px;
+}
+
+.notification-dropdown.show {
+  display: block;
+  animation: slideDown 0.3s ease;
+}
+
+[data-bs-theme="dark"] .notification-dropdown {
+  background: #11151d;
+  border-color: rgba(255,122,24,0.3);
+}
+
+.notification-item {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255,122,24,0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item:hover {
+  background: rgba(255,122,24,0.05);
+}
+
+[data-bs-theme="dark"] .notification-item:hover {
+  background: rgba(255,122,24,0.1);
+}
+
+.notification-title {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+.notification-message {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+[data-bs-theme="dark"] .notification-message {
+  color: #aaa;
+}
+
+.notification-time {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+[data-bs-theme="dark"] .notification-time {
+  color: #777;
+}
+
+.notification-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+[data-bs-theme="dark"] .notification-empty {
+  color: #777;
+}
+
     </style>
   </head>
 
@@ -354,6 +466,17 @@ footer {
               <a class="nav-link active" href="./palyak.html">Pályák</a>
               <a class="nav-link" href="./contact.html">Kapcsolat</a>
               <a class="nav-link" href="./login.html">Bejelentkezés</a>
+
+              <!-- Notification Icon (shown when logged in) -->
+              <div class="nav-item ms-lg-3" id="notificationContainer" style="display: none; position: relative;">
+                <div class="notification-icon" id="notificationIcon" title="Értesítések">
+                  🔔
+                  <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                </div>
+                <div class="notification-dropdown" id="notificationDropdown">
+                  <div class="notification-empty">Nincsenek értesítések</div>
+                </div>
+              </div>
 
               <div class="nav-item ms-lg-2">
                 <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
@@ -405,7 +528,7 @@ footer {
 
             <div class="col-md-2">
               <label for="placeholder2" class="form-label">&nbsp;</label>
-              <button type="button" class="btn btn-accent w-100" id="ujPaylaBtn" data-bs-toggle="modal" data-bs-target="#ujPalyaModal">➕ Új pálya</button>
+              <button type="button" class="btn btn-accent w-100" id="ujPaylaBtn" data-bs-toggle="modal" data-bs-target="#ujPalyaModal" style="display: none;" title="Csak pályatulajdonosok adhatnak hozzá új pályákat">➕ Új pálya</button>
             </div>
           </form>
         </div>
@@ -497,6 +620,59 @@ footer {
       <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
     </footer>
 
+    <!-- ===== FOGLALÁS MODAL ===== -->
+    <div class="modal fade" id="foglalasModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Pálya foglalása</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <div id="foglalasModalContent">
+              <div id="palyaInfo" class="mb-4">
+                <h6 id="palyaNev" class="fw-bold">Pálya neve</h6>
+                <p id="palyaDetails" class="text-muted mb-2"></p>
+                <p id="palyaAr" class="fw-semibold">Ár: <span id="palyaArValue">0</span> Ft/óra</p>
+              </div>
+
+              <form id="foglalasForm">
+                <div class="mb-3">
+                  <label for="foglalasDatum" class="form-label">Foglalás dátuma *</label>
+                  <input type="date" class="form-control" id="foglalasDatum" required />
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="foglalasKezdes" class="form-label">Kezdés ideje *</label>
+                    <input type="time" class="form-control" id="foglalasKezdes" required />
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="foglalasVege" class="form-label">Vége ideje *</label>
+                    <input type="time" class="form-control" id="foglalasVege" required />
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="foglalasOsszeg" class="form-label">Összeg</label>
+                  <input type="text" class="form-control" id="foglalasOsszeg" disabled />
+                  <small class="text-muted">Automatikusan kiszámított az órák száma alapján</small>
+                </div>
+
+                <div class="alert alert-info">
+                  <small>* Kötelező mezők. A foglalási kérelem az tulajdonoshoz kerül elfogadásra.</small>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+            <button type="button" class="btn btn-accent" id="foglalasKuldBtn">Foglalás elküldése</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./auth-nav.js"></script>
 
@@ -542,7 +718,6 @@ footer {
         }
 
         palyak.forEach(palya => {
-          // Handle owner profile picture URL
           let ownerImageUrl = palya.profil_kep_url;
           if (ownerImageUrl && !ownerImageUrl.startsWith("http")) {
             ownerImageUrl = `http://localhost:4000${ownerImageUrl}`;
@@ -573,7 +748,7 @@ footer {
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-accent w-100 mt-3" onclick="alert('Foglalás hamarosan elérhető')">📅 Foglalás</button>
+                <button class="btn btn-accent w-100 mt-3" onclick="openBookingModal('${palya.palya_id}', '${palya.nev}', '${palya.ar_ora}', '${palya.helyszin}', '${palya.sportag}')">📅 Foglalás</button>
               </div>
             </div>
           `;
@@ -651,6 +826,228 @@ footer {
             loadPalyak();
           } else {
             alert("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
+          }
+        } catch (error) {
+          console.error("Hiba:", error);
+          alert("Szövegalkalmazás hiba: " + error.message);
+        }
+      });
+
+      // ===== NOTIFICATION SYSTEM =====
+      function initNotifications() {
+        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+        const notificationContainer = document.getElementById("notificationContainer");
+        const ujPaylaBtn = document.getElementById("ujPaylaBtn");
+        
+        if (!user) {
+          return;
+        }
+
+        notificationContainer.style.display = "block";
+
+        if (user.szerep === "palyatulajdonos") {
+          ujPaylaBtn.style.display = "block";
+        }
+
+        loadNotifications(user);
+      }
+
+      function loadNotifications(user) {
+        loadRealNotifications(user);
+      }
+
+      async function loadRealNotifications(user) {
+        try {
+          let bookings = [];
+          let notificationsList = [];
+
+          if (user.szerep === "palyatulajdonos") {
+            const response = await fetch(`http://localhost:4000/api/bookings/owner/${user.felhasznalo_id}`);
+            bookings = await response.json();
+            
+            const pendingBookings = bookings.filter(b => b.statusz === "pending");
+            
+            notificationsList = pendingBookings.map(booking => ({
+              type: "new_booking_request",
+              title: "Új foglalási kérelem",
+              message: `${booking.teljes_nev} foglalni szeretne "${booking.palya_nev}" -t ${new Date(booking.kezdes).toLocaleDateString("hu-HU")} napra.`,
+              time: "Új"
+            }));
+          } else if (user.szerep === "berlo") {
+            const response = await fetch(`http://localhost:4000/api/bookings/renter/${user.felhasznalo_id}`);
+            bookings = await response.json();
+            
+            notificationsList = bookings
+              .filter(b => b.statusz !== "pending")
+              .map(booking => ({
+                type: booking.statusz === "accepted" ? "booking_accepted" : "booking_rejected",
+                title: booking.statusz === "accepted" ? "Foglalás elfogadva ✅" : "Foglalás elutasítva ❌",
+                message: `A "${booking.palya_nev}" foglalásod ${booking.statusz === "accepted" ? "elfogadva" : "elutasítva"}.`,
+                time: "Új"
+              }));
+          }
+
+          displayNotifications(notificationsList);
+        } catch (error) {
+          console.error("Valódi értesítések betöltési hiba:", error);
+          displayNotifications([]);
+        }
+      }
+
+      function displayNotifications(notifications) {
+        const dropdown = document.getElementById("notificationDropdown");
+        const badge = document.getElementById("notificationBadge");
+
+        if (notifications.length === 0) {
+          dropdown.innerHTML = '<div class="notification-empty">Nincsenek értesítések</div>';
+          badge.style.display = "none";
+          return;
+        }
+
+        badge.textContent = notifications.length;
+        badge.style.display = "flex";
+
+        dropdown.innerHTML = notifications
+          .map(
+            (notif) => `
+          <div class="notification-item">
+            <div class="notification-title">${notif.title}</div>
+            <div class="notification-message">${notif.message}</div>
+            <div class="notification-time">${notif.time}</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      document.getElementById("notificationIcon").addEventListener("click", () => {
+        const dropdown = document.getElementById("notificationDropdown");
+        dropdown.classList.toggle("show");
+      });
+
+      document.addEventListener("click", (e) => {
+        const notifContainer = document.getElementById("notificationContainer");
+        const dropdown = document.getElementById("notificationDropdown");
+        
+        if (!notifContainer.contains(e.target) && dropdown.classList.contains("show")) {
+          dropdown.classList.remove("show");
+        }
+      });
+
+      initNotifications();
+
+      // ===== BOOKING SYSTEM =====
+      let currentPalyaId = null;
+      let currentAr = null;
+
+      function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag) {
+        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+
+        if (!user) {
+          alert("Bejelentkezés szükséges!");
+          window.location.href = "./login.html";
+          return;
+        }
+
+        currentPalyaId = palyaId;
+        currentAr = parseInt(ar);
+
+        document.getElementById("palyaNev").textContent = palyaNev;
+        document.getElementById("palyaDetails").textContent = `${sportag} • ${helyszin}`;
+        document.getElementById("palyaArValue").textContent = ar;
+
+        document.getElementById("foglalasForm").reset();
+        document.getElementById("foglalasOsszeg").value = "";
+
+        const modal = new bootstrap.Modal(document.getElementById("foglalasModal"));
+        modal.show();
+      }
+
+      function calculatePrice() {
+        const datum = document.getElementById("foglalasDatum").value;
+        const kezdes = document.getElementById("foglalasKezdes").value;
+        const vege = document.getElementById("foglalasVege").value;
+
+        if (!datum || !kezdes || !vege) {
+          document.getElementById("foglalasOsszeg").value = "";
+          return;
+        }
+
+        const kezdesTime = new Date(`${datum}T${kezdes}`);
+        const vegeTime = new Date(`${datum}T${vege}`);
+
+        if (vegeTime <= kezdesTime) {
+          document.getElementById("foglalasOsszeg").value = "Hibás időintervallum";
+          return;
+        }
+
+        const hours = (vegeTime - kezdesTime) / (1000 * 60 * 60);
+        const osszeg = Math.round(hours * currentAr);
+
+        document.getElementById("foglalasOsszeg").value = `${osszeg} Ft (${hours} óra)`;
+      }
+
+      document.getElementById("foglalasDatum").addEventListener("change", calculatePrice);
+      document.getElementById("foglalasKezdes").addEventListener("change", calculatePrice);
+      document.getElementById("foglalasVege").addEventListener("change", calculatePrice);
+
+      document.getElementById("foglalasKuldBtn").addEventListener("click", async () => {
+        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+
+        if (!user) {
+          alert("Bejelentkezés szükséges!");
+          window.location.href = "./login.html";
+          return;
+        }
+
+        const datum = document.getElementById("foglalasDatum").value;
+        const kezdes = document.getElementById("foglalasKezdes").value;
+        const vege = document.getElementById("foglalasVege").value;
+
+        if (!datum || !kezdes || !vege) {
+          alert("Kérjük, töltsön ki minden mezőt!");
+          return;
+        }
+
+        const kezdesDateTime = new Date(`${datum}T${kezdes}`);
+        const vegeDateTime = new Date(`${datum}T${vege}`);
+
+        if (vegeDateTime <= kezdesDateTime) {
+          alert("A vég időpontnak később kell lennie, mint a kezdésnek!");
+          return;
+        }
+
+        const hours = (vegeDateTime - kezdesDateTime) / (1000 * 60 * 60);
+        const ar = hours > 0 ? Math.round(hours * currentAr) : 0;
+        
+        if (ar === 0 || isNaN(ar)) {
+          alert("Hiba az ár kalkulációban. Ellenőrizd a kezdés és vég időpontot!");
+          return;
+        }
+
+        try {
+          const response = await fetch("http://localhost:4000/api/bookings/create", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              palya_id: parseInt(currentPalyaId),
+              berlo_id: parseInt(user.felhasznalo_id),
+              kezdes: kezdesDateTime.toISOString(),
+              vege: vegeDateTime.toISOString(),
+              ar: parseInt(ar),
+            }),
+          });
+
+          const responseData = await response.json();
+
+          if (response.ok) {
+            alert("Foglalási kérelem sikeresen elküldve! Az tulajdonos hamarosan megválaszolja.");
+            bootstrap.Modal.getInstance(document.getElementById("foglalasModal")).hide();
+            document.getElementById("foglalasForm").reset();
+          } else {
+            alert("Hiba a foglalás elküldésekor: " + (responseData.message || "Ismeretlen hiba"));
           }
         } catch (error) {
           console.error("Hiba:", error);

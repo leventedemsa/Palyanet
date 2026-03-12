@@ -7,6 +7,7 @@ const fs = require("fs");
 const authRoutes = require("./routes/authRoutes");
 const palyaRoutes = require("./routes/palyaRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/api/palyak", palyaRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/bookings", bookingRoutes);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
