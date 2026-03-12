@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu">
 <head>
   <meta charset="utf-8">
@@ -61,11 +61,11 @@
       <hr>
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
-          <strong>Teszt Elek</strong>
+          <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
+          <strong id="sidebarUserName">Felhasznalo</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
-          <li><a class="dropdown-item" href="#">Kijelentkezes</a></li>
+          <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezes</a></li>
         </ul>
       </div>
     </aside>
@@ -78,12 +78,9 @@
           <div class="col-12 col-lg-4">
             <div class="card shadow-sm h-100">
               <div class="card-body text-center">
-                <img src="https://github.com/mdo.png" alt="Profilkep" class="rounded-circle mb-3 profile-avatar">
-                <h2 class="h5 mb-1">Admin Admin</h2>
-                <p class="text-muted mb-2">palyanetadmin@gmail.com</p>
-
-                <button class="btn btn-outline-primary w-100 mb-2" type="button">Profilkép módosítása</button>
-                <button class="btn btn-danger w-100" type="button">Profilkép törlése</button>
+                <img id="profileAvatar" src="https://github.com/mdo.png" alt="Profilkep" class="rounded-circle mb-3 profile-avatar">
+                <h2 id="profileCardName" class="h5 mb-1">-</h2>
+                <p id="profileCardEmail" class="text-muted mb-2">-</p>
               </div>
             </div>
           </div>
@@ -99,42 +96,42 @@
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Felhasználónév</div>
-                          <div class="profile-info-value">admin</div>
+                          <div id="profileUsernameValue" class="profile-info-value">-</div>
                         </div>
                       </div>
 
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Teljes név</div>
-                          <div class="profile-info-value">Admin Admin</div>
+                          <div id="profileFullNameValue" class="profile-info-value">-</div>
                         </div>
                       </div>
 
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Email cím</div>
-                          <div class="profile-info-value">palyanetadmin@gmail.com</div>
+                          <div id="profileEmailValue" class="profile-info-value">-</div>
                         </div>
                       </div>
 
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Szerepkör</div>
-                          <div class="profile-info-value">Pályatulajdonos</div>
+                          <div id="profileRoleValue" class="profile-info-value">-</div>
                         </div>
                       </div>
 
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Telefonszám</div>
-                          <div class="profile-info-value">+36 30 123 4567</div>
+                          <div id="profilePhoneValue" class="profile-info-value">-</div>
                         </div>
                       </div>
 
                       <div class="col-12 col-md-6">
                         <div class="profile-info-box">
                           <div class="profile-info-label">Fióktípus</div>
-                          <div class="profile-info-value">Normál fiók</div>
+                          <div id="profileAccountTypeValue" class="profile-info-value">-</div>
                         </div>
                       </div>
                     </div>
@@ -153,6 +150,8 @@
   <script src="profile.js"></script>
 </body>
 </html>
+
+
 
 
 

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
@@ -526,10 +526,7 @@ footer {
               <button type="button" class="btn btn-accent w-100" id="keresesBtn">Keresés</button>
             </div>
 
-            <div class="col-md-2">
-              <label for="placeholder2" class="form-label">&nbsp;</label>
-              <button type="button" class="btn btn-accent w-100" id="ujPaylaBtn" data-bs-toggle="modal" data-bs-target="#ujPalyaModal" style="display: none;" title="Csak pályatulajdonosok adhatnak hozzá új pályákat">➕ Új pálya</button>
-            </div>
+            
           </form>
         </div>
       </section>
@@ -595,11 +592,11 @@ footer {
               <div class="row">
                 <div class="col-md-6 mb-3">
                   <label for="modalNyitas" class="form-label">Nyitás</label>
-                  <input type="time" class="form-control" id="modalNyitas" value="08:00" />
+                  <input type="time" class="form-control" id="modalNyitas" min="00:00" max="23:59" step="300" value="08:00" />
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="modalZaras" class="form-label">Zárás</label>
-                  <input type="time" class="form-control" id="modalZaras" value="20:00" />
+                  <input type="time" class="form-control" id="modalZaras" min="00:00" max="23:59" step="300" value="20:00" />
                 </div>
               </div>
 
@@ -645,11 +642,15 @@ footer {
                 <div class="row">
                   <div class="col-md-6 mb-3">
                     <label for="foglalasKezdes" class="form-label">Kezdés ideje *</label>
-                    <input type="time" class="form-control" id="foglalasKezdes" required />
+                    <select class="form-select" id="foglalasKezdes" required>
+                      <option value="">Válassz időpontot</option>
+                    </select>
                   </div>
                   <div class="col-md-6 mb-3">
                     <label for="foglalasVege" class="form-label">Vége ideje *</label>
-                    <input type="time" class="form-control" id="foglalasVege" required />
+                    <select class="form-select" id="foglalasVege" required>
+                      <option value="">Válassz időpontot</option>
+                    </select>
                   </div>
                 </div>
 
@@ -709,6 +710,20 @@ footer {
       const container = document.getElementById("palyakContainer");
 
       // Pályák megjelenítése
+      function formatTimeOnly(value) {
+        if (!value) return "--:--";
+        const raw = String(value);
+        const hhmmMatch = raw.match(/(\d{1,2}):(\d{2})/);
+        if (hhmmMatch) {
+          return `${hhmmMatch[1].padStart(2, "0")}:${hhmmMatch[2]}`;
+        }
+        const d = new Date(value);
+        if (!Number.isNaN(d.getTime())) {
+          return d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit", hour12: false });
+        }
+        return "--:--";
+      }
+
       function renderPalyak(palyak) {
         container.innerHTML = "";
         
@@ -739,6 +754,7 @@ footer {
                 </div>
                 <p class="palya-meta">📍 ${palya.helyszin}</p>
                 <p class="palya-meta">💰 ${palya.ar_ora} Ft / óra</p>
+                <p class="palya-meta">🕒 Nyitás-zárás: ${formatTimeOnly(palya.nyitas)} - ${formatTimeOnly(palya.zaras)}</p>
                 <div class="palya-owner" style="display: flex; align-items: center; justify-content: space-between;">
                   <div style="display: flex; align-items: center;">
                     ${ownerAvatarUrl}
@@ -748,7 +764,7 @@ footer {
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-accent w-100 mt-3" onclick="openBookingModal('${palya.palya_id}', '${palya.nev}', '${palya.ar_ora}', '${palya.helyszin}', '${palya.sportag}')">📅 Foglalás</button>
+                <button class="btn btn-accent w-100 mt-3" onclick="openBookingModal('${palya.palya_id}', '${palya.nev}', '${palya.ar_ora}', '${palya.helyszin}', '${palya.sportag}', '${formatTimeOnly(palya.nyitas)}', '${formatTimeOnly(palya.zaras)}')">📅 Foglalás</button>
               </div>
             </div>
           `;
@@ -784,7 +800,8 @@ footer {
       });
 
       // Új pálya hozzáadása
-      document.getElementById("ujPalyaKuldBtn").addEventListener("click", async () => {
+      const ujPalyaKuldBtn = document.getElementById("ujPalyaKuldBtn");
+      if (ujPalyaKuldBtn) ujPalyaKuldBtn.addEventListener("click", async () => {
         const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
         
         if (!user) {
@@ -837,17 +854,12 @@ footer {
       function initNotifications() {
         const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
         const notificationContainer = document.getElementById("notificationContainer");
-        const ujPaylaBtn = document.getElementById("ujPaylaBtn");
         
         if (!user) {
           return;
         }
 
         notificationContainer.style.display = "block";
-
-        if (user.szerep === "palyatulajdonos") {
-          ujPaylaBtn.style.display = "block";
-        }
 
         loadNotifications(user);
       }
@@ -858,42 +870,33 @@ footer {
 
       async function loadRealNotifications(user) {
         try {
-          let bookings = [];
-          let notificationsList = [];
+          const userId = user.felhasznalo_id || user.id || user.userId;
+          if (!userId) throw new Error("Hianyzik a user ID");
 
-          if (user.szerep === "palyatulajdonos") {
-            const response = await fetch(`http://localhost:4000/api/bookings/owner/${user.felhasznalo_id}`);
-            bookings = await response.json();
-            
-            const pendingBookings = bookings.filter(b => b.statusz === "pending");
-            
-            notificationsList = pendingBookings.map(booking => ({
-              type: "new_booking_request",
-              title: "Új foglalási kérelem",
-              message: `${booking.teljes_nev} foglalni szeretne "${booking.palya_nev}" -t ${new Date(booking.kezdes).toLocaleDateString("hu-HU")} napra.`,
-              time: "Új"
-            }));
-          } else if (user.szerep === "berlo") {
-            const response = await fetch(`http://localhost:4000/api/bookings/renter/${user.felhasznalo_id}`);
-            bookings = await response.json();
-            
-            notificationsList = bookings
-              .filter(b => b.statusz !== "pending")
-              .map(booking => ({
-                type: booking.statusz === "accepted" ? "booking_accepted" : "booking_rejected",
-                title: booking.statusz === "accepted" ? "Foglalás elfogadva ✅" : "Foglalás elutasítva ❌",
-                message: `A "${booking.palya_nev}" foglalásod ${booking.statusz === "accepted" ? "elfogadva" : "elutasítva"}.`,
-                time: "Új"
-              }));
-          }
+          const response = await fetch(`http://localhost:4000/api/notifications/${userId}`);
+          if (!response.ok) throw new Error("Ertesitesek lekerese sikertelen");
+
+          const notifications = await response.json();
+          const notificationsList = notifications.map((n) => ({
+            type: "system",
+            title: n.olvasott ? "Ertesites" : "Uj ertesites",
+            message: n.uzenet,
+            time: new Date(n.letrehozva).toLocaleString("hu-HU", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false
+            })
+          }));
 
           displayNotifications(notificationsList);
         } catch (error) {
-          console.error("Valódi értesítések betöltési hiba:", error);
+          console.error("Valodi ertesitesek betoltesi hiba:", error);
           displayNotifications([]);
         }
       }
-
       function displayNotifications(notifications) {
         const dropdown = document.getElementById("notificationDropdown");
         const badge = document.getElementById("notificationBadge");
@@ -935,12 +938,111 @@ footer {
       });
 
       initNotifications();
+      setInterval(initNotifications, 5000);
 
       // ===== BOOKING SYSTEM =====
       let currentPalyaId = null;
       let currentAr = null;
+      let currentNyitas = "00:00";
+      let currentZaras = "23:59";
 
-      function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag) {
+      function timeToMinutes(timeText) {
+        if (!timeText || !timeText.includes(":")) return null;
+        const [h, m] = timeText.split(":").map(Number);
+        if (Number.isNaN(h) || Number.isNaN(m)) return null;
+        return h * 60 + m;
+      }
+
+      function isWithinOpening(kezdes, vege) {
+        const start = timeToMinutes(kezdes);
+        const end = timeToMinutes(vege);
+        const open = timeToMinutes(currentNyitas);
+        const close = timeToMinutes(currentZaras);
+        if (start === null || end === null || open === null || close === null) return false;
+        return start >= open && end <= close;
+      }
+
+      function minutesToTimeText(totalMinutes) {
+        const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+        const m = String(totalMinutes % 60).padStart(2, "0");
+        return `${h}:${m}`;
+      }
+
+      function populateTimeSelectOptions(openTime, closeTime) {
+        const kezdesSelect = document.getElementById("foglalasKezdes");
+        const vegeSelect = document.getElementById("foglalasVege");
+        const open = timeToMinutes(openTime);
+        const close = timeToMinutes(closeTime);
+
+        kezdesSelect.innerHTML = '<option value="">Válassz időpontot</option>';
+        vegeSelect.innerHTML = '<option value="">Válassz időpontot</option>';
+
+        if (open === null || close === null || close <= open) return;
+
+        // 5 perces lépéssel, 24 órás (00:00-23:59) formátumban
+        for (let min = open; min <= close; min += 5) {
+          const t = minutesToTimeText(min);
+          kezdesSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
+          vegeSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
+        }
+      }
+
+      function syncTimeSelectBounds() {
+        const kezdesSelect = document.getElementById("foglalasKezdes");
+        const vegeSelect = document.getElementById("foglalasVege");
+        const kezdes = kezdesSelect.value;
+        const vege = vegeSelect.value;
+        const kezdesMin = timeToMinutes(kezdes);
+        const vegeMin = timeToMinutes(vege);
+
+        Array.from(vegeSelect.options).forEach((opt) => {
+          if (!opt.value) return;
+          const optMin = timeToMinutes(opt.value);
+          opt.disabled = kezdesMin !== null ? optMin <= kezdesMin : false;
+        });
+
+        Array.from(kezdesSelect.options).forEach((opt) => {
+          if (!opt.value) return;
+          const optMin = timeToMinutes(opt.value);
+          opt.disabled = vegeMin !== null ? optMin >= vegeMin : false;
+        });
+
+        if (kezdes && vegeMin !== null && kezdesMin !== null && kezdesMin >= vegeMin) {
+          vegeSelect.value = "";
+        }
+        if (vege && kezdesMin !== null && vegeMin !== null && vegeMin <= kezdesMin) {
+          kezdesSelect.value = "";
+        }
+      }
+
+      function validateBookingTimeInputs() {
+        const kezdesInput = document.getElementById("foglalasKezdes");
+        const vegeInput = document.getElementById("foglalasVege");
+        const kezdes = kezdesInput.value;
+        const vege = vegeInput.value;
+
+        kezdesInput.setCustomValidity("");
+        vegeInput.setCustomValidity("");
+
+        if (!kezdes || !vege) return true;
+
+        if (!isWithinOpening(kezdes, vege)) {
+          const msg = `Csak a nyitvatartásban foglalhatsz: ${currentNyitas}-${currentZaras}`;
+          kezdesInput.setCustomValidity(msg);
+          vegeInput.setCustomValidity(msg);
+          return false;
+        }
+
+        if (timeToMinutes(vege) <= timeToMinutes(kezdes)) {
+          const msg = "A vég időpontnak később kell lennie, mint a kezdésnek.";
+          vegeInput.setCustomValidity(msg);
+          return false;
+        }
+
+        return true;
+      }
+
+      function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras) {
         const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
         if (!user) {
@@ -951,18 +1053,29 @@ footer {
 
         currentPalyaId = palyaId;
         currentAr = parseInt(ar);
+        const validTime = /^\d{2}:\d{2}$/;
+        if (!validTime.test(nyitas || "") || !validTime.test(zaras || "")) {
+          alert("Ehhez a pályához nincs érvényes nyitás/zárás idő beállítva.");
+          return;
+        }
+        currentNyitas = nyitas;
+        currentZaras = zaras;
 
         document.getElementById("palyaNev").textContent = palyaNev;
         document.getElementById("palyaDetails").textContent = `${sportag} • ${helyszin}`;
         document.getElementById("palyaArValue").textContent = ar;
+        const old = document.getElementById("palyaNyitvaInfo");
+        if (old) old.remove();
+        document.getElementById("palyaAr").insertAdjacentHTML("afterend", `<p id="palyaNyitvaInfo" class="text-muted mb-3">Nyitás-zárás: ${currentNyitas} - ${currentZaras}</p>`);
 
         document.getElementById("foglalasForm").reset();
         document.getElementById("foglalasOsszeg").value = "";
+        populateTimeSelectOptions(currentNyitas, currentZaras);
+        syncTimeSelectBounds();
 
         const modal = new bootstrap.Modal(document.getElementById("foglalasModal"));
         modal.show();
       }
-
       function calculatePrice() {
         const datum = document.getElementById("foglalasDatum").value;
         const kezdes = document.getElementById("foglalasKezdes").value;
@@ -970,6 +1083,11 @@ footer {
 
         if (!datum || !kezdes || !vege) {
           document.getElementById("foglalasOsszeg").value = "";
+          return;
+        }
+
+        if (!validateBookingTimeInputs()) {
+          document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
           return;
         }
 
@@ -981,6 +1099,11 @@ footer {
           return;
         }
 
+        if (!isWithinOpening(kezdes, vege)) {
+          document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
+          return;
+        }
+
         const hours = (vegeTime - kezdesTime) / (1000 * 60 * 60);
         const osszeg = Math.round(hours * currentAr);
 
@@ -988,8 +1111,22 @@ footer {
       }
 
       document.getElementById("foglalasDatum").addEventListener("change", calculatePrice);
-      document.getElementById("foglalasKezdes").addEventListener("change", calculatePrice);
-      document.getElementById("foglalasVege").addEventListener("change", calculatePrice);
+      document.getElementById("foglalasKezdes").addEventListener("change", () => {
+        syncTimeSelectBounds();
+        calculatePrice();
+      });
+      document.getElementById("foglalasVege").addEventListener("change", () => {
+        syncTimeSelectBounds();
+        calculatePrice();
+      });
+      document.getElementById("foglalasKezdes").addEventListener("input", () => {
+        syncTimeSelectBounds();
+        calculatePrice();
+      });
+      document.getElementById("foglalasVege").addEventListener("input", () => {
+        syncTimeSelectBounds();
+        calculatePrice();
+      });
 
       document.getElementById("foglalasKuldBtn").addEventListener("click", async () => {
         const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
@@ -1009,11 +1146,21 @@ footer {
           return;
         }
 
+        if (!validateBookingTimeInputs()) {
+          alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
+          return;
+        }
+
         const kezdesDateTime = new Date(`${datum}T${kezdes}`);
         const vegeDateTime = new Date(`${datum}T${vege}`);
 
         if (vegeDateTime <= kezdesDateTime) {
           alert("A vég időpontnak később kell lennie, mint a kezdésnek!");
+          return;
+        }
+
+        if (!isWithinOpening(kezdes, vege)) {
+          alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
           return;
         }
 
@@ -1060,3 +1207,9 @@ footer {
     </script>
   </body>
 </html>
+
+
+
+
+
+

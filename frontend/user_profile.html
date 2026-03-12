@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
@@ -873,42 +873,33 @@ footer {
 
       async function loadRealNotifications(user) {
         try {
-          let bookings = [];
-          let notificationsList = [];
+          const userId = user.felhasznalo_id || user.id || user.userId;
+          if (!userId) throw new Error("Hianyzik a user ID");
 
-          if (user.szerep === "palyatulajdonos") {
-            const response = await fetch(`http://localhost:4000/api/bookings/owner/${user.felhasznalo_id}`);
-            bookings = await response.json();
-            
-            const pendingBookings = bookings.filter(b => b.statusz === "pending");
-            
-            notificationsList = pendingBookings.map(booking => ({
-              type: "new_booking_request",
-              title: "Új foglalási kérelem",
-              message: `${booking.teljes_nev} foglalni szeretne "${booking.palya_nev}" -t ${new Date(booking.kezdes).toLocaleDateString("hu-HU")} napra.`,
-              time: "Új"
-            }));
-          } else if (user.szerep === "berlo") {
-            const response = await fetch(`http://localhost:4000/api/bookings/renter/${user.felhasznalo_id}`);
-            bookings = await response.json();
-            
-            notificationsList = bookings
-              .filter(b => b.statusz !== "pending")
-              .map(booking => ({
-                type: booking.statusz === "accepted" ? "booking_accepted" : "booking_rejected",
-                title: booking.statusz === "accepted" ? "Foglalás elfogadva ✅" : "Foglalás elutasítva ❌",
-                message: `A "${booking.palya_nev}" foglalásod ${booking.statusz === "accepted" ? "elfogadva" : "elutasítva"} lett.`,
-                time: "Új"
-              }));
-          }
+          const response = await fetch(`http://localhost:4000/api/notifications/${userId}`);
+          if (!response.ok) throw new Error("Ertesitesek lekerese sikertelen");
+
+          const notifications = await response.json();
+          const notificationsList = notifications.map((n) => ({
+            type: "system",
+            title: n.olvasott ? "Ertesites" : "Uj ertesites",
+            message: n.uzenet,
+            time: new Date(n.letrehozva).toLocaleString("hu-HU", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: false
+            })
+          }));
 
           displayNotifications(notificationsList);
         } catch (error) {
-          console.error("Valódi értesítések betöltési hiba:", error);
+          console.error("Valodi ertesitesek betoltesi hiba:", error);
           displayNotifications([]);
         }
       }
-
       function displayNotifications(notifications) {
         const dropdown = document.getElementById("notificationDropdown");
         const badge = document.getElementById("notificationBadge");
@@ -951,6 +942,9 @@ footer {
 
       loadProfile();
       initNotifications();
+      setInterval(initNotifications, 5000);
     </script>
   </body>
 </html>
+
+

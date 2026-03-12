@@ -11,7 +11,7 @@ const uploadProfilePicture = async (req, res) => {
       });
     }
 
-    const userId = req.body.userId || req.user?.id;
+    const userId = req.body?.userId || req.query?.userId || req.user?.id;
     if (!userId) {
       return res.status(401).json({
         message: "Bejelentkezés szükséges.",
@@ -77,7 +77,7 @@ const updateProfilePicture = async (req, res) => {
       });
     }
 
-    const userId = req.body.userId || req.user?.id;
+    const userId = req.body?.userId || req.query?.userId || req.user?.id;
     if (!userId) {
       return res.status(401).json({
         message: "Bejelentkezés szükséges.",
@@ -153,7 +153,7 @@ const updateProfilePicture = async (req, res) => {
 // Delete profile picture
 const deleteProfilePicture = async (req, res) => {
   try {
-    const userId = req.body.userId || req.user?.id;
+    const userId = req.body?.userId || req.query?.userId || req.user?.id;
     if (!userId) {
       return res.status(401).json({
         message: "Bejelentkezés szükséges.",
@@ -208,7 +208,7 @@ const deleteProfilePicture = async (req, res) => {
 // Get user profile with picture
 const getUserProfile = async (req, res) => {
   try {
-    const userId = req.body.userId || req.user?.id;
+    const userId = req.body?.userId || req.query?.userId || req.user?.id;
     if (!userId) {
       return res.status(401).json({
         message: "Bejelentkezés szükséges.",

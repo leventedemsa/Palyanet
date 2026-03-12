@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
@@ -316,6 +316,22 @@ body {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./auth-nav.js"></script>
+    <script>
+      (function () {
+        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user") || "null");
+        if (!user) {
+          window.location.replace("./login.html");
+          return;
+        }
+        if (user.szerep === "palyatulajdonos") {
+          window.location.replace("./profile/foglalasaim.html");
+          return;
+        }
+        if (user.szerep === "berlo") {
+          window.location.replace("./profile/berleseim.html");
+        }
+      })();
+    </script>
 
     <script>
       // Theme toggle
@@ -411,7 +427,7 @@ body {
                 </div>
 
                 <div class="mb-3">
-                  <p class="mb-1"><strong>Dátum:</strong> <br> ${new Date(booking.kezdes).toLocaleDateString('hu-HU')} ${new Date(booking.kezdes).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })} - ${new Date(booking.vege).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })}</p>
+                  <p class="mb-1"><strong>Dátum:</strong> <br> ${new Date(booking.kezdes).toLocaleDateString('hu-HU')} ${new Date(booking.kezdes).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', hour12: false })} - ${new Date(booking.vege).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit', hour12: false })}</p>
                   <p class="mb-1"><strong>Ár:</strong> ${booking.ar} Ft</p>
                   <p class="mb-0">
                     <span class="booking-status status-${booking.statusz}">${booking.statusz === 'pending' ? '⏳ Függőben' : booking.statusz === 'accepted' ? '✅ Elfogadva' : '❌ Elutasítva'}</span>
@@ -495,3 +511,4 @@ body {
     </script>
   </body>
 </html>
+

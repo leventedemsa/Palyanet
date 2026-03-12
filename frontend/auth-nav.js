@@ -1,5 +1,14 @@
-(() => {
+﻿(() => {
   const readToken = () => localStorage.getItem("token") || sessionStorage.getItem("token");
+  const readUser = () => {
+    const raw = localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (_) {
+      return null;
+    }
+  };
   const clearAuthStorage = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -70,6 +79,100 @@
     window.location.replace("./index.html");
   };
 
+  const ensureNotificationUi = (menu) => {
+    const existingContainer = document.getElementById("notificationContainer");
+    if (existingContainer) {
+      existingContainer.style.display = "block";
+      return {
+        container: existingContainer,
+        icon: document.getElementById("notificationIcon"),
+        badge: document.getElementById("notificationBadge"),
+        dropdown: document.getElementById("notificationDropdown"),
+      };
+    }
+
+    const container = document.createElement("div");
+    container.id = "notificationContainer";
+    container.className = "nav-item ms-lg-2";
+    container.style.position = "relative";
+    container.setAttribute("data-auth-nav", "notification");
+    container.innerHTML = `
+      <button id="notificationIcon" type="button" style="border:1px solid #dee2e6;background:#fff;border-radius:999px;width:36px;height:36px;line-height:1;position:relative;cursor:pointer;">🔔</button>
+      <span id="notificationBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#d32f2f;color:white;border-radius:50%;min-width:18px;height:18px;padding:0 4px;font-size:11px;line-height:18px;text-align:center;">0</span>
+      <div id="notificationDropdown" style="display:none;position:absolute;right:0;top:42px;width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #dee2e6;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:1200;">
+        <div style="padding:12px;color:#6c757d;">Nincsenek értesítések</div>
+      </div>
+    `;
+    menu.appendChild(container);
+    return {
+      container,
+      icon: container.querySelector("#notificationIcon"),
+      badge: container.querySelector("#notificationBadge"),
+      dropdown: container.querySelector("#notificationDropdown"),
+    };
+  };
+
+  const setupNotifications = (menu, user) => {
+    if (!user) return;
+    const userId = user.felhasznalo_id || user.id || user.userId;
+    if (!userId) return;
+
+    const ui = ensureNotificationUi(menu);
+    if (!ui.icon || !ui.badge || !ui.dropdown) return;
+
+    const renderNotifications = (items) => {
+      const unread = items.filter((n) => !n.olvasott).length;
+      if (unread > 0) {
+        ui.badge.style.display = "block";
+        ui.badge.textContent = String(unread);
+      } else {
+        ui.badge.style.display = "none";
+      }
+
+      if (!items.length) {
+        ui.dropdown.innerHTML = '<div style="padding:12px;color:#6c757d;">Nincsenek értesítések</div>';
+        return;
+      }
+
+      ui.dropdown.innerHTML = items
+        .slice(0, 20)
+        .map((n) => `
+          <div style="padding:10px 12px;border-bottom:1px solid #f1f3f5;">
+            <div style="font-weight:600;color:${n.olvasott ? "#495057" : "#d9480f"};">${n.olvasott ? "Értesítés" : "Új értesítés"}</div>
+            <div style="font-size:13px;color:#495057;margin-top:4px;">${n.uzenet || ""}</div>
+            <div style="font-size:11px;color:#868e96;margin-top:4px;">${new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })}</div>
+          </div>
+        `)
+        .join("");
+    };
+
+    const refresh = async () => {
+      try {
+        const response = await fetch(`http://localhost:4000/api/notifications/${userId}`);
+        if (!response.ok) return;
+        const items = await response.json();
+        renderNotifications(items);
+      } catch (_) {}
+    };
+
+    if (!ui.icon.dataset.bound) {
+      ui.icon.dataset.bound = "1";
+      ui.icon.addEventListener("click", () => {
+        ui.dropdown.style.display = ui.dropdown.style.display === "block" ? "none" : "block";
+      });
+      document.addEventListener("click", (e) => {
+        if (!ui.container.contains(e.target)) {
+          ui.dropdown.style.display = "none";
+        }
+      });
+    }
+
+    refresh();
+    if (!window.__authNavNotifInterval) {
+      window.__authNavNotifInterval = setInterval(refresh, 5000);
+    }
+  };
+
   navMenus.forEach((menu) => {
     const themeItem = menu.querySelector('.nav-item:not([data-auth-nav="logout"])');
 
@@ -117,11 +220,16 @@
 
     const palyakLink = findLink(menu, "palyak.html") || createLink("palyak.html", "Palyak");
     const contactLink = findLink(menu, "contact.html");
-    const bookingsLink = findLink(menu, "bookings.html") || createLink("bookings.html", "📋 Foglalások");
+    const existingBookingsLink = findLink(menu, "bookings.html");
+    if (existingBookingsLink) {
+      existingBookingsLink.remove();
+    }
     const profileLink = findLink(menu, "user_profile.html");
     if (profileLink) {
       profileLink.remove();
     }
+    const user = readUser();
+    setupNotifications(menu, user);
 
     const profileDropdown = document.createElement("div");
     profileDropdown.className = "nav-item dropdown";
@@ -141,7 +249,7 @@
     const myProfileItemLi = document.createElement("li");
     const myProfileItem = document.createElement("a");
     myProfileItem.className = "dropdown-item";
-    myProfileItem.href = "./user_profile.html";
+    myProfileItem.href = "./profile/profile.html";
     myProfileItem.textContent = "Profilom";
     myProfileItemLi.appendChild(myProfileItem);
 
@@ -159,54 +267,10 @@
     profileDropdown.appendChild(dropdownMenu);
 
     palyakLink.classList.toggle("active", isCurrentPage("palyak.html"));
-    bookingsLink.classList.toggle("active", isCurrentPage("bookings.html"));
-    profileToggle.classList.toggle("active", isCurrentPage("user_profile.html"));
-    myProfileItem.classList.toggle("active", isCurrentPage("user_profile.html"));
+    profileToggle.classList.toggle("active", isCurrentPage("profile.html"));
+    myProfileItem.classList.toggle("active", isCurrentPage("profile.html"));
     if (contactLink) {
       contactLink.classList.toggle("active", isCurrentPage("contact.html"));
-    }
-
-    // Hide 'Foglalások' menu item for renters
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user.szerep === "berlo") {
-      // Do not add bookingsLink to menu
-    } else {
-      if (themeItem) {
-        menu.insertBefore(bookingsLink, themeItem);
-      } else {
-        menu.appendChild(bookingsLink);
-      }
-    }
-
-    // Add badge to Foglalások menu for owners
-    if (user && user.szerep === "palyatulajdonos") {
-      bookingsLink.innerHTML += ' <span id="bookingsBadge" style="display:none;background:#d32f2f;color:white;border-radius:50%;padding:0 7px;font-size:0.9em;vertical-align:middle;margin-left:4px;">0</span>';
-      // Fetch unread count and update badge
-      fetch(`http://localhost:4000/api/notifications/unread-count/${user.felhasznalo_id}`)
-        .then(res => res.json())
-        .then(data => {
-          const badge = document.getElementById("bookingsBadge");
-          if (data.count > 0) {
-            badge.textContent = data.count;
-            badge.style.display = "inline-block";
-          } else {
-            badge.style.display = "none";
-          }
-        });
-      // Optionally, setInterval for auto-refresh
-      setInterval(() => {
-        fetch(`http://localhost:4000/api/notifications/unread-count/${user.felhasznalo_id}`)
-          .then(res => res.json())
-          .then(data => {
-            const badge = document.getElementById("bookingsBadge");
-            if (data.count > 0) {
-              badge.textContent = data.count;
-              badge.style.display = "inline-block";
-            } else {
-              badge.style.display = "none";
-            }
-          });
-      }, 5000);
     }
 
     if (themeItem) {
@@ -214,14 +278,12 @@
       if (contactLink) {
         menu.insertBefore(contactLink, themeItem);
       }
-      menu.insertBefore(bookingsLink, themeItem);
       menu.insertBefore(profileDropdown, themeItem);
     } else {
       menu.appendChild(palyakLink);
       if (contactLink) {
         menu.appendChild(contactLink);
       }
-      menu.appendChild(bookingsLink);
       menu.appendChild(profileDropdown);
     }
 

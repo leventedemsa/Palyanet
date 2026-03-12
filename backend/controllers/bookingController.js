@@ -1,5 +1,22 @@
 const { sql, poolPromise } = require("../db");
 
+const timeToMinutes = (timeValue) => {
+  if (!timeValue) return null;
+  const raw = String(timeValue);
+  const match = raw.match(/(\d{1,2}):(\d{2})/);
+  if (!match) return null;
+  const hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+  return hours * 60 + minutes;
+};
+
+const dateToMinutes = (dateValue) => {
+  const d = new Date(dateValue);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.getHours() * 60 + d.getMinutes();
+};
+
 // ===== CREATE BOOKING =====
 const createBooking = async (req, res) => {
   try {
@@ -24,7 +41,10 @@ const createBooking = async (req, res) => {
       .request()
       .input("palya_id", sql.Int, palya_id)
       .query(`
-        SELECT p.*, f.email as tulaj_email, f.teljes_nev as tulaj_nev, f.felhasznalo_id as tulaj_id
+        SELECT p.*,
+               CONVERT(VARCHAR(8), p.nyitas, 108) AS nyitas_str,
+               CONVERT(VARCHAR(8), p.zaras, 108) AS zaras_str,
+               f.email as tulaj_email, f.teljes_nev as tulaj_nev, f.felhasznalo_id as tulaj_id
         FROM Palya p
         JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
         WHERE p.palya_id = @palya_id
@@ -37,6 +57,44 @@ const createBooking = async (req, res) => {
     }
 
     const palya = palyaResult.recordset[0];
+
+    // Validate booking interval against track opening hours
+    const nyitasMinutes = timeToMinutes(palya.nyitas_str || palya.nyitas);
+    const zarasMinutes = timeToMinutes(palya.zaras_str || palya.zaras);
+    const kezdesMinutes = dateToMinutes(kezdes);
+    const vegeMinutes = dateToMinutes(vege);
+    const kezdesDate = new Date(kezdes);
+    const vegeDate = new Date(vege);
+
+    if (
+      nyitasMinutes === null ||
+      zarasMinutes === null ||
+      kezdesMinutes === null ||
+      vegeMinutes === null ||
+      Number.isNaN(kezdesDate.getTime()) ||
+      Number.isNaN(vegeDate.getTime())
+    ) {
+      return res.status(400).json({
+        message: "Ervenytelen idoformátum",
+      });
+    }
+
+    const sameDay =
+      kezdesDate.getFullYear() === vegeDate.getFullYear() &&
+      kezdesDate.getMonth() === vegeDate.getMonth() &&
+      kezdesDate.getDate() === vegeDate.getDate();
+
+    if (!sameDay) {
+      return res.status(400).json({
+        message: "A foglalas csak egy napon belul lehet.",
+      });
+    }
+
+    if (kezdesMinutes < nyitasMinutes || vegeMinutes > zarasMinutes) {
+      return res.status(400).json({
+        message: `Csak a palya nyitvatartasan belul lehet foglalni (${palya.nyitas_str || palya.nyitas} - ${palya.zaras_str || palya.zaras}).`,
+      });
+    }
 
     // Get renter info
     const berloResult = await pool
@@ -68,8 +126,11 @@ const createBooking = async (req, res) => {
       .input("fizetes_statusz", sql.NVarChar(50), "pending")
       .query(`
         INSERT INTO Foglalas (palya_id, berlo_id, kezdes, vege, statusz, ar, fizetes_statusz)
-        OUTPUT INSERTED.*
-        VALUES (@palya_id, @berlo_id, @kezdes, @vege, @statusz, @ar, @fizetes_statusz)
+        VALUES (@palya_id, @berlo_id, @kezdes, @vege, @statusz, @ar, @fizetes_statusz);
+
+        SELECT *
+        FROM Foglalas
+        WHERE foglalas_id = CAST(SCOPE_IDENTITY() AS INT);
       `);
 
     const booking = bookingResult.recordset[0];
