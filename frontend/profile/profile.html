@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Palyanet - Profil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="profile.css" rel="stylesheet">
+  <style>
+    .profile-avatar {
+      width: 110px;
+      height: 110px;
+      object-fit: cover;
+    }
+
+    .profile-info-box {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 14px;
+      padding: 16px 18px;
+      height: 100%;
+    }
+
+    .profile-info-label {
+      font-size: 0.85rem;
+      color: #6c757d;
+      margin-bottom: 6px;
+    }
+
+    .profile-info-value {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #212529;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <main class="profile-layout">
+    <aside class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
+      <a href="../index.html" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+        <span class="fs-4">Palyanet</span>
+      </a>
+      <hr>
+
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="#" class="nav-link active" aria-current="page">Profilom</a>
+        </li>
+        <li>
+          <a href="./palyaim.html" class="nav-link text-white">Palyaim</a>
+        </li>
+        <li>
+          <a href="./foglalasaim.html" class="nav-link text-white">Foglalasaim</a>
+        </li>
+        <li>
+          <a href="./berleseim.html" class="nav-link text-white">Berleseim</a>
+        </li>
+      </ul>
+
+      <hr>
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
+          <strong>Teszt Elek</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="#">Kijelentkezes</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="profile-content">
+      <div class="container-fluid p-4 p-md-5">
+        <h1 class="h3 mb-4">Profil adatok</h1>
+
+        <div class="row g-4">
+          <div class="col-12 col-lg-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body text-center">
+                <img src="https://github.com/mdo.png" alt="Profilkep" class="rounded-circle mb-3 profile-avatar">
+                <h2 class="h5 mb-1">Admin Admin</h2>
+                <p class="text-muted mb-2">palyanetadmin@gmail.com</p>
+
+                <button class="btn btn-outline-primary w-100 mb-2" type="button">Profilkép módosítása</button>
+                <button class="btn btn-danger w-100" type="button">Profilkép törlése</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-lg-8">
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <h2 class="h5 mb-4">Alapadatok</h2>
+
+                    <div class="row g-3">
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Felhasználónév</div>
+                          <div class="profile-info-value">admin</div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Teljes név</div>
+                          <div class="profile-info-value">Admin Admin</div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Email cím</div>
+                          <div class="profile-info-value">palyanetadmin@gmail.com</div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Szerepkör</div>
+                          <div class="profile-info-value">Pályatulajdonos</div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Telefonszám</div>
+                          <div class="profile-info-value">+36 30 123 4567</div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 col-md-6">
+                        <div class="profile-info-box">
+                          <div class="profile-info-label">Fióktípus</div>
+                          <div class="profile-info-value">Normál fiók</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>
+
+
+
+

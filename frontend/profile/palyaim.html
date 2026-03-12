@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Palyanet - Palyaim</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="profile.css" rel="stylesheet">
+</head>
+<body>
+  <main class="profile-layout">
+    <aside class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
+      <a href="../index.html" class="d-flex align-items-center mb-3 text-white text-decoration-none">
+        <span class="fs-4">Palyanet</span>
+      </a>
+      <hr>
+
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a href="./profile.html" class="nav-link text-white">Profilom</a>
+        </li>
+        <li>
+          <a href="#" class="nav-link active" aria-current="page">Palyaim</a>
+        </li>
+        <li>
+          <a href="./foglalasaim.html" class="nav-link text-white">Foglalasaim</a>
+        </li>
+        <li>
+          <a href="./berleseim.html" class="nav-link text-white">Berleseim</a>
+        </li>
+      </ul>
+
+      <hr>
+      <div class="dropdown">
+        <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <img src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
+          <strong>Teszt Elek</strong>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+          <li><a class="dropdown-item" href="#">Kijelentkezes</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="profile-content">
+      <div class="container-fluid p-4 p-md-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+          <h1 class="h3 mb-0">Palyaim</h1>
+          <button type="button" class="btn btn-primary" id="openAddFieldModalButton" data-bs-toggle="modal" data-bs-target="#ujPalyaModal">Uj palya</button>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-12">
+            <div class="card shadow-sm">
+              <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                  <h2 class="h5 mb-0">Sajat palyak listaja</h2>
+                  <span class="text-muted small">Placeholder adatok</span>
+                </div>
+
+                <div id="myFieldsList" class="row g-3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal fade" id="ujPalyaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="ujPalyaModalTitle">Uj palya hozzaadasa</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="ujPalyaForm">
+            <input type="hidden" id="modalPalyaId">
+
+            <div class="mb-3">
+              <label for="modalNev" class="form-label">Palya neve *</label>
+              <input type="text" class="form-control" id="modalNev" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="modalSportag" class="form-label">Sportag *</label>
+                <select class="form-select" id="modalSportag" required>
+                  <option selected value="">Valassz sportagat</option>
+                  <option value="Foci">Foci</option>
+                  <option value="Tenisz">Tenisz</option>
+                  <option value="Kosarlabda">Kosarlabda</option>
+                  <option value="Badminton">Badminton</option>
+                  <option value="Squash">Squash</option>
+                </select>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="modalHelyszin" class="form-label">Helyszin *</label>
+                <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="modalAr" class="form-label">Ar/ora (Ft) *</label>
+                <input type="number" class="form-control" id="modalAr" min="0" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="modalKepUrl" class="form-label">Kep URL</label>
+                <input type="url" class="form-control" id="modalKepUrl">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="modalLeiras" class="form-label">Leiras</label>
+              <textarea class="form-control" id="modalLeiras" rows="3"></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="modalNyitas" class="form-label">Nyitas</label>
+                <input type="time" class="form-control" id="modalNyitas" value="08:00">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="modalZaras" class="form-label">Zaras</label>
+                <input type="time" class="form-control" id="modalZaras" value="20:00">
+              </div>
+            </div>
+
+            <div class="alert alert-info mb-0">
+              <small>* Kotelezo mezok</small>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezaras</button>
+          <button type="button" class="btn btn-primary" id="ujPalyaKuldBtn">Hozzaadas</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="profile.js"></script>
+</body>
+</html>
+
+
+
+
