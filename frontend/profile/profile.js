@@ -14,6 +14,13 @@
     }
   }
 
+  function writeUser(user) {
+    if (!user) return;
+    var json = JSON.stringify(user);
+    localStorage.setItem("user", json);
+    sessionStorage.setItem("user", json);
+  }
+
   function ensureLoggedIn() {
     var user = readUser();
     if (!user) {
@@ -123,10 +130,14 @@
   async function loadProfilePage(user) {
     var usernameValue = document.getElementById("profileUsernameValue");
     if (!usernameValue) return;
+    var currentProfile = Object.assign({}, user);
 
     function paint(profileData) {
       var displayName = profileData.teljes_nev || profileData.username || "Felhasznalo";
       var avatarUrl = profileData.profil_kep_url ? absoluteImageUrl(profileData.profil_kep_url) : "https://github.com/mdo.png";
+      var deletePictureBtn = document.getElementById("deletePictureBtn");
+      var sidebarUserAvatar = document.getElementById("sidebarUserAvatar");
+      currentProfile = Object.assign({}, currentProfile, profileData);
 
       document.getElementById("profileCardName").textContent = displayName;
       document.getElementById("profileCardEmail").textContent = profileData.email || "-";
@@ -137,9 +148,119 @@
       document.getElementById("profileRoleValue").textContent = roleLabel(profileData.szerep);
       document.getElementById("profilePhoneValue").textContent = profileData.telefonszam || "-";
       document.getElementById("profileAccountTypeValue").textContent = "Normal fiok";
+      if (deletePictureBtn) {
+        deletePictureBtn.style.display = profileData.profil_kep_url ? "inline-block" : "none";
+      }
+      if (sidebarUserAvatar) {
+        sidebarUserAvatar.src = avatarUrl;
+      }
+    }
+
+    function syncStoredUser(profileData) {
+      var storedUser = readUser();
+      if (!storedUser) return;
+      var merged = Object.assign({}, storedUser, {
+        username: profileData.username || storedUser.username,
+        teljes_nev: profileData.teljes_nev || storedUser.teljes_nev,
+        email: profileData.email || storedUser.email,
+        szerep: profileData.szerep || storedUser.szerep,
+        telefonszam: profileData.telefonszam || storedUser.telefonszam,
+        profil_kep_url: profileData.profil_kep_url || null
+      });
+      writeUser(merged);
+    }
+
+    function bindProfilePictureActions() {
+      var fileInput = document.getElementById("profilePictureInput");
+      var uploadBtn = document.getElementById("uploadPictureBtn");
+      var deleteBtn = document.getElementById("deletePictureBtn");
+      if (!fileInput || !uploadBtn || !deleteBtn) return;
+      if (uploadBtn.dataset.bound === "1") return;
+      uploadBtn.dataset.bound = "1";
+
+      uploadBtn.addEventListener("click", function () {
+        fileInput.click();
+      });
+
+      fileInput.addEventListener("change", async function () {
+        var file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+
+        if (!file.type || !file.type.startsWith("image/")) {
+          alert("Csak kepfajlt lehet feltolteni.");
+          fileInput.value = "";
+          return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert("A kep merete legfeljebb 5 MB lehet.");
+          fileInput.value = "";
+          return;
+        }
+
+        try {
+          var storedUser = readUser() || user || {};
+          var userId = getUserId(storedUser) || getUserId(currentProfile);
+          if (!userId) throw new Error("Hianyzik a user azonosito.");
+
+          var formData = new FormData();
+          formData.append("profilePicture", file);
+          formData.append("userId", String(userId));
+
+          var hasCurrentPicture = !!(currentProfile && currentProfile.profil_kep_url);
+          var endpoint = hasCurrentPicture ? "/api/profile/update" : "/api/profile/upload";
+          var method = hasCurrentPicture ? "PUT" : "POST";
+
+          var response = await fetch(API_BASE + endpoint, {
+            method: method,
+            body: formData
+          });
+          var data = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(data.message || "Profilkep mentesi hiba.");
+
+          var nextProfile = Object.assign({}, currentProfile, {
+            profil_kep_url: data.profil_kep_url || null
+          });
+          paint(nextProfile);
+          syncStoredUser(nextProfile);
+          fileInput.value = "";
+          alert("Profilkep sikeresen frissitve.");
+        } catch (err) {
+          console.error(err);
+          alert("Hiba a profilkep frissitesekor: " + err.message);
+          fileInput.value = "";
+        }
+      });
+
+      deleteBtn.addEventListener("click", async function () {
+        if (!confirm("Biztosan torolni szeretned a profilkepet?")) return;
+        try {
+          var storedUser = readUser() || user || {};
+          var userId = getUserId(storedUser) || getUserId(currentProfile);
+          if (!userId) throw new Error("Hianyzik a user azonosito.");
+
+          var response = await fetch(API_BASE + "/api/profile/delete", {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId: userId })
+          });
+          var data = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(data.message || "Profilkep torlesi hiba.");
+
+          var nextProfile = Object.assign({}, currentProfile, { profil_kep_url: null });
+          paint(nextProfile);
+          syncStoredUser(nextProfile);
+          alert("Profilkep sikeresen torolve.");
+        } catch (err) {
+          console.error(err);
+          alert("Hiba a profilkep torlesekor: " + err.message);
+        }
+      });
     }
 
     paint(user);
+    bindProfilePictureActions();
+    syncStoredUser(user);
 
     try {
       var userId = getUserId(user);
@@ -148,6 +269,7 @@
       if (!res.ok) throw new Error("Profil lekeresi hiba");
       var profile = await res.json();
       paint(profile);
+      syncStoredUser(profile);
     } catch (err) {
       console.error(err);
     }
