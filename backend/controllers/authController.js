@@ -55,6 +55,7 @@ const register = async (req, res) => {
           INSERTED.teljes_nev,
           INSERTED.email,
           INSERTED.szerep,
+          INSERTED.profil_kep_url,
           INSERTED.letrehozva
         VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
       `);
@@ -94,6 +95,7 @@ const login = async (req, res) => {
           email,
           jelszo_hash,
           szerep,
+          profil_kep_url,
           aktiv
         FROM Felhasznalok
         WHERE email = @identifier OR username = @identifier
@@ -150,6 +152,7 @@ const login = async (req, res) => {
         teljes_nev: user.teljes_nev,
         email: user.email,
         szerep: user.szerep,
+        profil_kep_url: user.profil_kep_url,
       },
     });
   } catch (error) {

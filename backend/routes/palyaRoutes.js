@@ -11,7 +11,7 @@ router.get("/", async (req, res) => {
     let query = `
       SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
              p.kep_url, p.nyitas, p.zaras, p.letrehozva,
-             f.username, f.teljes_nev
+             f.username, f.teljes_nev, f.profil_kep_url
       FROM Palya p
       JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
       WHERE 1=1
@@ -54,7 +54,7 @@ router.get("/:id", async (req, res) => {
       .query(`
         SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
                p.kep_url, p.nyitas, p.zaras, p.letrehozva,
-               f.username, f.teljes_nev
+               f.username, f.teljes_nev, f.profil_kep_url
         FROM Palya p
         JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
         WHERE p.palya_id = @palya_id

@@ -542,6 +542,16 @@ footer {
         }
 
         palyak.forEach(palya => {
+          // Handle owner profile picture URL
+          let ownerImageUrl = palya.profil_kep_url;
+          if (ownerImageUrl && !ownerImageUrl.startsWith("http")) {
+            ownerImageUrl = `http://localhost:4000${ownerImageUrl}`;
+          }
+          
+          const ownerAvatarUrl = ownerImageUrl ? 
+            `<img src="${ownerImageUrl}" alt="${palya.teljes_nev}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.75rem;" />` :
+            `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-right: 0.75rem;">👤</div>`;
+          
           const card = document.createElement("div");
           card.className = "col-md-6 col-lg-4";
           card.innerHTML = `
@@ -554,9 +564,14 @@ footer {
                 </div>
                 <p class="palya-meta">📍 ${palya.helyszin}</p>
                 <p class="palya-meta">💰 ${palya.ar_ora} Ft / óra</p>
-                <div class="palya-owner">
-                  <p class="mb-2 small text-muted">👤 Tulajdonos</p>
-                  <p class="mb-0 fw-semibold">${palya.teljes_nev || palya.username}</p>
+                <div class="palya-owner" style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="display: flex; align-items: center;">
+                    ${ownerAvatarUrl}
+                    <div>
+                      <p class="mb-0 small text-muted" style="font-size: 0.8rem;">Tulajdonos</p>
+                      <p class="mb-0 fw-semibold">${palya.teljes_nev || palya.username}</p>
+                    </div>
+                  </div>
                 </div>
                 <button class="btn btn-accent w-100 mt-3" onclick="alert('Foglalás hamarosan elérhető')">📅 Foglalás</button>
               </div>
