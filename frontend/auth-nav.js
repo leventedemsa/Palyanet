@@ -65,6 +65,11 @@
     return link;
   };
 
+  const handleLogout = () => {
+    clearAuthStorage();
+    window.location.replace("./index.html");
+  };
+
   navMenus.forEach((menu) => {
     const themeItem = menu.querySelector('.nav-item:not([data-auth-nav="logout"])');
 
@@ -105,15 +110,58 @@
     if (existingLogout) {
       existingLogout.remove();
     }
+    const existingProfileDropdown = menu.querySelector('[data-auth-nav="profile-dropdown"]');
+    if (existingProfileDropdown) {
+      existingProfileDropdown.remove();
+    }
 
     const palyakLink = findLink(menu, "palyak.html") || createLink("palyak.html", "Palyak");
     const contactLink = findLink(menu, "contact.html");
     const bookingsLink = findLink(menu, "bookings.html") || createLink("bookings.html", "📋 Foglalások");
-    const profileLink = findLink(menu, "user_profile.html") || createLink("user_profile.html", "👤 Profil");
+    const profileLink = findLink(menu, "user_profile.html");
+    if (profileLink) {
+      profileLink.remove();
+    }
+
+    const profileDropdown = document.createElement("div");
+    profileDropdown.className = "nav-item dropdown";
+    profileDropdown.setAttribute("data-auth-nav", "profile-dropdown");
+
+    const profileToggle = document.createElement("a");
+    profileToggle.className = "nav-link dropdown-toggle";
+    profileToggle.href = "#";
+    profileToggle.setAttribute("role", "button");
+    profileToggle.setAttribute("data-bs-toggle", "dropdown");
+    profileToggle.setAttribute("aria-expanded", "false");
+    profileToggle.textContent = "Profil";
+
+    const dropdownMenu = document.createElement("ul");
+    dropdownMenu.className = "dropdown-menu dropdown-menu-end";
+
+    const myProfileItemLi = document.createElement("li");
+    const myProfileItem = document.createElement("a");
+    myProfileItem.className = "dropdown-item";
+    myProfileItem.href = "./user_profile.html";
+    myProfileItem.textContent = "Profilom";
+    myProfileItemLi.appendChild(myProfileItem);
+
+    const logoutItemLi = document.createElement("li");
+    const logoutItem = document.createElement("button");
+    logoutItem.type = "button";
+    logoutItem.className = "dropdown-item text-danger";
+    logoutItem.textContent = "Kijelentkezes";
+    logoutItem.addEventListener("click", handleLogout);
+    logoutItemLi.appendChild(logoutItem);
+
+    dropdownMenu.appendChild(myProfileItemLi);
+    dropdownMenu.appendChild(logoutItemLi);
+    profileDropdown.appendChild(profileToggle);
+    profileDropdown.appendChild(dropdownMenu);
 
     palyakLink.classList.toggle("active", isCurrentPage("palyak.html"));
     bookingsLink.classList.toggle("active", isCurrentPage("bookings.html"));
-    profileLink.classList.toggle("active", isCurrentPage("user_profile.html"));
+    profileToggle.classList.toggle("active", isCurrentPage("user_profile.html"));
+    myProfileItem.classList.toggle("active", isCurrentPage("user_profile.html"));
     if (contactLink) {
       contactLink.classList.toggle("active", isCurrentPage("contact.html"));
     }
@@ -167,14 +215,14 @@
         menu.insertBefore(contactLink, themeItem);
       }
       menu.insertBefore(bookingsLink, themeItem);
-      menu.insertBefore(profileLink, themeItem);
+      menu.insertBefore(profileDropdown, themeItem);
     } else {
       menu.appendChild(palyakLink);
       if (contactLink) {
         menu.appendChild(contactLink);
       }
       menu.appendChild(bookingsLink);
-      menu.appendChild(profileLink);
+      menu.appendChild(profileDropdown);
     }
 
 

@@ -38,7 +38,7 @@
       leiras: "Fedett kispalya.",
       nyitas: "08:00",
       zaras: "22:00",
-      availability: "Szabad"
+      foglalasok_szama: 1
     },
     {
       id: 2,
@@ -50,7 +50,7 @@
       leiras: "Salakos palya.",
       nyitas: "09:00",
       zaras: "20:00",
-      availability: "Foglalt"
+      foglalasok_szama: 2
     },
     {
       id: 3,
@@ -62,19 +62,13 @@
       leiras: "Kulteri vilagitassal.",
       nyitas: "10:00",
       zaras: "21:00",
-      availability: "Karbantartas"
+      foglalasok_szama: 3
     }
   ];
 
   var nextId = 4;
   var editingId = null;
   var palyaModal = bootstrap.Modal.getOrCreateInstance(modalElement);
-
-  function getAvailabilityClass(status) {
-    if (status === "Szabad") return "available";
-    if (status === "Foglalt") return "busy";
-    return "maintenance";
-  }
 
   function formatPrice(value) {
     return Number(value).toLocaleString("hu-HU") + " Ft/ora";
@@ -95,9 +89,7 @@
               '<div class="field-meta"><strong>Sportag:</strong> ' + field.sportag + "</div>" +
               '<div class="field-meta"><strong>Helyszin:</strong> ' + field.helyszin + "</div>" +
               '<div class="field-meta"><strong>Ar:</strong> ' + formatPrice(field.ar_ora) + "</div>" +
-              '<div class="field-meta d-flex align-items-center gap-2"><strong>Elerhetoseg:</strong> ' +
-                '<span class="availability-badge ' + getAvailabilityClass(field.availability) + '">' + field.availability + "</span>" +
-              "</div>" +
+              '<div class="field-meta"><strong>Foglalasok szama:</strong> ' + field.foglalasok_szama + "</div>" +
               '<div class="field-actions">' +
                 '<button class="btn btn-outline-primary btn-sm" type="button" data-action="edit" data-id="' + field.id + '">Modositas</button>' +
                 '<button class="btn btn-outline-danger btn-sm" type="button" data-action="delete" data-id="' + field.id + '">Torles</button>' +
@@ -193,7 +185,7 @@
           leiras: payload.leiras,
           nyitas: payload.nyitas,
           zaras: payload.zaras,
-          availability: field.availability
+          foglalasok_szama: field.foglalasok_szama
         };
       });
     } else {
@@ -207,7 +199,7 @@
         leiras: payload.leiras,
         nyitas: payload.nyitas,
         zaras: payload.zaras,
-        availability: "Szabad"
+        foglalasok_szama: "Placeholder"
       });
     }
 
