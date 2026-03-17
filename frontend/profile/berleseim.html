@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="hu">
+<html lang="hu" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -99,6 +99,15 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Dark/Light theme toggle - sync with main site
+    (function(){
+      const saved = localStorage.getItem('theme');
+      if(saved) document.documentElement.setAttribute('data-bs-theme', saved);
+      else if(window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-bs-theme','dark');
+    })();
+  </script>
   <script src="berleseim.js"></script>
 </body>
 </html>
