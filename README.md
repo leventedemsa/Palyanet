@@ -126,3 +126,13 @@ Legyen egy **értesítések ikon** a navbarban.
 - Jogosultsághiány esetén külön hibaoldal
 - Nem létező pálya megnyitásakor hibaüzenet
 - Hibás URL esetén visszairányítás
+
+- # 5) Értesítések ikon a Navbarban (Kornél)
+- Profil
+- Pálya
+- Bérlés
+- Foglalás
+
+Fent említettek .html oldalát meg design-olni
+---
+
