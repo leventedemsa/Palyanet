@@ -1,4 +1,4 @@
-# TODO Határ: Due(03.22)
+# TODO Határ: Due(03.29)
 
 - Közös:
   - Weboldal public domain
@@ -11,6 +11,13 @@
 
 - Levi:
   - profil részleg újrastrukturálása ✅ (CSS-el nem foglalkoztam.)
-  - Pályák szűrésénél Megyék és települések alapján (inagatlan.com)
+  - Szűrés megyék és települések alapján (az ingatlan.com mintájára).
   - Hiba oldalak megcsinálása ✅
-
+  - Pályáim részleg újrastrukturálása:
+    - A HTML kód section-re bontása.
+    - Kisebb stílusbeli javítások elvégzése.
+  - Foglalásaim újrastrukturálása:
+    - A naptárnál jelenjen meg, hogy az adott napra hány foglalás van.
+    - A naptár és a foglalások kerüljenek egy lenyitható / lezárható menübe.
+    - A foglalás napjánál már ne lehessen múltbeli napra foglalni.
+    - A HTML kód section-re bontása.
