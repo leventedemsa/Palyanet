@@ -10,7 +10,7 @@
   - Felugró ablak alert helyett (pl sikeres bejelentkezésnél)
 
 - Levi:
-  - profil részleg dizájn átírása, téma(sötét,világos) megcsinálása
+  - profil részleg újrastrukturálása ✅ (CSS-el nem foglalkoztam.)
   - Pályák szűrésénél Megyék és települések alapján (inagatlan.com)
-  - Hiba oldalak megcsinálása
+  - Hiba oldalak megcsinálása ✅
 
