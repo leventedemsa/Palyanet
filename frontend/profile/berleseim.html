@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Palyanet - Berleseim</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="profile.css" rel="stylesheet">
 </head>
-<body>
-  <main class="profile-layout">
-    <aside class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
+<body class="bg-body-tertiary">
+  <main class="container-fluid">
+    <div class="row min-vh-100">
+    <aside class="col-12 col-lg-3 col-xl-2 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
       <a href="../index.html" class="d-flex align-items-center mb-3 text-white text-decoration-none">
         <span class="fs-4">Palyanet</span>
       </a>
@@ -36,14 +36,14 @@
           <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
           <strong id="sidebarUserName">Felhasznalo</strong>
         </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <ul class="dropdown-menu dropdown-menu-dark small shadow">
           <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezes</a></li>
         </ul>
       </div>
     </aside>
 
-    <section class="profile-content">
-      <div class="container-fluid p-4 p-md-5">
+    <section class="col-12 col-lg-9 col-xl-10">
+      <div class="p-4 p-md-5">
         <h1 class="h3 mb-2">Berleseim</h1>
         <p class="text-muted mb-4">Aktiv es korabbi berleseid.</p>
 
@@ -96,6 +96,7 @@
         </div>
       </div>
     </section>
+    </div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

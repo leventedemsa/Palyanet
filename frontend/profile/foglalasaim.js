@@ -112,6 +112,12 @@
     return "Elutasitva";
   }
 
+  function statusBadgeClass(status) {
+    if (status === "pending") return "text-bg-warning";
+    if (status === "accepted") return "text-bg-success";
+    return "text-bg-danger";
+  }
+
   function formatDate(iso) {
     var d = new Date(iso);
     return d.toLocaleDateString("hu-HU");
@@ -129,20 +135,20 @@
   function renderBookingCard(booking, withActions) {
     return (
       '<div class="col-12 col-md-6">' +
-      '<div class="booking-card">' +
+      '<div class="card shadow-sm h-100"><div class="card-body d-flex flex-column">' +
       '<h3 class="h6 mb-1">' + booking.palya_nev + "</h3>" +
       '<p class="text-muted mb-2">' + booking.sportag + " - " + booking.helyszin + "</p>" +
       '<p class="mb-1"><strong>Foglalo:</strong> ' + (booking.teljes_nev || "-") + ' <span class="text-muted">(@' + (booking.username || "-") + ")</span></p>" +
       '<p class="mb-1"><strong>Idopont:</strong> ' + formatDate(booking.kezdes) + ", " + formatTime(booking.kezdes) + " - " + formatTime(booking.vege) + "</p>" +
       '<p class="mb-1"><strong>Ar:</strong> ' + formatPrice(booking.ar) + "</p>" +
-      '<p class="mb-0"><span class="booking-status ' + booking.statusz + '">' + statusText(booking.statusz) + "</span></p>" +
+      '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
       (withActions
-        ? '<div class="booking-actions">' +
+        ? '<div class="d-flex gap-2 mt-3">' +
         '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + booking.foglalas_id + '">Elfogadas</button>' +
         '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + booking.foglalas_id + '">Elutasitas</button>' +
         "</div>"
         : "") +
-      "</div>" +
+      "</div></div>" +
       "</div>"
     );
   }
@@ -174,15 +180,30 @@
     var firstDay = new Date(currentYear, currentMonth, 1);
     var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     var startWeekday = (firstDay.getDay() + 6) % 7;
-    var html = weekDays.map(function (name) { return '<div class="calendar-head">' + name + "</div>"; }).join("");
-    for (var i = 0; i < startWeekday; i++) html += '<div class="calendar-day empty"></div>';
+    var html = '<table class="table table-bordered align-middle text-center mb-0"><thead><tr>' +
+      weekDays.map(function (name) { return '<th class="small text-muted fw-semibold">' + name + "</th>"; }).join("") +
+      "</tr></thead><tbody>";
+    var dayCellCount = 0;
+    html += "<tr>";
+    for (var i = 0; i < startWeekday; i++) {
+      html += '<td class="bg-body-tertiary"></td>';
+      dayCellCount += 1;
+    }
     for (var day = 1; day <= daysInMonth; day++) {
       var monthText = String(currentMonth + 1).padStart(2, "0");
       var dayText = String(day).padStart(2, "0");
       var dateText = String(currentYear) + "-" + monthText + "-" + dayText;
       var booked = isDayBooked(dateText);
-      html += '<div class="calendar-day ' + (booked ? "booked" : "free") + '" title="' + (booked ? "Foglalt" : "Szabad") + '">' + String(day) + "</div>";
+      var cellClass = booked ? "table-warning" : "table-success";
+      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + '">' + String(day) + "</td>";
+      dayCellCount += 1;
+      if (dayCellCount % 7 === 0 && day !== daysInMonth) html += "</tr><tr>";
     }
+    while (dayCellCount % 7 !== 0) {
+      html += '<td class="bg-body-tertiary"></td>';
+      dayCellCount += 1;
+    }
+    html += "</tr></tbody></table>";
     calendarGrid.innerHTML = html;
   }
 

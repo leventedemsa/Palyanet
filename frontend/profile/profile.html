@@ -5,39 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Palyanet - Profil</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="profile.css" rel="stylesheet">
-  <style>
-    .profile-avatar {
-      width: 110px;
-      height: 110px;
-      object-fit: cover;
-    }
-
-    .profile-info-box {
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: 14px;
-      padding: 16px 18px;
-      height: 100%;
-    }
-
-    .profile-info-label {
-      font-size: 0.85rem;
-      color: #6c757d;
-      margin-bottom: 6px;
-    }
-
-    .profile-info-value {
-      font-size: 1.05rem;
-      font-weight: 600;
-      color: #212529;
-      line-height: 1.4;
-    }
-  </style>
 </head>
-<body>
-  <main class="profile-layout">
-    <aside class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
+<body class="bg-body-tertiary">
+  <main class="container-fluid">
+    <div class="row min-vh-100">
+    <aside class="col-12 col-lg-3 col-xl-2 d-flex flex-column flex-shrink-0 p-3 text-white bg-dark profile-sidebar">
       <a href="../index.html" class="d-flex align-items-center mb-3 text-white text-decoration-none">
         <span class="fs-4">Palyanet</span>
       </a>
@@ -64,90 +36,212 @@
           <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
           <strong id="sidebarUserName">Felhasznalo</strong>
         </a>
-        <ul class="dropdown-menu dropdown-menu-dark text-small shadow">
+        <ul class="dropdown-menu dropdown-menu-dark small shadow">
           <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezes</a></li>
         </ul>
       </div>
     </aside>
 
-    <section class="profile-content">
-      <div class="container-fluid p-4 p-md-5">
-        <h1 class="h3 mb-4">Profil adatok</h1>
+    <!-- Fő tartalom -->
+    <section class="col-12 col-lg-9 col-xl-10">
 
-        <div class="row g-4">
-          <div class="col-12 col-lg-4">
-            <div class="card shadow-sm h-100">
+      <!-- Profil tartalom -->
+      <section class="bg-body-secondary rounded-3 p-4 p-md-5">
+        <div class="row">
+          <div class="col">
+          </div>
+        </div>
+
+        <div class="row">
+
+          <!-- Profil összegzés -->
+          <section class="col-lg-4">
+            <div class="card mb-4">
               <div class="card-body text-center">
-                <img id="profileAvatar" src="https://github.com/mdo.png" alt="Profilkep" class="rounded-circle mb-3 profile-avatar">
-                <h2 id="profileCardName" class="h5 mb-1">-</h2>
-                <p id="profileCardEmail" class="text-muted mb-2">-</p>
-                <input type="file" id="profilePictureInput" accept="image/*" style="display:none;">
-                <button class="btn btn-outline-primary w-100 mb-2" id="uploadPictureBtn" type="button">Profilkép módosítása</button>
-                <button class="btn btn-outline-danger w-100" id="deletePictureBtn" type="button" style="display:none;">Profilkép törlése</button>
+                <img id="profileAvatar" src="https://github.com/mdo.png" alt="Profilkep" class="rounded-circle mb-3" width="150" height="150" style="object-fit: cover;">
+                <h5 id="profileCardName" class="my-3">-</h5>
+                <p id="profileRoleValue" class="text-muted mb-1">-</p>
+                <p id="profileCardEmail" class="text-muted mb-4">-</p>
+                <input type="file" id="profilePictureInput" class="d-none" accept="image/*">
+                <div class="d-flex justify-content-center mb-2">
+                  <button class="btn btn-primary" id="uploadPictureBtn" type="button">Profilkép módosítása</button>
+                  <button class="btn btn-outline-danger ms-2 d-none" id="deletePictureBtn" type="button">Törlés</button>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="col-12 col-lg-8">
-            <div class="row g-4">
-              <div class="col-12">
-                <div class="card shadow-sm">
+            <div class="card mb-4 mb-lg-0">
+              <div class="card-body p-0">
+                <ul class="list-group list-group-flush rounded-3">
+                  <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    <p class="mb-0 text-muted small">Felhasználónév</p>
+                    <p id="profileUsernameValue" class="mb-0 fw-semibold">-</p>
+                  </li>
+                  <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                    <p class="mb-0 text-muted small">Létrehozva</p>
+                    <p id="profileCreatedAtValue" class="mb-0 fw-semibold">-</p>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          <!-- Profil részletek -->
+          <section class="col-lg-8">
+
+            <!-- Gyors statisztikák -->
+            <section class="row g-3 mb-4">
+              <div class="col-md-4">
+                <div class="card h-100">
                   <div class="card-body">
-                    <h2 class="h5 mb-4">Alapadatok</h2>
-
-                    <div class="row g-3">
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Felhasználónév</div>
-                          <div id="profileUsernameValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Teljes név</div>
-                          <div id="profileFullNameValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Email cím</div>
-                          <div id="profileEmailValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Szerepkör</div>
-                          <div id="profileRoleValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Telefonszám</div>
-                          <div id="profilePhoneValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-
-                      <div class="col-12 col-md-6">
-                        <div class="profile-info-box">
-                          <div class="profile-info-label">Fióktípus</div>
-                          <div id="profileAccountTypeValue" class="profile-info-value">-</div>
-                        </div>
-                      </div>
-                    </div>
+                    <p id="quickStat1Label" class="text-muted small mb-1">Statisztika 1</p>
+                    <h4 id="quickStat1Value" class="mb-0">-</h4>
                   </div>
                 </div>
               </div>
+              <div class="col-md-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <p id="quickStat2Label" class="text-muted small mb-1">Statisztika 2</p>
+                    <h4 id="quickStat2Value" class="mb-0">-</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <p id="quickStat3Label" class="text-muted small mb-1">Statisztika 3</p>
+                    <h4 id="quickStat3Value" class="mb-0">-</h4>
+                  </div>
+                </div>
+              </div>
+            </section>
 
+            <!-- Felhasználói adatok -->
+            <section class="card mb-4">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="mb-0">Alapadatok</h6>
+                </div>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Teljes név</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p id="profileFullNameValue" class="text-muted mb-0">-</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Email</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p id="profileEmailValue" class="text-muted mb-0">-</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Telefon</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p id="profilePhoneValue" class="text-muted mb-0">-</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Szerepkör</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p id="profileRoleValueSecondary" class="text-muted mb-0">-</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="row">
+                  <div class="col-sm-3">
+                    <p class="mb-0">Állapot</p>
+                  </div>
+                  <div class="col-sm-9">
+                    <p class="text-muted mb-0">Aktív felhasználó</p>
+                  </div>
+                </div>
+                <hr>
+                <div class="d-flex gap-2 justify-content-end">
+                  <button class="btn btn-outline-primary btn-sm" id="openEditProfileModalBtn" type="button" data-bs-toggle="modal" data-bs-target="#editProfileModal">Adatok módosítása</button>
+                  <button class="btn btn-outline-secondary btn-sm" id="openChangePasswordModalBtn" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">Jelszó módosítása</button>
+                </div>
+              </div>
+            </section>
+          </section>
+        </div>
+      </section>
+    </section>
+    </div>
+  </main>
+
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Profil adatok módosítása</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editProfileForm">
+            <div class="mb-3">
+              <label for="editUsernameInput" class="form-label">Felhasználónév</label>
+              <input type="text" id="editUsernameInput" class="form-control" required>
             </div>
-          </div>
+            <div class="mb-3">
+              <label for="editFullNameInput" class="form-label">Teljes név</label>
+              <input type="text" id="editFullNameInput" class="form-control" required>
+            </div>
+            <div class="mb-0">
+              <label for="editEmailInput" class="form-label">Email</label>
+              <input type="email" id="editEmailInput" class="form-control" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégse</button>
+          <button type="button" class="btn btn-primary" id="saveProfileChangesBtn">Mentés</button>
         </div>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
+
+  <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Jelszó módosítása</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+        </div>
+        <div class="modal-body">
+          <form id="changePasswordForm">
+            <div class="mb-3">
+              <label for="currentPasswordInput" class="form-label">Jelenlegi jelszó</label>
+              <input type="password" id="currentPasswordInput" class="form-control" autocomplete="current-password" required>
+            </div>
+            <div class="mb-3">
+              <label for="newPasswordInput" class="form-label">Új jelszó</label>
+              <input type="password" id="newPasswordInput" class="form-control" autocomplete="new-password" required>
+            </div>
+            <div class="mb-0">
+              <label for="confirmPasswordInput" class="form-label">Új jelszó megerősítése</label>
+              <input type="password" id="confirmPasswordInput" class="form-control" autocomplete="new-password" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégse</button>
+          <button type="button" class="btn btn-primary" id="changePasswordBtn">Mentés</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
@@ -161,9 +255,3 @@
   <script src="profile.js"></script>
 </body>
 </html>
-
-
-
-
-
-

@@ -8,6 +8,8 @@ const {
   updateProfilePicture,
   deleteProfilePicture,
   getUserProfile,
+  updateUserProfile,
+  changePassword,
 } = require("../controllers/profileController");
 
 // Create temp directory if it doesn't exist
@@ -44,5 +46,7 @@ router.post("/upload", upload.single("profilePicture"), uploadProfilePicture);
 router.put("/update", upload.single("profilePicture"), updateProfilePicture);
 router.delete("/delete", deleteProfilePicture);
 router.get("/profile", getUserProfile);
+router.put("/update-data", updateUserProfile);
+router.put("/change-password", changePassword);
 
 module.exports = router;

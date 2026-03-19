@@ -109,6 +109,12 @@
     return "Elutasitva";
   }
 
+  function statusBadgeClass(status) {
+    if (status === "pending") return "text-bg-warning";
+    if (status === "accepted") return "text-bg-success";
+    return "text-bg-danger";
+  }
+
   function formatPrice(value) {
     return Number(value || 0).toLocaleString("hu-HU") + " Ft";
   }
@@ -130,14 +136,14 @@
   function renderCard(booking) {
     return (
       '<div class="col-12 col-md-6">' +
-      '<div class="booking-card">' +
+      '<div class="card shadow-sm h-100"><div class="card-body">' +
       '<h3 class="h6 mb-1">' + booking.palya_nev + "</h3>" +
       '<p class="text-muted mb-2">' + booking.sportag + " - " + booking.helyszin + "</p>" +
       '<p class="mb-1"><strong>Ar:</strong> ' + formatPrice(booking.ar) + "</p>" +
       '<p class="mb-1"><strong>Kezdes:</strong> ' + formatDateTime(booking.kezdes) + "</p>" +
       '<p class="mb-2"><strong>Vege:</strong> ' + formatDateTime(booking.vege) + "</p>" +
-      '<p class="mb-0"><span class="booking-status ' + booking.statusz + '">' + statusText(booking.statusz) + "</span></p>" +
-      "</div>" +
+      '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
+      "</div></div>" +
       "</div>"
     );
   }

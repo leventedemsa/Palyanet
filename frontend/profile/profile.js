@@ -38,6 +38,12 @@
     return szerep === "palyatulajdonos" ? "Palyatulajdonos" : "Berlo";
   }
 
+  function toggleDeletePictureButton(show) {
+    var deletePictureBtn = document.getElementById("deletePictureBtn");
+    if (!deletePictureBtn) return;
+    deletePictureBtn.classList.toggle("d-none", !show);
+  }
+
   function initSidebarNotifications(user) {
     var sidebar = document.querySelector(".profile-sidebar");
     if (!sidebar) return;
@@ -127,6 +133,85 @@
     initSidebarNotifications(user);
   }
 
+  function setQuickStats(items) {
+    var label1 = document.getElementById("quickStat1Label");
+    var label2 = document.getElementById("quickStat2Label");
+    var label3 = document.getElementById("quickStat3Label");
+    var value1 = document.getElementById("quickStat1Value");
+    var value2 = document.getElementById("quickStat2Value");
+    var value3 = document.getElementById("quickStat3Value");
+    if (!label1 || !label2 || !label3 || !value1 || !value2 || !value3) return;
+
+    var safe = (items || []).slice(0, 3);
+    while (safe.length < 3) safe.push({ label: "-", value: "-" });
+    label1.textContent = safe[0].label;
+    label2.textContent = safe[1].label;
+    label3.textContent = safe[2].label;
+    value1.textContent = safe[0].value;
+    value2.textContent = safe[1].value;
+    value3.textContent = safe[2].value;
+  }
+
+  function formatDateOnly(value) {
+    if (!value) return "-";
+    var date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    var year = String(date.getFullYear());
+    var month = String(date.getMonth() + 1).padStart(2, "0");
+    var day = String(date.getDate()).padStart(2, "0");
+    return year + "." + month + "." + day;
+  }
+
+  async function loadQuickStats(user) {
+    var hasStatsArea = document.getElementById("quickStat1Value");
+    if (!hasStatsArea) return;
+    var userId = getUserId(user);
+    if (!userId) {
+      setQuickStats([]);
+      return;
+    }
+
+    try {
+      if (user.szerep === "palyatulajdonos") {
+        var ownerFieldsRes = await fetch(API_BASE + "/api/palyak/owner/" + userId);
+        var ownerBookingsRes = await fetch(API_BASE + "/api/bookings/owner/" + userId);
+        var ownerFields = ownerFieldsRes.ok ? await ownerFieldsRes.json() : [];
+        var ownerBookings = ownerBookingsRes.ok ? await ownerBookingsRes.json() : [];
+        var pendingCount = ownerBookings.filter(function (b) { return b.statusz === "pending"; }).length;
+        var acceptedCount = ownerBookings.filter(function (b) { return b.statusz === "accepted"; }).length;
+        setQuickStats([
+          { label: "Sajat palyak", value: String(ownerFields.length) },
+          { label: "Fuggo foglalasok", value: String(pendingCount) },
+          { label: "Elfogadott foglalasok", value: String(acceptedCount) }
+        ]);
+        return;
+      }
+
+      var renterBookingsRes = await fetch(API_BASE + "/api/bookings/renter/" + userId);
+      var renterBookings = renterBookingsRes.ok ? await renterBookingsRes.json() : [];
+      var now = new Date();
+      var activeCount = renterBookings.filter(function (b) {
+        if (b.statusz === "rejected") return false;
+        return new Date(b.vege) >= now;
+      }).length;
+      var pastCount = renterBookings.filter(function (b) {
+        if (b.statusz === "rejected") return true;
+        return new Date(b.vege) < now;
+      }).length;
+      setQuickStats([
+        { label: "Aktiv foglalasok", value: String(activeCount) },
+        { label: "Lejart foglalasok", value: String(pastCount) },
+        { label: "Osszes foglalas", value: String(renterBookings.length) }
+      ]);
+    } catch (_) {
+      setQuickStats([
+        { label: "Aktiv foglalasok", value: "-" },
+        { label: "Lejart foglalasok", value: "-" },
+        { label: "Osszes foglalas", value: "-" }
+      ]);
+    }
+  }
+
   async function loadProfilePage(user) {
     var usernameValue = document.getElementById("profileUsernameValue");
     if (!usernameValue) return;
@@ -135,7 +220,6 @@
     function paint(profileData) {
       var displayName = profileData.teljes_nev || profileData.username || "Felhasznalo";
       var avatarUrl = profileData.profil_kep_url ? absoluteImageUrl(profileData.profil_kep_url) : "https://github.com/mdo.png";
-      var deletePictureBtn = document.getElementById("deletePictureBtn");
       var sidebarUserAvatar = document.getElementById("sidebarUserAvatar");
       currentProfile = Object.assign({}, currentProfile, profileData);
 
@@ -146,11 +230,12 @@
       document.getElementById("profileFullNameValue").textContent = displayName;
       document.getElementById("profileEmailValue").textContent = profileData.email || "-";
       document.getElementById("profileRoleValue").textContent = roleLabel(profileData.szerep);
+      var roleValueSecondary = document.getElementById("profileRoleValueSecondary");
+      if (roleValueSecondary) roleValueSecondary.textContent = roleLabel(profileData.szerep);
       document.getElementById("profilePhoneValue").textContent = profileData.telefonszam || "-";
-      document.getElementById("profileAccountTypeValue").textContent = "Normal fiok";
-      if (deletePictureBtn) {
-        deletePictureBtn.style.display = profileData.profil_kep_url ? "inline-block" : "none";
-      }
+      var createdAt = document.getElementById("profileCreatedAtValue");
+      if (createdAt) createdAt.textContent = formatDateOnly(profileData.letrehozva);
+      toggleDeletePictureButton(!!profileData.profil_kep_url);
       if (sidebarUserAvatar) {
         sidebarUserAvatar.src = avatarUrl;
       }
@@ -258,8 +343,132 @@
       });
     }
 
+    function bindProfileEditActions() {
+      var modalElement = document.getElementById("editProfileModal");
+      var form = document.getElementById("editProfileForm");
+      var saveBtn = document.getElementById("saveProfileChangesBtn");
+      var usernameInput = document.getElementById("editUsernameInput");
+      var fullNameInput = document.getElementById("editFullNameInput");
+      var emailInput = document.getElementById("editEmailInput");
+      if (!modalElement || !form || !saveBtn || !usernameInput || !fullNameInput || !emailInput) return;
+      if (saveBtn.dataset.bound === "1") return;
+      saveBtn.dataset.bound = "1";
+
+      modalElement.addEventListener("show.bs.modal", function () {
+        usernameInput.value = currentProfile.username || "";
+        fullNameInput.value = currentProfile.teljes_nev || "";
+        emailInput.value = currentProfile.email || "";
+      });
+
+      saveBtn.addEventListener("click", async function () {
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        try {
+          var payload = {
+            userId: getUserId(currentProfile) || getUserId(user),
+            username: usernameInput.value.trim(),
+            teljes_nev: fullNameInput.value.trim(),
+            email: emailInput.value.trim()
+          };
+
+          var response = await fetch(API_BASE + "/api/profile/update-data", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          var data = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(data.message || data.error || ("Profil adat mentesi hiba. HTTP " + response.status));
+
+          if (data.user) {
+            paint(data.user);
+            syncStoredUser(data.user);
+          }
+
+          var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+          modal.hide();
+          alert("Profil adatok sikeresen frissitve.");
+        } catch (err) {
+          console.error(err);
+          alert("Hiba a profil adatok mentesekor: " + err.message);
+        }
+      });
+    }
+
+    function bindPasswordActions() {
+      var modalElement = document.getElementById("changePasswordModal");
+      var form = document.getElementById("changePasswordForm");
+      var currentInput = document.getElementById("currentPasswordInput");
+      var newInput = document.getElementById("newPasswordInput");
+      var confirmInput = document.getElementById("confirmPasswordInput");
+      var saveBtn = document.getElementById("changePasswordBtn");
+      if (!modalElement || !form || !currentInput || !newInput || !confirmInput || !saveBtn) return;
+      if (saveBtn.dataset.bound === "1") return;
+      saveBtn.dataset.bound = "1";
+
+      function resetForm() {
+        currentInput.value = "";
+        newInput.value = "";
+        confirmInput.value = "";
+      }
+
+      modalElement.addEventListener("show.bs.modal", function () {
+        resetForm();
+      });
+
+      saveBtn.addEventListener("click", async function () {
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        var currentPassword = currentInput.value || "";
+        var newPassword = newInput.value || "";
+        var confirmPassword = confirmInput.value || "";
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+          alert("Kerlek tolts ki minden jelszo mezot.");
+          return;
+        }
+        if (newPassword.length < 8) {
+          alert("Az uj jelszo legalabb 8 karakter legyen.");
+          return;
+        }
+        if (newPassword !== confirmPassword) {
+          alert("Az uj jelszo es a megerosites nem egyezik.");
+          return;
+        }
+
+        try {
+          var response = await fetch(API_BASE + "/api/profile/change-password", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: getUserId(currentProfile) || getUserId(user),
+              currentPassword: currentPassword,
+              newPassword: newPassword
+            })
+          });
+          var data = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(data.message || data.error || ("Jelszo modositasi hiba. HTTP " + response.status));
+
+          resetForm();
+          var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+          modal.hide();
+          alert("Jelszo sikeresen modositva.");
+        } catch (err) {
+          console.error(err);
+          alert("Hiba a jelszo modositasakor: " + err.message);
+        }
+      });
+    }
+
     paint(user);
     bindProfilePictureActions();
+    bindProfileEditActions();
+    bindPasswordActions();
     syncStoredUser(user);
 
     try {
@@ -319,14 +528,16 @@
         return (
           '<div class="col-12 col-md-6 col-lg-4">' +
             '<div class="card h-100 shadow-sm">' +
-              '<img src="' + kep + '" class="card-img-top" alt="' + field.nev + '" style="height:180px;object-fit:cover;">' +
+              '<div class="ratio ratio-16x9">' +
+                '<img src="' + kep + '" class="w-100 h-100 object-fit-cover" alt="' + field.nev + '">' +
+              "</div>" +
               '<div class="card-body d-flex flex-column">' +
                 '<h3 class="h6 mb-2">' + field.nev + "</h3>" +
-                '<div class="field-meta"><strong>Sportag:</strong> ' + field.sportag + "</div>" +
-                '<div class="field-meta"><strong>Helyszin:</strong> ' + field.helyszin + "</div>" +
-                '<div class="field-meta"><strong>Ar:</strong> ' + formatPrice(field.ar_ora) + "</div>" +
-                '<div class="field-meta"><strong>Foglalasok szama:</strong> ' + (field.foglalasok_szama || 0) + "</div>" +
-                '<div class="field-actions mt-auto">' +
+                '<p class="mb-1 small"><strong>Sportag:</strong> ' + field.sportag + "</p>" +
+                '<p class="mb-1 small"><strong>Helyszin:</strong> ' + field.helyszin + "</p>" +
+                '<p class="mb-1 small"><strong>Ar:</strong> ' + formatPrice(field.ar_ora) + "</p>" +
+                '<p class="mb-0 small"><strong>Foglalasok szama:</strong> ' + (field.foglalasok_szama || 0) + "</p>" +
+                '<div class="d-flex gap-2 mt-3 mt-auto">' +
                   '<button class="btn btn-outline-primary btn-sm" type="button" data-action="edit" data-id="' + field.palya_id + '">Modositas</button>' +
                   '<button class="btn btn-outline-danger btn-sm" type="button" data-action="delete" data-id="' + field.palya_id + '">Torles</button>' +
                 "</div>" +
@@ -468,6 +679,7 @@
 
   wireSidebar(user);
   loadProfilePage(user);
+  loadQuickStats(user);
   loadPalyaimPage(user);
 })();
 

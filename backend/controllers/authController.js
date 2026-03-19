@@ -123,15 +123,6 @@ const login = async (req, res) => {
       });
     }
 
-    await pool
-      .request()
-      .input("felhasznalo_id", sql.Int, user.felhasznalo_id)
-      .query(`
-        UPDATE Felhasznalok
-        SET utoljara_belepett = SYSDATETIME()
-        WHERE felhasznalo_id = @felhasznalo_id
-      `);
-
     const token = jwt.sign(
       {
         id: user.felhasznalo_id,
