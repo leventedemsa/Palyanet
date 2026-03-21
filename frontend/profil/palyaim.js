@@ -170,8 +170,8 @@
                 '<p class="small mb-2 lh-sm"><strong>Ar:</strong> ' + formatPrice(field.ar_ora) + "</p>" +
                 '<p class="small mb-0 lh-sm"><strong>Foglalasok szama:</strong> ' + (field.foglalasok_szama || 0) + "</p>" +
                 '<div class="d-flex gap-2 mt-3 mt-auto">' +
-                  '<button class="btn btn-outline-primary btn-sm flex-fill mt-2" type="button" data-action="edit" data-id="' + field.palya_id + '">Modositas</button>' +
-                  '<button class="btn btn-outline-danger btn-sm flex-fill mt-2" type="button" data-action="delete" data-id="' + field.palya_id + '">Torles</button>' +
+                  '<button class="btn btn-outline-primary btn-sm flex-fill mt-2" type="button" data-action="edit" data-id="' + field.palya_id + '">Módosítás</button>' +
+                  '<button class="btn btn-outline-danger btn-sm flex-fill mt-2" type="button" data-action="delete" data-id="' + field.palya_id + '">Törlés</button>' +
                 "</div>" +
               "</div>" +
             "</div>" +

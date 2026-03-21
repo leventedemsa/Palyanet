@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palyanet - Palyaim</title>
+  <title>Palyanet - Pályáim</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-body-tertiary">
@@ -17,27 +17,27 @@
 
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="./profile.html" class="nav-link text-white">Profilom</a>
+          <a href="./profil.html" class="nav-link text-white">Profilom</a>
         </li>
         <li>
-          <a href="#" class="nav-link active" aria-current="page">Palyaim</a>
+          <a href="#" class="nav-link active" aria-current="page">Pályáim</a>
         </li>
         <li>
-          <a href="./foglalasaim.html" class="nav-link text-white">Foglalasaim</a>
+          <a href="./foglalasaim.html" class="nav-link text-white">Foglalásaim</a>
         </li>
         <li>
-          <a href="./berleseim.html" class="nav-link text-white">Berleseim</a>
+          <a href="./berleseim.html" class="nav-link text-white">Bérléseim</a>
         </li>
       </ul>
 
       <hr>
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
-          <strong id="sidebarUserName">Felhasznalo</strong>
+          <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkép" width="32" height="32" class="rounded-circle me-2">
+          <strong id="sidebarUserName">Felhasználó</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark small shadow">
-          <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezes</a></li>
+          <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezés</a></li>
         </ul>
       </div>
     </aside>
@@ -45,8 +45,8 @@
     <section class="col-12 col-lg-9 col-xl-10">
       <div class="p-4 p-md-5">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-          <h1 class="h3 mb-0">Palyaim</h1>
-          <button type="button" class="btn btn-primary" id="openAddFieldModalButton" data-bs-toggle="modal" data-bs-target="#ujPalyaModal">Uj palya</button>
+          <h1 class="h3 mb-0">Pályáim</h1>
+          <button type="button" class="btn btn-primary" id="openAddFieldModalButton" data-bs-toggle="modal" data-bs-target="#ujPalyaModal">Új pálya</button>
         </div>
 
         <div class="row g-4">
@@ -54,8 +54,8 @@
             <div class="card shadow-sm border-0 rounded-4">
               <div class="card-body p-3 p-md-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                  <h2 class="h5 mb-0">Sajat palyak listaja</h2>
-                  <span class="text-muted small">Sajat palyak</span>
+                  <h2 class="h5 mb-0">Saját pályák listaja</h2>
+                  <span class="text-muted small">Saját pályák</span>
                 </div>
 
                 <div id="myFieldsList" class="row g-3"></div>
@@ -72,7 +72,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="ujPalyaModalTitle">Uj palya hozzaadasa</h5>
+          <h5 class="modal-title" id="ujPalyaModalTitle">Új pálya hozzáadása</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
@@ -81,65 +81,65 @@
             <input type="hidden" id="modalPalyaId">
 
             <div class="mb-3">
-              <label for="modalNev" class="form-label">Palya neve *</label>
+              <label for="modalNev" class="form-label">Pálya neve *</label>
               <input type="text" class="form-control" id="modalNev" required>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="modalSportag" class="form-label">Sportag *</label>
+                <label for="modalSportag" class="form-label">Sportág *</label>
                 <select class="form-select" id="modalSportag" required>
-                  <option selected value="">Valassz sportagat</option>
+                  <option selected value="">Válassz sportágat</option>
                   <option value="Foci">Foci</option>
                   <option value="Tenisz">Tenisz</option>
-                  <option value="Kosarlabda">Kosarlabda</option>
+                  <option value="Kosarlabda">Kosárlabda</option>
                   <option value="Badminton">Badminton</option>
                   <option value="Squash">Squash</option>
                 </select>
               </div>
 
               <div class="col-md-6 mb-3">
-                <label for="modalHelyszin" class="form-label">Helyszin *</label>
+                <label for="modalHelyszin" class="form-label">Helyszín *</label>
                 <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required>
               </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="modalAr" class="form-label">Ar/ora (Ft) *</label>
+                <label for="modalAr" class="form-label">Ár/óra (Ft) *</label>
                 <input type="number" class="form-control" id="modalAr" min="0" required>
               </div>
               <div class="col-md-6 mb-3">
-                <label for="modalKepUrl" class="form-label">Kep URL</label>
+                <label for="modalKepUrl" class="form-label">Kép URL</label>
                 <input type="url" class="form-control" id="modalKepUrl">
               </div>
             </div>
 
             <div class="mb-3">
-              <label for="modalLeiras" class="form-label">Leiras</label>
+              <label for="modalLeiras" class="form-label">Leírás</label>
               <textarea class="form-control" id="modalLeiras" rows="3"></textarea>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="modalNyitas" class="form-label">Nyitas</label>
+                <label for="modalNyitas" class="form-label">Nyitás</label>
                 <input type="time" class="form-control" id="modalNyitas" min="00:00" max="23:59" step="300" value="08:00">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="modalZaras" class="form-label">Zaras</label>
+                <label for="modalZaras" class="form-label">Zárás</label>
                 <input type="time" class="form-control" id="modalZaras" min="00:00" max="23:59" step="300" value="20:00">
               </div>
             </div>
 
             <div class="alert alert-info mb-0">
-              <small>* Kotelezo mezok</small>
+              <small>* Kötelező mezők</small>
             </div>
           </form>
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezaras</button>
-          <button type="button" class="btn btn-primary" id="ujPalyaKuldBtn">Hozzaadas</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+          <button type="button" class="btn btn-primary" id="ujPalyaKuldBtn">Hozzáadás</button>
         </div>
       </div>
     </div>
@@ -157,6 +157,8 @@
   <script src="palyaim.js"></script>
 </body>
 </html>
+
+
 
 
 

@@ -1,9 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palyanet - Foglalasaim</title>
+  <title>Palyanet - Foglalásaim</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-body-tertiary">
@@ -17,41 +17,41 @@
 
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="./profile.html" class="nav-link text-white">Profilom</a>
+          <a href="./profil.html" class="nav-link text-white">Profilom</a>
         </li>
         <li>
-          <a href="./palyaim.html" class="nav-link text-white">Palyaim</a>
+          <a href="./palyaim.html" class="nav-link text-white">Pályáim</a>
         </li>
         <li>
-          <a href="#" class="nav-link active" aria-current="page">Foglalasaim</a>
+          <a href="#" class="nav-link active" aria-current="page">Foglalásaim</a>
         </li>
         <li>
-          <a href="./berleseim.html" class="nav-link text-white">Berleseim</a>
+          <a href="./berleseim.html" class="nav-link text-white">Bérléseim</a>
         </li>
       </ul>
 
       <hr>
       <div class="dropdown">
         <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkep" width="32" height="32" class="rounded-circle me-2">
-          <strong id="sidebarUserName">Felhasznalo</strong>
+          <img id="sidebarUserAvatar" src="https://github.com/mdo.png" alt="Profilkép" width="32" height="32" class="rounded-circle me-2">
+          <strong id="sidebarUserName">Felhasználó</strong>
         </a>
         <ul class="dropdown-menu dropdown-menu-dark small shadow">
-          <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezes</a></li>
+          <li><a id="sidebarLogoutBtn" class="dropdown-item" href="#">Kijelentkezés</a></li>
         </ul>
       </div>
     </aside>
 
     <section class="col-12 col-lg-9 col-xl-10">
       <div class="p-4 p-md-5">
-        <h1 class="h3 mb-2">Foglalasaim</h1>
-        <p class="text-muted mb-4">A palyaidra erkezett foglalasi kerelmek.</p>
+        <h1 class="h3 mb-2">Foglalásaim</h1>
+        <p class="text-muted mb-4">A pályáidra érkezett foglalási kérelmek.</p>
 
         <div class="accordion" id="bookingsAccordion">
           <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
             <h2 class="accordion-header" id="bookingsHeading">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bookingsCollapse" aria-expanded="true" aria-controls="bookingsCollapse">
-                Foglalasok
+                Foglalások
               </button>
             </h2>
             <div id="bookingsCollapse" class="accordion-collapse collapse show" aria-labelledby="bookingsHeading" data-bs-parent="#bookingsAccordion">
@@ -59,7 +59,7 @@
                 <ul class="nav nav-tabs mb-4" role="tablist">
                   <li class="nav-item" role="presentation">
                     <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                      Fuggoben <span class="badge text-bg-warning" id="pendingBadge">0</span>
+                      Függőben <span class="badge text-bg-warning" id="pendingBadge">0</span>
                     </button>
                   </li>
                   <li class="nav-item" role="presentation">
@@ -69,7 +69,7 @@
                   </li>
                   <li class="nav-item" role="presentation">
                     <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
-                      Elutasitva <span class="badge text-bg-danger" id="rejectedBadge">0</span>
+                      Elutasítva <span class="badge text-bg-danger" id="rejectedBadge">0</span>
                     </button>
                   </li>
                 </ul>
@@ -94,7 +94,7 @@
           <div class="accordion-item border rounded-3 overflow-hidden">
             <h2 class="accordion-header" id="calendarHeading">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calendarCollapse" aria-expanded="false" aria-controls="calendarCollapse">
-                Foglaltsagi naptar
+                Foglaltsági naptár
               </button>
             </h2>
             <div id="calendarCollapse" class="accordion-collapse collapse" aria-labelledby="calendarHeading" data-bs-parent="#bookingsAccordion">
@@ -134,6 +134,7 @@
   <script src="foglalasaim.js"></script>
 </body>
 </html>
+
 
 
 
