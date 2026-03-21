@@ -175,6 +175,13 @@
     });
   }
 
+  function getDayBookingCount(dateText) {
+    return bookings.filter(function (booking) {
+      var day = booking.kezdes ? booking.kezdes.slice(0, 10) : "";
+      return day === dateText && (booking.statusz === "pending" || booking.statusz === "accepted");
+    }).length;
+  }
+
   function renderCalendar() {
     calendarMonthLabel.textContent = monthNames[currentMonth] + " " + String(currentYear);
     var firstDay = new Date(currentYear, currentMonth, 1);
@@ -194,8 +201,12 @@
       var dayText = String(day).padStart(2, "0");
       var dateText = String(currentYear) + "-" + monthText + "-" + dayText;
       var booked = isDayBooked(dateText);
+      var bookingCount = getDayBookingCount(dateText);
       var cellClass = booked ? "table-warning" : "table-success";
-      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + '">' + String(day) + "</td>";
+      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + ' - ' + String(bookingCount) + ' foglalas">' +
+        '<div class="fw-semibold">' + String(day) + "</div>" +
+        '<div class="small text-muted">' + String(bookingCount) + " foglalas</div>" +
+        "</td>";
       dayCellCount += 1;
       if (dayCellCount % 7 === 0 && day !== daysInMonth) html += "</tr><tr>";
     }

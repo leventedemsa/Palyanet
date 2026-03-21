@@ -47,55 +47,74 @@
         <h1 class="h3 mb-2">Foglalasaim</h1>
         <p class="text-muted mb-4">A palyaidra erkezett foglalasi kerelmek.</p>
 
-        <div class="card shadow-sm mb-4">
-          <div class="card-body">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-              <h2 class="h5 mb-0">Foglaltsagi naptar</h2>
-              <div class="d-flex align-items-center gap-2">
-                <button class="btn btn-outline-secondary btn-sm" id="calendarPrevMonth" type="button">&lt;</button>
-                <strong id="calendarMonthLabel"></strong>
-                <button class="btn btn-outline-secondary btn-sm" id="calendarNextMonth" type="button">&gt;</button>
+        <div class="accordion" id="bookingsAccordion">
+          <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
+            <h2 class="accordion-header" id="bookingsHeading">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bookingsCollapse" aria-expanded="true" aria-controls="bookingsCollapse">
+                Foglalasok
+              </button>
+            </h2>
+            <div id="bookingsCollapse" class="accordion-collapse collapse show" aria-labelledby="bookingsHeading" data-bs-parent="#bookingsAccordion">
+              <div class="accordion-body">
+                <ul class="nav nav-tabs mb-4" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                      Fuggoben <span class="badge text-bg-warning" id="pendingBadge">0</span>
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted" type="button" role="tab">
+                      Elfogadva <span class="badge text-bg-success" id="acceptedBadge">0</span>
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
+                      Elutasitva <span class="badge text-bg-danger" id="rejectedBadge">0</span>
+                    </button>
+                  </li>
+                </ul>
+
+                <div class="tab-content">
+                  <div class="tab-pane fade show active" id="pending" role="tabpanel">
+                    <div id="pendingBookingsContainer" class="row g-3"></div>
+                  </div>
+
+                  <div class="tab-pane fade" id="accepted" role="tabpanel">
+                    <div id="acceptedBookingsContainer" class="row g-3"></div>
+                  </div>
+
+                  <div class="tab-pane fade" id="rejected" role="tabpanel">
+                    <div id="rejectedBookingsContainer" class="row g-3"></div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
 
-            <div class="d-flex flex-wrap gap-3 mb-3 small">
-              <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-warning">Foglalt</span> nap</span>
-              <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-success">Szabad</span> nap</span>
+          <div class="accordion-item border rounded-3 overflow-hidden">
+            <h2 class="accordion-header" id="calendarHeading">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calendarCollapse" aria-expanded="false" aria-controls="calendarCollapse">
+                Foglaltsagi naptar
+              </button>
+            </h2>
+            <div id="calendarCollapse" class="accordion-collapse collapse" aria-labelledby="calendarHeading" data-bs-parent="#bookingsAccordion">
+              <div class="accordion-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                  <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-outline-secondary btn-sm" id="calendarPrevMonth" type="button">&lt;</button>
+                    <strong id="calendarMonthLabel"></strong>
+                    <button class="btn btn-outline-secondary btn-sm" id="calendarNextMonth" type="button">&gt;</button>
+                  </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3 mb-3 small">
+                  <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-warning">Foglalt</span> nap</span>
+                  <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-success">Szabad</span> nap</span>
+                </div>
+
+                <div id="calendarGrid" class="table-responsive"></div>
+              </div>
             </div>
-
-            <div id="calendarGrid" class="table-responsive"></div>
-          </div>
-        </div>
-
-        <ul class="nav nav-tabs mb-4" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-              Fuggoben <span class="badge text-bg-warning" id="pendingBadge">0</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted" type="button" role="tab">
-              Elfogadva <span class="badge text-bg-success" id="acceptedBadge">0</span>
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">
-              Elutasitva <span class="badge text-bg-danger" id="rejectedBadge">0</span>
-            </button>
-          </li>
-        </ul>
-
-        <div class="tab-content">
-          <div class="tab-pane fade show active" id="pending" role="tabpanel">
-            <div id="pendingBookingsContainer" class="row g-3"></div>
-          </div>
-
-          <div class="tab-pane fade" id="accepted" role="tabpanel">
-            <div id="acceptedBookingsContainer" class="row g-3"></div>
-          </div>
-
-          <div class="tab-pane fade" id="rejected" role="tabpanel">
-            <div id="rejectedBookingsContainer" class="row g-3"></div>
           </div>
         </div>
       </div>

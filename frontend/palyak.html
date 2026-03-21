@@ -1042,6 +1042,31 @@ footer {
         return true;
       }
 
+      function getTodayDateText() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function validateBookingDateInput() {
+        const datumInput = document.getElementById("foglalasDatum");
+        const datum = datumInput.value;
+        const todayText = getTodayDateText();
+
+        datumInput.min = todayText;
+        datumInput.setCustomValidity("");
+
+        if (!datum) return true;
+        if (datum < todayText) {
+          datumInput.setCustomValidity("Múltbeli dátumra nem lehet foglalni.");
+          return false;
+        }
+
+        return true;
+      }
+
       function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras) {
         const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
@@ -1069,6 +1094,9 @@ footer {
         document.getElementById("palyaAr").insertAdjacentHTML("afterend", `<p id="palyaNyitvaInfo" class="text-muted mb-3">Nyitás-zárás: ${currentNyitas} - ${currentZaras}</p>`);
 
         document.getElementById("foglalasForm").reset();
+        const datumInput = document.getElementById("foglalasDatum");
+        datumInput.min = getTodayDateText();
+        validateBookingDateInput();
         document.getElementById("foglalasOsszeg").value = "";
         populateTimeSelectOptions(currentNyitas, currentZaras);
         syncTimeSelectBounds();
@@ -1083,6 +1111,11 @@ footer {
 
         if (!datum || !kezdes || !vege) {
           document.getElementById("foglalasOsszeg").value = "";
+          return;
+        }
+
+        if (!validateBookingDateInput()) {
+          document.getElementById("foglalasOsszeg").value = "Múltbeli dátumra nem lehet foglalni";
           return;
         }
 
@@ -1110,7 +1143,10 @@ footer {
         document.getElementById("foglalasOsszeg").value = `${osszeg} Ft (${hours} óra)`;
       }
 
-      document.getElementById("foglalasDatum").addEventListener("change", calculatePrice);
+      document.getElementById("foglalasDatum").addEventListener("change", () => {
+        validateBookingDateInput();
+        calculatePrice();
+      });
       document.getElementById("foglalasKezdes").addEventListener("change", () => {
         syncTimeSelectBounds();
         calculatePrice();
@@ -1143,6 +1179,11 @@ footer {
 
         if (!datum || !kezdes || !vege) {
           alert("Kérjük, töltsön ki minden mezőt!");
+          return;
+        }
+
+        if (!validateBookingDateInput()) {
+          alert("Múltbeli napra nem lehet foglalni.");
           return;
         }
 
@@ -1203,6 +1244,7 @@ footer {
       });
 
       // Kezdeti betöltés
+      validateBookingDateInput();
       loadPalyak();
     </script>
   </body>

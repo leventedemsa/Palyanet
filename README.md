@@ -20,6 +20,7 @@
   - Bejelentések menü: 
     - Mutatja a bejelentéseket, amiket a felhasználók tettek, és ki írja az indokot is.
 - Pályáim Javascript részét át emelni a profile.js-ből. ✅
+- A Profil részlegnél a Sidebar legyen collapsable. (Telefonon ez jobban működik.)
 
 ## 03.19:
 - profil részleg újrastrukturálása ✅ (CSS-el nem foglalkoztam.)
@@ -28,8 +29,8 @@
 - Pályáim részleg újrastrukturálása: ✅
   - A HTML kód section-re bontása. ✅
   - Kisebb stílusbeli javítások elvégzése. ✅
-- Foglalásaim újrastrukturálása:
-  - A naptárnál jelenjen meg, hogy az adott napra hány foglalás van.
-  - A naptár és a foglalások kerüljenek egy lenyitható / lezárható menübe.
-  - A foglalás napjánál már ne lehessen múltbeli napra foglalni.
-  - A HTML kód section-re bontása.
+- Foglalásaim újrastrukturálása: ✅
+  - A naptárnál jelenjen meg, hogy az adott napra hány foglalás van. ✅
+  - A naptár és a foglalások kerüljenek egy lenyitható / lezárható menübe. ✅
+  - A foglalás napjánál már ne lehessen múltbeli napra foglalni. ✅
+  - A HTML kód section-re bontása. ✅
