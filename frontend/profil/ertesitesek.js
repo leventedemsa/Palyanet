@@ -44,11 +44,15 @@
     var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
     var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var isOwner = user.szerep === "palyatulajdonos";
+    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"]');
+    var szerep = String(user.szerep || "").toLowerCase();
+    var isOwner = szerep === "palyatulajdonos";
+    var isAdmin = szerep === "admin";
 
     palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
     foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    berleseimItems.forEach(function (item) { item.style.display = ""; });
+    berleseimItems.forEach(function (item) { item.style.display = isAdmin ? "none" : ""; });
+    adminItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
 
     var names = document.querySelectorAll(".sidebar-user-name");
     var avatars = document.querySelectorAll(".sidebar-user-avatar");

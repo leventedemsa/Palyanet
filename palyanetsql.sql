@@ -7,6 +7,25 @@ USE PalyanetADB;
 GO
 
 -- ============================
+--   BEJELENTESEK TABLA (ELORE)
+-- ============================
+CREATE TABLE Bejelentesek (
+    bejelentes_id INT IDENTITY(1,1) PRIMARY KEY,
+    kuldo_felhasznalo_id INT NOT NULL,
+    bejelentett_felhasznalo_id INT NOT NULL,
+    palya_id INT NOT NULL,
+    szoveg NVARCHAR(1500) NOT NULL,
+    statusz NVARCHAR(50) NOT NULL DEFAULT N'pending',
+    admin_id INT NULL,
+    admin_megjegyzes NVARCHAR(1500) NULL,
+    letrehozva DATETIME2(7) NOT NULL DEFAULT SYSDATETIME(),
+    eldontve DATETIME2(7) NULL,
+
+    CONSTRAINT CK_Bejelentesek_Statusz
+        CHECK (statusz IN (N'pending', N'elutasitva', N'vegrehajtva'))
+);
+
+-- ============================
 --   FELHASZNALOK TABLA
 -- ============================
 CREATE TABLE Felhasznalok (
@@ -21,6 +40,7 @@ CREATE TABLE Felhasznalok (
     letrehozva DATETIME2(7) NOT NULL DEFAULT SYSDATETIME(),
     utoljara_belepett DATETIME2(7) NULL,
     aktiv BIT NOT NULL DEFAULT 1,
+    tiltva BIT NOT NULL DEFAULT 0,
 
     CONSTRAINT CK_Felhasznalok_Szerep
         CHECK (szerep IN (N'berlo', N'palyatulajdonos', N'admin'))
@@ -56,6 +76,23 @@ CREATE TABLE Palya (
             OR (nyitas IS NOT NULL AND zaras IS NOT NULL AND nyitas < zaras)
         )
 );
+
+-- Bejelentesek FK-k utolagos felkotese (a tabla szandekosan van legelol)
+ALTER TABLE Bejelentesek
+    ADD CONSTRAINT FK_Bejelentesek_Kuldo FOREIGN KEY (kuldo_felhasznalo_id)
+        REFERENCES Felhasznalok(felhasznalo_id);
+
+ALTER TABLE Bejelentesek
+    ADD CONSTRAINT FK_Bejelentesek_Bejelentett FOREIGN KEY (bejelentett_felhasznalo_id)
+        REFERENCES Felhasznalok(felhasznalo_id);
+
+ALTER TABLE Bejelentesek
+    ADD CONSTRAINT FK_Bejelentesek_Palya FOREIGN KEY (palya_id)
+        REFERENCES Palya(palya_id);
+
+ALTER TABLE Bejelentesek
+    ADD CONSTRAINT FK_Bejelentesek_Admin FOREIGN KEY (admin_id)
+        REFERENCES Felhasznalok(felhasznalo_id);
 
 -- ============================
 --   FOGLALAS TABLA
@@ -162,3 +199,8 @@ CREATE INDEX IX_Foglalas_Berlo_Kezdes
 
 CREATE INDEX IX_Ertesites_Cimzett_Olvasott_Letrehozva
     ON Ertesites (cimzett_id, olvasott, letrehozva);
+
+CREATE INDEX IX_Bejelentesek_Statusz_Letrehozva
+    ON Bejelentesek (statusz, letrehozva);
+CREATE INDEX IX_Bejelentesek_Palya
+    ON Bejelentesek (palya_id);

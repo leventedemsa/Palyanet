@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="hu" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palyanet - Értesítések</title>
+  <title>Palyanet - Bejelentések</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/line-awesome@1.3.0/dist/line-awesome/css/line-awesome.min.css">
   <style>
@@ -17,7 +17,6 @@
     .sidebar-brand { border-bottom: 1px solid var(--border); padding: 18px 24px; flex-shrink: 0; }
     .sidebar-brand a { color: #222; text-decoration: none; font-weight: 700; font-size: 1.6rem; transition: 0.2s; }
     .sidebar-brand a:hover { color: var(--violet); }
-    .sidebar-section-title { font-size: 0.78rem; letter-spacing: 1px; padding: 14px 20px; border-bottom: 1px solid #eee; color: var(--violet); text-transform: uppercase; font-weight: bold; flex-shrink: 0; }
     .sidebar-links { list-style: none; margin: 0; padding: 0; flex: 1 1 auto; overflow-y: auto; }
     .sidebar-links li { border-bottom: 1px solid #f1f1f1; }
     .sidebar-link { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: var(--text); text-decoration: none; transition: 0.2s; font-size: 0.98rem; }
@@ -45,12 +44,9 @@
     <div class="sidebar-brand"><a href="../index.html">Palyanet</a></div>
     <ul class="sidebar-links">
       <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
-      <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-      <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
-      <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-      <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
+      <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link is-active"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
       <li data-sidebar-item="admin-palyak"><a href="./palyak-admin.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
-      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
     </ul>
     <div class="sidebar-user-wrap">
       <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -63,12 +59,9 @@
     <div class="offcanvas-body">
       <ul class="sidebar-links">
         <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
-        <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-        <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
-        <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-        <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
+        <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link is-active"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
         <li data-sidebar-item="admin-palyak"><a href="./palyak-admin.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
-        <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+        <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
       </ul>
       <div class="sidebar-user-wrap">
         <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -80,14 +73,10 @@
   <main class="main-content">
     <div class="p-4 p-md-5">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <h1 class="h3 mb-0">Értesítések</h1>
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge text-bg-primary" id="notificationsCount">0</span>
-          <button type="button" class="btn btn-outline-danger btn-sm" id="clearAllNotificationsBtn">Összes törlése</button>
-        </div>
+        <h1 class="h3 mb-0">Bejelentések</h1>
+        <button class="btn btn-outline-secondary btn-sm" id="refreshReportsBtn" type="button">Frissítés</button>
       </div>
-
-      <div id="notificationsList"></div>
+      <div id="reportsList"></div>
     </div>
   </main>
 
@@ -100,6 +89,6 @@
         document.documentElement.setAttribute('data-bs-theme','dark');
     })();
   </script>
-  <script src="ertesitesek.js"></script>
+  <script src="bejelentesek.js"></script>
 </body>
 </html>

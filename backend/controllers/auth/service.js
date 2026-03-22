@@ -27,6 +27,10 @@ const regisztracio = async ({ email, username, teljes_nev, password, szerep }) =
     throw httpHiba(400, "Minden kotelezo mezot ki kell tolteni.");
   }
 
+  if (String(username).trim().toLowerCase() === "admin") {
+    throw httpHiba(403, "Ez a felhasznalonev nem valaszthato.");
+  }
+
   if (!engedelyezettSzerepek.includes(szerep)) {
     throw httpHiba(400, "Ervenytelen szerepkor.");
   }

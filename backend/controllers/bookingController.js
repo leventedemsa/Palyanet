@@ -101,7 +101,7 @@ const createBooking = async (req, res) => {
       .request()
       .input("berlo_id", sql.Int, berlo_id)
       .query(`
-        SELECT felhasznalo_id, username, teljes_nev, email
+        SELECT felhasznalo_id, username, teljes_nev, email, szerep, tiltva
         FROM Felhasznalok
         WHERE felhasznalo_id = @berlo_id
       `);
@@ -113,6 +113,16 @@ const createBooking = async (req, res) => {
     }
 
     const berlo = berloResult.recordset[0];
+    if (berlo.tiltva) {
+      return res.status(403).json({
+        message: "A felhasznalo tiltva van, nem tud foglalni.",
+      });
+    }
+    if (String(berlo.szerep || "").toLowerCase() === "admin") {
+      return res.status(403).json({
+        message: "Admin felhasznalo nem foglalhat palyat.",
+      });
+    }
 
     // Create booking with 'pending' status
     const bookingResult = await pool
