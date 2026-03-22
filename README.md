@@ -33,10 +33,10 @@
         - Bejelentés beküldésekor az admin(ok) értesítést kap(nak) új bejelentésről. ✅
         - Admin döntés után a bejelentés küldője értesítést kap a döntésről. ✅
         - Admin pályatörlésnél kötelező indok, és a pálya tulajdonosa értesítést kap az indokkal. ✅
-    - Tiltás logika:
-        - Tiltott felhasználó nem tud pályát létrehozni.
-        - Tiltott felhasználó nem tud pályát foglalni.
-        - Tiltott felhasználó nem tud bejelentést küldeni.
+    - Tiltás logika: ✅
+        - Tiltott felhasználó nem tud pályát létrehozni. ✅
+        - Tiltott felhasználó nem tud pályát foglalni. ✅
+        - Tiltott felhasználó nem tud bejelentést küldeni. ✅
 - Pályáim Javascript részét át emelni a profile.js-ből. ✅
 - A Profil részlegnél a Sidebar legyen collapsable. (Telefonon ez jobban működik.) ✅
 - Auth controller átszervezése (controller/service/repository + auth/index import) ✅

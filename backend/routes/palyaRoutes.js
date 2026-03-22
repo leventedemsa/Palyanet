@@ -20,7 +20,7 @@ async function adminE(adminId) {
   return result.recordset.length > 0;
 }
 
-// ===== Ã–SSZES PÃLYA LEKÃ‰RÃ‰SE SZÅ°RÃ‰SEKKEL =====
+// ===== ÖSSZES PÁLYA LEKÉRÉSE SZŰRÉSEKKEL =====
 router.get("/", async (req, res) => {
   try {
     const { sportag, helyszin, maxar, datum } = req.query;
@@ -55,8 +55,8 @@ router.get("/", async (req, res) => {
     const result = await request.query(query);
     res.json(result.recordset);
   } catch (error) {
-    console.error("PÃ¡lya lekÃ©rÃ©si hiba:", error);
-    res.status(500).json({ error: "PÃ¡lya lekÃ©rÃ©se sikertelen" });
+    console.error("Pálya lekérési hiba:", error);
+    res.status(500).json({ error: "Pálya lekérése sikertelen" });
   }
 });
 
@@ -90,7 +90,7 @@ router.get("/owner/:tulaj_id", async (req, res) => {
   }
 });
 
-// ===== EGYETLEN PÃLYA LEKÃ‰RÃ‰SE =====
+// ===== EGYETLEN PÁLYA LEKÉRÉSE =====
 // ===== ADMIN PALYAK LISTAJA (PALYA ID/FELHASZNALONEV SZURES) =====
 router.get("/admin/list", async (req, res) => {
   try {
@@ -229,39 +229,39 @@ router.get("/:id", async (req, res) => {
       `);
     
     if (result.recordset.length === 0) {
-      return res.status(404).json({ error: "PÃ¡lya nem talÃ¡lhatÃ³" });
+      return res.status(404).json({ error: "Pálya nem található" });
     }
     
     res.json(result.recordset[0]);
   } catch (error) {
-    console.error("PÃ¡lya lekÃ©rÃ©si hiba:", error);
-    res.status(500).json({ error: "PÃ¡lya lekÃ©rÃ©se sikertelen" });
+    console.error("Pálya lekérési hiba:", error);
+    res.status(500).json({ error: "Pálya lekérése sikertelen" });
   }
 });
 
-// ===== ÃšJ PÃLYA LÃ‰TREHOZÃSA =====
+// ===== ÚJ PÁLYA LÉTREHOZÁSA =====
 router.post("/", async (req, res) => {
   try {
     const { tulaj_id, nev, sportag, helyszin, ar_ora, leiras, kep_url, nyitas, zaras } = req.body;
     
     console.log("POST adatok:", { tulaj_id, nev, sportag, helyszin, ar_ora });
     
-    // ValidÃ¡ciÃ³
+    // Validáció
     if (!nev || !sportag || !helyszin || !ar_ora) {
-      console.log("ValidÃ¡ciÃ³s hiba: hiÃ¡nyzÃ³ kÃ¶telezÅ‘ mezÅ‘");
-      return res.status(400).json({ error: "HiÃ¡nyzÃ³ kÃ¶telezÅ‘ mezÅ‘k: nev, sportag, helyszin, ar_ora" });
+      console.log("Validációs hiba: hiányzó kötelező mező");
+      return res.status(400).json({ error: "Hiányzó kötelező mezők: nev, sportag, helyszin, ar_ora" });
     }
 
     if (!tulaj_id || tulaj_id < 1) {
-      console.log("ValidÃ¡ciÃ³s hiba: invalid tulaj_id");
-      return res.status(400).json({ error: "Ã‰rvÃ©nytelen felhasznÃ¡lÃ³ ID" });
+      console.log("Validációs hiba: invalid tulaj_id");
+      return res.status(400).json({ error: "Érvénytelen felhasználó ID" });
     }
 
-    // Time formÃ¡tum konverziÃ³: HH:MM -> HH:MM:SS
+    // Time formátum konverzió: HH:MM -> HH:MM:SS
     let nyitas_formatted = (nyitas && nyitas.trim()) ? nyitas + ":00" : "";
     let zaras_formatted = (zaras && zaras.trim()) ? zaras + ":00" : "";
     
-    console.log("IdÅ‘mezÅ‘k konverziÃ³ - nyitas:", nyitas_formatted, "zaras:", zaras_formatted);
+    console.log("Időmezők konverzió - nyitas:", nyitas_formatted, "zaras:", zaras_formatted);
     
     const pool = await poolPromise;
     
@@ -283,18 +283,18 @@ router.post("/", async (req, res) => {
         SELECT SCOPE_IDENTITY() AS palya_id;
       `);
     
-    console.log("PÃ¡lya sikeresen hozzÃ¡adva, ID:", result.recordset[0].palya_id);
+    console.log("Pálya sikeresen hozzáadva, ID:", result.recordset[0].palya_id);
     res.status(201).json({
-      message: "PÃ¡lya sikeresen lÃ©trehozva",
+      message: "Pálya sikeresen létrehozva",
       palya_id: result.recordset[0].palya_id
     });
   } catch (error) {
-    console.error("PÃ¡lya lÃ©trehozÃ¡si hiba:", error);
-    res.status(500).json({ error: "PÃ¡lya lÃ©trehozÃ¡sa sikertelen: " + error.message });
+    console.error("Pálya létrehozási hiba:", error);
+    res.status(500).json({ error: "Pálya létrehozása sikertelen: " + error.message });
   }
 });
 
-// ===== PÃLYA TÃ–RLÃ‰SE =====
+// ===== PÁLYA TÖRLÉSE =====
 router.delete("/:id", async (req, res) => {
   try {
     const { id } = req.params;
