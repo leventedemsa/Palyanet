@@ -129,7 +129,16 @@
 
               <div class="col-md-6 mb-3">
                 <label for="modalHelyszin" class="form-label">Helyszín *</label>
-                <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required>
+                <div class="input-group">
+                  <input type="text" class="form-control" id="modalHelyszin" placeholder="Válassz helyszínt..." required readonly>
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    id="modalHelyszinValasztoBtn"
+                  >
+                    Választás
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -174,6 +183,86 @@
     </div>
   </div>
 
+  <div class="modal fade" id="helyszinValasztoModal" tabindex="-1" aria-labelledby="helyszinValasztoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="helyszinValasztoModalLabel">Helyszín kiválasztása</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <p class="fw-semibold mb-2">Kiválasztott helyszín</p>
+            <div id="kivalasztottHelyszinekPalyaim" class="border rounded p-3 bg-light-subtle">
+              <span class="text-body-secondary">Nincs kiválasztott helyszín</span>
+            </div>
+          </div>
+
+          <ul class="nav nav-tabs mb-3 gap-2" id="helyszinValasztoTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link active"
+                id="budapest-valaszto-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#budapestValaszto"
+                type="button"
+                role="tab"
+                aria-controls="budapestValaszto"
+                aria-selected="true"
+              >
+                Budapest
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button
+                class="nav-link"
+                id="megyek-valaszto-tab"
+                data-bs-toggle="pill"
+                data-bs-target="#megyekValaszto"
+                type="button"
+                role="tab"
+                aria-controls="megyekValaszto"
+                aria-selected="false"
+              >
+                Megyék és városok
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="helyszinValasztoTabContent">
+            <div class="tab-pane fade show active" id="budapestValaszto" role="tabpanel" aria-labelledby="budapest-valaszto-tab" tabindex="0">
+              <p class="fw-semibold mb-2">Budapesti kerületek</p>
+              <div class="border rounded p-3" style="max-height:260px; overflow-y:auto;">
+                <div class="row" id="palyaimBudapestKeruletekContainer"></div>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="megyekValaszto" role="tabpanel" aria-labelledby="megyek-valaszto-tab" tabindex="0">
+              <div class="border rounded p-3 mb-3" style="max-height:260px; overflow-y:auto;">
+                <p class="fw-semibold mb-3">Megyék</p>
+                <div class="row" id="palyaimMegyekContainer"></div>
+              </div>
+
+              <div class="border rounded p-3">
+                <p class="fw-semibold mb-3">Népszerű városok</p>
+                <div class="row" id="palyaimVarosokContainer"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" id="palyaimHelyszinTorlesBtn">Szűrő törlése</button>
+          <div>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégsem</button>
+            <button type="button" class="btn btn-primary" id="palyaimHelyszinKivalasztBtn">Kiválaszt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     (function(){
@@ -186,5 +275,3 @@
   <script src="palyaim.js"></script>
 </body>
 </html>
-
-

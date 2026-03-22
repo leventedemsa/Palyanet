@@ -141,9 +141,109 @@
     var modalNyitasInput = document.getElementById("modalNyitas");
     var modalZarasInput = document.getElementById("modalZaras");
     var openAddFieldModalButton = document.getElementById("openAddFieldModalButton");
+    var helyszinValasztoBtn = document.getElementById("modalHelyszinValasztoBtn");
+    var helyszinModalElement = document.getElementById("helyszinValasztoModal");
+    var helyszinModal = helyszinModalElement ? bootstrap.Modal.getOrCreateInstance(helyszinModalElement) : null;
+    var palyaimHelyszinKivalasztBtn = document.getElementById("palyaimHelyszinKivalasztBtn");
+    var palyaimHelyszinTorlesBtn = document.getElementById("palyaimHelyszinTorlesBtn");
+    var kivalasztottHelyszinBox = document.getElementById("kivalasztottHelyszinekPalyaim");
     var palyaModal = bootstrap.Modal.getOrCreateInstance(modalElement);
     var fields = [];
     var editingId = null;
+    var selectedLocation = "";
+    var switchingToLocationModal = false;
+    var restorePalyaModalAfterLocationModal = false;
+
+    var budapestKeruletek = Array.from({ length: 23 }, function (_, i) {
+      return toRoman(i + 1) + ". kerület";
+    });
+    var megyek = [
+      "Bács-Kiskun",
+      "Baranya",
+      "Békés",
+      "Borsod-Abaúj-Zemplén",
+      "Csongrád-Csanád",
+      "Fejér",
+      "Győr-Moson-Sopron",
+      "Hajdú-Bihar",
+      "Heves",
+      "Jász-Nagykun-Szolnok",
+      "Komárom-Esztergom",
+      "Nógrád",
+      "Pest",
+      "Somogy",
+      "Szabolcs-Szatmár-Bereg",
+      "Tolna",
+      "Vas",
+      "Veszprém",
+      "Zala"
+    ];
+    var varosok = ["Budapest", "Debrecen", "Győr", "Kecskemét", "Miskolc", "Nyíregyháza", "Pécs", "Sopron", "Szeged", "Székesfehérvár", "Szentendre"];
+
+    function toRoman(num) {
+      var map = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+      var out = "";
+      var n = num;
+      map.forEach(function (pair) {
+        var value = pair[0];
+        var numeral = pair[1];
+        while (n >= value) {
+          out += numeral;
+          n -= value;
+        }
+      });
+      return out;
+    }
+
+    function renderHelyszinOptions(containerId, items, prefix) {
+      var root = document.getElementById(containerId);
+      if (!root) return;
+      root.innerHTML = items.map(function (item, index) {
+        var id = prefix + "_" + index;
+        return (
+          '<div class="col-12 col-md-4">' +
+            '<div class="form-check mb-2">' +
+              '<input class="form-check-input palyaim-helyszin-choice" type="radio" name="palyaimHelyszinChoice" id="' + id + '" value="' + item + '">' +
+              '<label class="form-check-label" for="' + id + '">' + item + "</label>" +
+            "</div>" +
+          "</div>"
+        );
+      }).join("");
+    }
+
+    function updateHelyszinSummary() {
+      if (!kivalasztottHelyszinBox) return;
+      if (!selectedLocation) {
+        kivalasztottHelyszinBox.innerHTML = '<span class="text-body-secondary">Nincs kiválasztott helyszín</span>';
+        modalHelyszinInput.value = "";
+        return;
+      }
+
+      kivalasztottHelyszinBox.innerHTML =
+        '<span class="badge rounded-pill text-bg-success fs-6 px-3 py-2">' + selectedLocation + "</span>";
+      modalHelyszinInput.value = selectedLocation;
+    }
+
+    function syncHelyszinRadios() {
+      document.querySelectorAll(".palyaim-helyszin-choice").forEach(function (radio) {
+        radio.checked = radio.value === selectedLocation;
+      });
+    }
+
+    function initHelyszinModal() {
+      renderHelyszinOptions("palyaimBudapestKeruletekContainer", budapestKeruletek, "palyaim_kerulet");
+      renderHelyszinOptions("palyaimMegyekContainer", megyek, "palyaim_megye");
+      renderHelyszinOptions("palyaimVarosokContainer", varosok, "palyaim_varos");
+      syncHelyszinRadios();
+      updateHelyszinSummary();
+
+      document.querySelectorAll(".palyaim-helyszin-choice").forEach(function (radio) {
+        radio.addEventListener("change", function (event) {
+          selectedLocation = event.target.value || "";
+          updateHelyszinSummary();
+        });
+      });
+    }
 
     function formatPrice(value) {
       return Number(value).toLocaleString("hu-HU") + " Ft/ora";
@@ -188,6 +288,9 @@
       modalForm.reset();
       modalNyitasInput.value = "08:00";
       modalZarasInput.value = "20:00";
+      selectedLocation = "";
+      syncHelyszinRadios();
+      updateHelyszinSummary();
       if (modalTitle) modalTitle.textContent = "Uj palya hozzaadasa";
       modalSaveButton.textContent = "Hozzaadas";
     }
@@ -206,6 +309,9 @@
       modalNevInput.value = field.nev || "";
       modalSportagInput.value = field.sportag || "";
       modalHelyszinInput.value = field.helyszin || "";
+      selectedLocation = field.helyszin || "";
+      syncHelyszinRadios();
+      updateHelyszinSummary();
       modalArInput.value = String(field.ar_ora || "");
       modalKepUrlInput.value = field.kep_url || "";
       modalLeirasInput.value = field.leiras || "";
@@ -289,6 +395,29 @@
         resetModalForm();
       });
     }
+    if (helyszinValasztoBtn && helyszinModal) {
+      helyszinValasztoBtn.addEventListener("click", function (event) {
+        event.preventDefault();
+        syncHelyszinRadios();
+        updateHelyszinSummary();
+        switchingToLocationModal = true;
+        restorePalyaModalAfterLocationModal = true;
+        palyaModal.hide();
+      });
+    }
+    if (palyaimHelyszinTorlesBtn) {
+      palyaimHelyszinTorlesBtn.addEventListener("click", function () {
+        selectedLocation = "";
+        syncHelyszinRadios();
+        updateHelyszinSummary();
+      });
+    }
+    if (palyaimHelyszinKivalasztBtn) {
+      palyaimHelyszinKivalasztBtn.addEventListener("click", function () {
+        updateHelyszinSummary();
+        if (helyszinModal) helyszinModal.hide();
+      });
+    }
 
     myFieldsList.addEventListener("click", function (event) {
       var button = event.target.closest("button[data-action]");
@@ -301,9 +430,23 @@
     });
 
     modalElement.addEventListener("hidden.bs.modal", function () {
+      if (switchingToLocationModal && helyszinModal) {
+        switchingToLocationModal = false;
+        helyszinModal.show();
+        return;
+      }
       resetModalForm();
     });
+    if (helyszinModalElement) {
+      helyszinModalElement.addEventListener("hidden.bs.modal", function () {
+        if (restorePalyaModalAfterLocationModal) {
+          restorePalyaModalAfterLocationModal = false;
+          palyaModal.show();
+        }
+      });
+    }
 
+    initHelyszinModal();
     resetModalForm();
     fetchFields();
   }

@@ -1,752 +1,1040 @@
 ﻿<!doctype html>
 <html lang="hu" data-bs-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pályanet - Pályák</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <style>
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root{
-  --accent:#ff7a18;
-  --accent-soft:#ff9b3d;
-  --accent-darker:#e66a0a;
-}
-
-* {
-  font-family: 'Inter', sans-serif;
-}
-
-@keyframes slideDown {
-  from { opacity:0; transform:translateY(-10px); }
-  to { opacity:1; transform:translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity:0; }
-  to { opacity:1; }
-}
-
-@keyframes glow {
-  0%, 100% { box-shadow:0 0 10px rgba(255,122,24,0.3); }
-  50% { box-shadow:0 0 20px rgba(255,122,24,0.6); }
-}
-
-@keyframes underlineSlide {
-  from { width:0; }
-  to { width:100%; }
-}
-
-body {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.navbar {
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255,122,24,0.1) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.navbar-brand {
-  transition: all 0.3s ease;
-  font-size: 1.2rem;
-  letter-spacing: 0.5px;
-}
-
-.navbar-brand:hover {
-  color: var(--accent) !important;
-  transform: translateY(-2px);
-}
-
-.nav-link {
-  position: relative;
-  font-weight: 500;
-  color: inherit !important;
-  transition: all 0.3s ease;
-  margin: 0 0.5rem;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-soft));
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
-.nav-link:hover {
-  color: var(--accent) !important;
-}
-
-#themeToggle {
-  background: linear-gradient(135deg, rgba(255,122,24,0.1) 0%, rgba(255,122,24,0.05) 100%);
-  border: 1px solid rgba(255,122,24,0.3) !important;
-  color: inherit !important;
-  font-weight: 600;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-#themeToggle::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, rgba(255,122,24,0.3), transparent);
-  transform: translate(-50%, -50%);
-  transition: width 0.5s, height 0.5s;
-}
-
-#themeToggle:hover {
-  background: linear-gradient(135deg, rgba(255,122,24,0.2) 0%, rgba(255,122,24,0.1) 100%);
-  border-color: var(--accent) !important;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255,122,24,0.25);
-}
-
-#themeToggle:hover::before {
-  width: 150%;
-  height: 150%;
-}
-
-#themeToggle:active {
-  transform: translateY(-1px);
-}
-
-[data-bs-theme="dark"] #themeToggle {
-  background: linear-gradient(135deg, rgba(255,122,24,0.15) 0%, rgba(255,122,24,0.05) 100%);
-  border-color: rgba(255,122,24,0.4) !important;
-}
-
-footer {
-  border-top: 1px solid rgba(255,122,24,0.1);
-  transition: all 0.3s ease;
-}
-
-[data-bs-theme="dark"] footer {
-  border-top-color: rgba(255,122,24,0.2);
-  background: rgba(15, 18, 24, 0.5) !important;
-  backdrop-filter: blur(10px);
-}
-
-[data-bs-theme="light"] footer {
-  background: rgba(255,255,255,0.5) !important;
-  backdrop-filter: blur(10px);
-}
-
-[data-bs-theme="dark"] body{
-  background:#0b0d12;
-  color:#e8e8e8;
-}
-
-[data-bs-theme="dark"] body.bg-body-secondary {
-  background-color: #0b0d12 !important;
-}
-
-[data-bs-theme="dark"] .bg-light-subtle {
-  background-color: #141922 !important;
-}
-
-[data-bs-theme="dark"] .bg-body-tertiary {
-  background-color: #151a22 !important;
-}
-
-[data-bs-theme="dark"] .border {
-  border-color: rgba(255, 255, 255, 0.12) !important;
-}
-
-[data-bs-theme="dark"] .navbar-toggler {
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-[data-bs-theme="dark"] .navbar{
-  background:#0f1218 !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
-}
-
-[data-bs-theme="light"] body{
-  background:#f4f6fa;
-}
-
-[data-bs-theme="light"] body.bg-body-secondary {
-  background-color: #f4f6fa !important;
-}
-
-[data-bs-theme="light"] .navbar{
-  background:white !important;
-  border-bottom:1px solid rgba(255, 122, 24, 0.15) !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-}
-
-.palya-card {
-  height: 100%;
-  border-radius: 1.5rem;
-  overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-.palya-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(255,122,24,0.3) !important;
-}
-
-[data-bs-theme="dark"] .palya-card {
-  background: radial-gradient(circle at 20% 20%, rgba(255,122,24,.15), transparent 40%), #11151d;
-  border: 1px solid rgba(255,255,255,.06);
-}
-
-[data-bs-theme="light"] .palya-card {
-  background: radial-gradient(circle at 20% 20%, rgba(255,122,24,.1), transparent 40%), white;
-  border: 1px solid #e6e6e6;
-}
-
-.palya-card img {
-  height: 200px;
-  object-fit: cover;
-}
-
-.palya-info {
-  padding: 1.25rem;
-}
-
-.palya-badge {
-  display: inline-block;
-  margin: 0.5rem 0;
-}
-
-.palya-meta {
-  font-size: 0.95rem;
-  margin: 0.5rem 0;
-  color: #6c757d;
-}
-
-[data-bs-theme="dark"] .palya-meta {
-  color: #adb5bd;
-}
-
-.palya-owner {
-  margin-top: 1rem;
-  font-weight: 500;
-  border-top: 1px solid #dee2e6;
-  padding-top: 1rem;
-}
-
-[data-bs-theme="dark"] .palya-owner {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.btn-accent {
-  background:linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
-  border:none;
-  color:white;
-  font-weight:600;
-  padding:.8rem 2rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-size: 0.9rem;
-  box-shadow: 0 4px 15px rgba(255,122,24,0.3);
-}
-
-.btn-accent::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.2);
-  transition: left 0.4s ease;
-  z-index: 0;
-}
-
-.btn-accent:hover::before {
-  left: 100%;
-}
-
-.btn-accent:hover{
-  background:linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%);
-  transform:translateY(-4px);
-  box-shadow:0 15px 40px rgba(255,122,24,.5), 0 0 20px rgba(255,122,24,.3);
-}
-
-[data-bs-theme="dark"] .modal-content {
-  background: #11151d;
-  border: 1px solid rgba(255,255,255,.06);
-}
-
-[data-bs-theme="dark"] .modal-header,
-[data-bs-theme="dark"] .modal-footer {
-  border-color: rgba(255,255,255,.06);
-}
-
-[data-bs-theme="dark"] .form-control,
-[data-bs-theme="dark"] .form-select {
-  background: #0b0d12;
-  border-color: rgba(255,122,24,0.3);
-  color: #e8e8e8;
-}
-
-[data-bs-theme="dark"] .form-select option {
-  background: #1a1f2e;
-  color: #e8e8e8;
-}
-
-[data-bs-theme="dark"] .form-control:focus,
-[data-bs-theme="dark"] .form-select:focus {
-  border-color: var(--accent);
-  background: #0b0d12;
-  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.35);
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: rgba(255,122,24,0.05);
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--accent), var(--accent-soft));
-  border-radius: 10px;
-  transition: background 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--accent-soft), var(--accent));
-}
-
-/* Notification Styles */
-.notification-icon {
-  position: relative;
-  cursor: pointer;
-  font-size: 1.3rem;
-  transition: all 0.3s ease;
-}
-
-.notification-icon:hover {
-  color: var(--accent);
-  transform: scale(1.1);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.75rem;
-  font-weight: bold;
-  border: 2px solid white;
-}
-
-.notification-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: white;
-  border: 1px solid rgba(255,122,24,0.2);
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-  width: 320px;
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 1000;
-  display: none;
-  margin-top: 10px;
-}
-
-.notification-dropdown.show {
-  display: block;
-  animation: slideDown 0.3s ease;
-}
-
-[data-bs-theme="dark"] .notification-dropdown {
-  background: #11151d;
-  border-color: rgba(255,122,24,0.3);
-}
-
-.notification-item {
-  padding: 1rem;
-  border-bottom: 1px solid rgba(255,122,24,0.1);
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.notification-item:last-child {
-  border-bottom: none;
-}
-
-.notification-item:hover {
-  background: rgba(255,122,24,0.05);
-}
-
-[data-bs-theme="dark"] .notification-item:hover {
-  background: rgba(255,122,24,0.1);
-}
-
-.notification-title {
-  font-weight: 600;
-  color: var(--accent);
-  font-size: 0.9rem;
-  margin-bottom: 0.25rem;
-}
-
-.notification-message {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 0.5rem;
-}
-
-[data-bs-theme="dark"] .notification-message {
-  color: #aaa;
-}
-
-.notification-time {
-  font-size: 0.75rem;
-  color: #999;
-}
-
-[data-bs-theme="dark"] .notification-time {
-  color: #777;
-}
-
-.notification-empty {
-  padding: 2rem 1rem;
-  text-align: center;
-  color: #999;
-  font-size: 0.9rem;
-}
-
-[data-bs-theme="dark"] .notification-empty {
-  color: #777;
-}
-
-    </style>
-  </head>
-
-  <body class="d-flex flex-column min-vh-100" style="background:linear-gradient(135deg, rgba(255,122,24,0.08) 0%, transparent 50%);">
-    <header>
-      <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
-        <div class="container">
-          <a class="navbar-brand fw-bold" href="./index.html">
-            <img src="./palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
-            Pályanet
-          </a>
-
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <div class="navbar-nav ms-auto align-items-lg-center gap-2">
-              <a class="nav-link active" href="./palyak.html">Pályák</a>
-              <a class="nav-link" href="./contact.html">Kapcsolat</a>
-              <a class="nav-link" href="./login.html">Bejelentkezés</a>
-
-              <!-- Notification Icon (shown when logged in) -->
-              <div class="nav-item ms-lg-3" id="notificationContainer" style="display: none; position: relative;">
-                <div class="notification-icon" id="notificationIcon" title="Értesítések">
-                  🔔
-                  <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pályanet - Pályák</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+            :root {
+                --accent: #ff7a18;
+                --accent-soft: #ff9b3d;
+                --accent-darker: #e66a0a;
+            }
+
+            * {
+                font-family: "Inter", sans-serif;
+            }
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            @keyframes glow {
+                0%,
+                100% {
+                    box-shadow: 0 0 10px rgba(255, 122, 24, 0.3);
+                }
+                50% {
+                    box-shadow: 0 0 20px rgba(255, 122, 24, 0.6);
+                }
+            }
+
+            @keyframes underlineSlide {
+                from {
+                    width: 0;
+                }
+                to {
+                    width: 100%;
+                }
+            }
+
+            body {
+                animation: fadeIn 0.6s ease-out;
+            }
+
+            .navbar {
+                backdrop-filter: blur(10px);
+                border-bottom: 1px solid rgba(255, 122, 24, 0.1) !important;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .navbar-brand {
+                transition: all 0.3s ease;
+                font-size: 1.2rem;
+                letter-spacing: 0.5px;
+            }
+
+            .navbar-brand:hover {
+                color: var(--accent) !important;
+                transform: translateY(-2px);
+            }
+
+            .nav-link {
+                position: relative;
+                font-weight: 500;
+                color: inherit !important;
+                transition: all 0.3s ease;
+                margin: 0 0.5rem;
+            }
+
+            .nav-link::after {
+                content: "";
+                position: absolute;
+                bottom: -8px;
+                left: 0;
+                width: 0;
+                height: 2px;
+                background: linear-gradient(90deg, var(--accent), var(--accent-soft));
+                transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .nav-link:hover::after {
+                width: 100%;
+            }
+
+            .nav-link:hover {
+                color: var(--accent) !important;
+            }
+
+            #themeToggle {
+                background: linear-gradient(135deg, rgba(255, 122, 24, 0.1) 0%, rgba(255, 122, 24, 0.05) 100%);
+                border: 1px solid rgba(255, 122, 24, 0.3) !important;
+                color: inherit !important;
+                font-weight: 600;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+            }
+
+            #themeToggle::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: radial-gradient(circle, rgba(255, 122, 24, 0.3), transparent);
+                transform: translate(-50%, -50%);
+                transition:
+                    width 0.5s,
+                    height 0.5s;
+            }
+
+            #themeToggle:hover {
+                background: linear-gradient(135deg, rgba(255, 122, 24, 0.2) 0%, rgba(255, 122, 24, 0.1) 100%);
+                border-color: var(--accent) !important;
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(255, 122, 24, 0.25);
+            }
+
+            #themeToggle:hover::before {
+                width: 150%;
+                height: 150%;
+            }
+
+            #themeToggle:active {
+                transform: translateY(-1px);
+            }
+
+            [data-bs-theme="dark"] #themeToggle {
+                background: linear-gradient(135deg, rgba(255, 122, 24, 0.15) 0%, rgba(255, 122, 24, 0.05) 100%);
+                border-color: rgba(255, 122, 24, 0.4) !important;
+            }
+
+            footer {
+                border-top: 1px solid rgba(255, 122, 24, 0.1);
+                transition: all 0.3s ease;
+            }
+
+            [data-bs-theme="dark"] footer {
+                border-top-color: rgba(255, 122, 24, 0.2);
+                background: rgba(15, 18, 24, 0.5) !important;
+                backdrop-filter: blur(10px);
+            }
+
+            [data-bs-theme="light"] footer {
+                background: rgba(255, 255, 255, 0.5) !important;
+                backdrop-filter: blur(10px);
+            }
+
+            [data-bs-theme="dark"] body {
+                background: #0b0d12;
+                color: #e8e8e8;
+            }
+
+            [data-bs-theme="dark"] body.bg-body-secondary {
+                background-color: #0b0d12 !important;
+            }
+
+            [data-bs-theme="dark"] .bg-light-subtle {
+                background-color: #141922 !important;
+            }
+
+            [data-bs-theme="dark"] .bg-body-tertiary {
+                background-color: #151a22 !important;
+            }
+
+            [data-bs-theme="dark"] .border {
+                border-color: rgba(255, 255, 255, 0.12) !important;
+            }
+
+            [data-bs-theme="dark"] .navbar-toggler {
+                border-color: rgba(255, 255, 255, 0.25);
+            }
+
+            [data-bs-theme="dark"] .navbar {
+                background: #0f1218 !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+            }
+
+            [data-bs-theme="light"] body {
+                background: #f4f6fa;
+            }
+
+            [data-bs-theme="light"] body.bg-body-secondary {
+                background-color: #f4f6fa !important;
+            }
+
+            [data-bs-theme="light"] .navbar {
+                background: white !important;
+                border-bottom: 1px solid rgba(255, 122, 24, 0.15) !important;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+            }
+
+            .palya-card {
+                height: 100%;
+                border-radius: 1.5rem;
+                overflow: hidden;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+            }
+
+            .palya-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 40px rgba(255, 122, 24, 0.3) !important;
+            }
+
+            [data-bs-theme="dark"] .palya-card {
+                background: radial-gradient(circle at 20% 20%, rgba(255, 122, 24, 0.15), transparent 40%), #11151d;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+
+            [data-bs-theme="light"] .palya-card {
+                background: radial-gradient(circle at 20% 20%, rgba(255, 122, 24, 0.1), transparent 40%), white;
+                border: 1px solid #e6e6e6;
+            }
+
+            .palya-card img {
+                height: 200px;
+                object-fit: cover;
+            }
+
+            .palya-info {
+                padding: 1.25rem;
+            }
+
+            .palya-badge {
+                display: inline-block;
+                margin: 0.5rem 0;
+            }
+
+            .palya-meta {
+                font-size: 0.95rem;
+                margin: 0.5rem 0;
+                color: #6c757d;
+            }
+
+            [data-bs-theme="dark"] .palya-meta {
+                color: #adb5bd;
+            }
+
+            .palya-owner {
+                margin-top: 1rem;
+                font-weight: 500;
+                border-top: 1px solid #dee2e6;
+                padding-top: 1rem;
+            }
+
+            [data-bs-theme="dark"] .palya-owner {
+                border-color: rgba(255, 255, 255, 0.12);
+            }
+
+            .btn-accent {
+                background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+                border: none;
+                color: white;
+                font-weight: 600;
+                padding: 0.8rem 2rem;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                position: relative;
+                overflow: hidden;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                font-size: 0.9rem;
+                box-shadow: 0 4px 15px rgba(255, 122, 24, 0.3);
+            }
+
+            .btn-accent::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.2);
+                transition: left 0.4s ease;
+                z-index: 0;
+            }
+
+            .btn-accent:hover::before {
+                left: 100%;
+            }
+
+            .btn-accent:hover {
+                background: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%);
+                transform: translateY(-4px);
+                box-shadow:
+                    0 15px 40px rgba(255, 122, 24, 0.5),
+                    0 0 20px rgba(255, 122, 24, 0.3);
+            }
+
+            [data-bs-theme="dark"] .modal-content {
+                background: #11151d;
+                border: 1px solid rgba(255, 255, 255, 0.06);
+            }
+
+            [data-bs-theme="dark"] .modal-header,
+            [data-bs-theme="dark"] .modal-footer {
+                border-color: rgba(255, 255, 255, 0.06);
+            }
+
+            [data-bs-theme="dark"] .form-control,
+            [data-bs-theme="dark"] .form-select {
+                background: #0b0d12;
+                border-color: rgba(255, 122, 24, 0.3);
+                color: #e8e8e8;
+            }
+
+            [data-bs-theme="dark"] .form-select option {
+                background: #1a1f2e;
+                color: #e8e8e8;
+            }
+
+            [data-bs-theme="dark"] .form-control:focus,
+            [data-bs-theme="dark"] .form-select:focus {
+                border-color: var(--accent);
+                background: #0b0d12;
+                box-shadow: 0 0 0 0.2rem rgba(255, 122, 24, 0.35);
+            }
+
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+
+            ::-webkit-scrollbar-track {
+                background: rgba(255, 122, 24, 0.05);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, var(--accent), var(--accent-soft));
+                border-radius: 10px;
+                transition: background 0.3s ease;
+            }
+
+            ::-webkit-scrollbar-thumb:hover {
+                background: linear-gradient(180deg, var(--accent-soft), var(--accent));
+            }
+
+            /* Notification Styles */
+            .notification-icon {
+                position: relative;
+                cursor: pointer;
+                font-size: 1.3rem;
+                transition: all 0.3s ease;
+            }
+
+            .notification-icon:hover {
+                color: var(--accent);
+                transform: scale(1.1);
+            }
+
+            .notification-badge {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+                color: white;
+                border-radius: 50%;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.75rem;
+                font-weight: bold;
+                border: 2px solid white;
+            }
+
+            .notification-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                border: 1px solid rgba(255, 122, 24, 0.2);
+                border-radius: 1rem;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+                width: 320px;
+                max-height: 400px;
+                overflow-y: auto;
+                z-index: 1000;
+                display: none;
+                margin-top: 10px;
+            }
+
+            .notification-dropdown.show {
+                display: block;
+                animation: slideDown 0.3s ease;
+            }
+
+            [data-bs-theme="dark"] .notification-dropdown {
+                background: #11151d;
+                border-color: rgba(255, 122, 24, 0.3);
+            }
+
+            .notification-item {
+                padding: 1rem;
+                border-bottom: 1px solid rgba(255, 122, 24, 0.1);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .notification-item:last-child {
+                border-bottom: none;
+            }
+
+            .notification-item:hover {
+                background: rgba(255, 122, 24, 0.05);
+            }
+
+            [data-bs-theme="dark"] .notification-item:hover {
+                background: rgba(255, 122, 24, 0.1);
+            }
+
+            .notification-title {
+                font-weight: 600;
+                color: var(--accent);
+                font-size: 0.9rem;
+                margin-bottom: 0.25rem;
+            }
+
+            .notification-message {
+                font-size: 0.85rem;
+                color: #666;
+                margin-bottom: 0.5rem;
+            }
+
+            [data-bs-theme="dark"] .notification-message {
+                color: #aaa;
+            }
+
+            .notification-time {
+                font-size: 0.75rem;
+                color: #999;
+            }
+
+            [data-bs-theme="dark"] .notification-time {
+                color: #777;
+            }
+
+            .notification-empty {
+                padding: 2rem 1rem;
+                text-align: center;
+                color: #999;
+                font-size: 0.9rem;
+            }
+
+            [data-bs-theme="dark"] .notification-empty {
+                color: #777;
+            }
+
+            .helyszin-selected-list {
+                min-height: 56px;
+                max-height: 140px;
+                overflow-y: auto;
+            }
+
+            .helyszin-choice-list {
+                max-height: 260px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+
+    <body class="d-flex flex-column min-vh-100" style="background: linear-gradient(135deg, rgba(255, 122, 24, 0.08) 0%, transparent 50%)">
+        <header>
+            <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
+                <div class="container">
+                    <a class="navbar-brand fw-bold" href="./index.html">
+                        <img src="./palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
+                        Pályanet
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <div class="navbar-nav ms-auto align-items-lg-center gap-2">
+                            <a class="nav-link active" href="./palyak.html">Pályák</a>
+                            <a class="nav-link" href="./contact.html">Kapcsolat</a>
+                            <a class="nav-link" href="./login.html">Bejelentkezés</a>
+
+                            <!-- Notification Icon (shown when logged in) -->
+                            <div class="nav-item ms-lg-3" id="notificationContainer" style="display: none; position: relative">
+                                <div class="notification-icon" id="notificationIcon" title="Értesítések">
+                                    🔔
+                                    <span class="notification-badge" id="notificationBadge" style="display: none">0</span>
+                                </div>
+                                <div class="notification-dropdown" id="notificationDropdown">
+                                    <div class="notification-empty">Nincsenek értesítések</div>
+                                </div>
+                            </div>
+
+                            <div class="nav-item ms-lg-2">
+                                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">
+                                    🌙 Dark
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="notification-dropdown" id="notificationDropdown">
-                  <div class="notification-empty">Nincsenek értesítések</div>
-                </div>
-              </div>
+            </nav>
+        </header>
 
-              <div class="nav-item ms-lg-2">
-                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
-              </div>
+        <main class="container py-5 flex-fill">
+            <!-- SZŰRŐ SZAKASZ -->
+            <section class="mb-5">
+                <h1 class="h3 fw-bold mb-4">Pályák keresése</h1>
+
+                <div class="rounded-4 p-4 bg-body-tertiary border shadow-sm">
+                    <form class="row g-3">
+                        <div class="col-md-3">
+                            <label for="sportag" class="form-label">Sportág</label>
+                            <select class="form-select" id="sportag">
+                                <option selected value="">Összes</option>
+                                <option value="Foci">Foci</option>
+                                <option value="Tenisz">Tenisz</option>
+                                <option value="Kosárlabda">Kosárlabda</option>
+                                <option value="Badminton">Badminton</option>
+                                <option value="Squash">Squash</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="helyszin" class="form-label">Helyszín</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="helyszin" placeholder="Válassz helyszínt..." readonly />
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="maxar" class="form-label">Max ár/óra</label>
+                            <input type="number" class="form-control" id="maxar" placeholder="Ft" min="0" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="datum" class="form-label">Dátum</label>
+                            <input type="date" class="form-control" id="datum" />
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="placeholder" class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-accent w-100" id="keresesBtn">Keresés</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- KÁRTYÁK SZAKASZ -->
+            <section>
+                <div class="row g-4" id="palyakContainer">
+                    <!-- Dinamikus pályák ide kerülnek -->
+                </div>
+            </section>
+        </main>
+
+        <!-- ===== HELYSZÍN SZŰRŐ MODAL ===== -->
+        <div class="modal fade" id="helyszinModal" tabindex="-1" aria-labelledby="helyszinModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="helyszinModalLabel">Pályák szűrése helyszín szerint</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <p class="fw-semibold mb-2">Kiválasztott szűrők</p>
+                            <div id="kivalasztottHelyszinek" class="border rounded p-3 bg-light-subtle helyszin-selected-list">
+                                <span class="text-body-secondary">Nincs kiválasztott helyszín</span>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-tabs mb-3 gap-2" id="helyszinTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button
+                                    class="nav-link active"
+                                    id="budapest-tab"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#budapest"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="budapest"
+                                    aria-selected="true">
+                                    Budapest
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button
+                                    class="nav-link"
+                                    id="megyek-tab"
+                                    data-bs-toggle="pill"
+                                    data-bs-target="#megyek"
+                                    type="button"
+                                    role="tab"
+                                    aria-controls="megyek"
+                                    aria-selected="false">
+                                    Megyék és városok
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="helyszinTabContent">
+                            <div
+                                class="tab-pane fade show active"
+                                id="budapest"
+                                role="tabpanel"
+                                aria-labelledby="budapest-tab"
+                                tabindex="0">
+                                <p class="fw-semibold mb-2">Budapesti kerületek</p>
+                                <div class="border rounded p-3 helyszin-choice-list">
+                                    <div class="row" id="budapestKeruletekContainer"></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="megyek" role="tabpanel" aria-labelledby="megyek-tab" tabindex="0">
+                                <div class="border rounded p-3 mb-3 helyszin-choice-list">
+                                    <p class="fw-semibold mb-3">Megyék</p>
+                                    <div class="row" id="megyekContainer"></div>
+                                </div>
+
+                                <div class="border rounded p-3">
+                                    <p class="fw-semibold mb-3">Népszerű városok</p>
+                                    <div class="row" id="varosokContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" id="helyszinSzurokTorleseBtn">Szűrők törlése</button>
+                        <div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Mégsem</button>
+                            <button type="button" class="btn btn-accent" id="helyszinKeresesBtn">Keresés</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </nav>
-    </header>
 
-    <main class="container py-5 flex-fill">
-      <!-- SZŰRŐ SZAKASZ -->
-      <section class="mb-5">
-        <h1 class="h3 fw-bold mb-4">Pályák keresése</h1>
+        <!-- ===== ÚJ PÁLYA MODAL ===== -->
+        <div class="modal fade" id="ujPalyaModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Új pálya hozzáadása</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="ujPalyaForm">
+                            <div class="mb-3">
+                                <label for="modalNev" class="form-label">Pálya neve *</label>
+                                <input type="text" class="form-control" id="modalNev" required />
+                            </div>
 
-        <div class="rounded-4 p-4 bg-body-tertiary border shadow-sm">
-          <form class="row g-3">
-            <div class="col-md-3">
-              <label for="sportag" class="form-label">Sportág</label>
-              <select class="form-select" id="sportag">
-                <option selected value="">Összes</option>
-                <option value="Foci">Foci</option>
-                <option value="Tenisz">Tenisz</option>
-                <option value="Kosárlabda">Kosárlabda</option>
-                <option value="Badminton">Badminton</option>
-                <option value="Squash">Squash</option>
-              </select>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalSportag" class="form-label">Sportág *</label>
+                                    <select class="form-select" id="modalSportag" required>
+                                        <option selected value="">Válassz sportágat</option>
+                                        <option value="Foci">Foci</option>
+                                        <option value="Tenisz">Tenisz</option>
+                                        <option value="Kosárlabda">Kosárlabda</option>
+                                        <option value="Badminton">Badminton</option>
+                                        <option value="Squash">Squash</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalHelyszin" class="form-label">Helyszín *</label>
+                                    <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalAr" class="form-label">Ár/óra (Ft) *</label>
+                                    <input type="number" class="form-control" id="modalAr" min="0" required />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalKepUrl" class="form-label">Kép URL</label>
+                                    <input type="url" class="form-control" id="modalKepUrl" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="modalLeiras" class="form-label">Leírás</label>
+                                <textarea class="form-control" id="modalLeiras" rows="3"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalNyitas" class="form-label">Nyitás</label>
+                                    <input
+                                        type="time"
+                                        class="form-control"
+                                        id="modalNyitas"
+                                        min="00:00"
+                                        max="23:59"
+                                        step="300"
+                                        value="08:00" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="modalZaras" class="form-label">Zárás</label>
+                                    <input
+                                        type="time"
+                                        class="form-control"
+                                        id="modalZaras"
+                                        min="00:00"
+                                        max="23:59"
+                                        step="300"
+                                        value="20:00" />
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info">
+                                <small>* Kötelező mezők</small>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+                        <button type="button" class="btn btn-accent" id="ujPalyaKuldBtn">Hozzáadás</button>
+                    </div>
+                </div>
             </div>
-
-            <div class="col-md-3">
-              <label for="helyszin" class="form-label">Helyszín</label>
-              <input type="text" class="form-control" id="helyszin" placeholder="pl. Budapest" />
-            </div>
-
-            <div class="col-md-2">
-              <label for="maxar" class="form-label">Max ár/óra</label>
-              <input type="number" class="form-control" id="maxar" placeholder="Ft" min="0" />
-            </div>
-
-            <div class="col-md-2">
-              <label for="datum" class="form-label">Dátum</label>
-              <input type="date" class="form-control" id="datum" />
-            </div>
-
-            <div class="col-md-2">
-              <label for="placeholder" class="form-label">&nbsp;</label>
-              <button type="button" class="btn btn-accent w-100" id="keresesBtn">Keresés</button>
-            </div>
-
-            
-          </form>
         </div>
-      </section>
 
-      <!-- KÁRTYÁK SZAKASZ -->
-      <section>
-        <div class="row g-4" id="palyakContainer">
-          <!-- Dinamikus pályák ide kerülnek -->
-        </div>
-      </section>
+        <footer class="bg-light-subtle text-center py-4 mt-5">
+            <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
+        </footer>
 
-    </main>
+        <!-- ===== FOGLALÁS MODAL ===== -->
+        <div class="modal fade" id="foglalasModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Pálya foglalása</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="foglalasModalContent">
+                            <div id="palyaInfo" class="mb-4">
+                                <h6 id="palyaNev" class="fw-bold">Pálya neve</h6>
+                                <p id="palyaDetails" class="text-muted mb-2"></p>
+                                <p id="palyaAr" class="fw-semibold">Ár: <span id="palyaArValue">0</span> Ft/óra</p>
+                            </div>
 
-    <!-- ===== ÚJ PÁLYA MODAL ===== -->
-    <div class="modal fade" id="ujPalyaModal" tabindex="-1">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Új pálya hozzáadása</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <form id="ujPalyaForm">
-              <div class="mb-3">
-                <label for="modalNev" class="form-label">Pálya neve *</label>
-                <input type="text" class="form-control" id="modalNev" required />
-              </div>
+                            <form id="foglalasForm">
+                                <div class="mb-3">
+                                    <label for="foglalasDatum" class="form-label">Foglalás dátuma *</label>
+                                    <input type="date" class="form-control" id="foglalasDatum" required />
+                                </div>
 
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="modalSportag" class="form-label">Sportág *</label>
-                  <select class="form-select" id="modalSportag" required>
-                    <option selected value="">Válassz sportágat</option>
-                    <option value="Foci">Foci</option>
-                    <option value="Tenisz">Tenisz</option>
-                    <option value="Kosárlabda">Kosárlabda</option>
-                    <option value="Badminton">Badminton</option>
-                    <option value="Squash">Squash</option>
-                  </select>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="foglalasKezdes" class="form-label">Kezdés ideje *</label>
+                                        <select class="form-select" id="foglalasKezdes" required>
+                                            <option value="">Válassz időpontot</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="foglalasVege" class="form-label">Vége ideje *</label>
+                                        <select class="form-select" id="foglalasVege" required>
+                                            <option value="">Válassz időpontot</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="foglalasOsszeg" class="form-label">Összeg</label>
+                                    <input type="text" class="form-control" id="foglalasOsszeg" disabled />
+                                    <small class="text-muted">Automatikusan kiszámított az órák száma alapján</small>
+                                </div>
+
+                                <div class="alert alert-info">
+                                    <small>* Kötelező mezők. A foglalási kérelem az tulajdonoshoz kerül elfogadásra.</small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
+                        <button type="button" class="btn btn-accent" id="foglalasKuldBtn">Foglalás elküldése</button>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label for="modalHelyszin" class="form-label">Helyszín *</label>
-                  <input type="text" class="form-control" id="modalHelyszin" placeholder="pl. Budapest" required />
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="modalAr" class="form-label">Ár/óra (Ft) *</label>
-                  <input type="number" class="form-control" id="modalAr" min="0" required />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="modalKepUrl" class="form-label">Kép URL</label>
-                  <input type="url" class="form-control" id="modalKepUrl" />
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="modalLeiras" class="form-label">Leírás</label>
-                <textarea class="form-control" id="modalLeiras" rows="3"></textarea>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="modalNyitas" class="form-label">Nyitás</label>
-                  <input type="time" class="form-control" id="modalNyitas" min="00:00" max="23:59" step="300" value="08:00" />
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="modalZaras" class="form-label">Zárás</label>
-                  <input type="time" class="form-control" id="modalZaras" min="00:00" max="23:59" step="300" value="20:00" />
-                </div>
-              </div>
-
-              <div class="alert alert-info">
-                <small>* Kötelező mezők</small>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
-            <button type="button" class="btn btn-accent" id="ujPalyaKuldBtn">Hozzáadás</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <footer class="bg-light-subtle text-center py-4 mt-5">
-      <div class="container">© 2026 Pályanet - Minden jog fenntartva</div>
-    </footer>
-
-    <!-- ===== FOGLALÁS MODAL ===== -->
-    <div class="modal fade" id="foglalasModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Pálya foglalása</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div id="foglalasModalContent">
-              <div id="palyaInfo" class="mb-4">
-                <h6 id="palyaNev" class="fw-bold">Pálya neve</h6>
-                <p id="palyaDetails" class="text-muted mb-2"></p>
-                <p id="palyaAr" class="fw-semibold">Ár: <span id="palyaArValue">0</span> Ft/óra</p>
-              </div>
-
-              <form id="foglalasForm">
-                <div class="mb-3">
-                  <label for="foglalasDatum" class="form-label">Foglalás dátuma *</label>
-                  <input type="date" class="form-control" id="foglalasDatum" required />
-                </div>
-
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label for="foglalasKezdes" class="form-label">Kezdés ideje *</label>
-                    <select class="form-select" id="foglalasKezdes" required>
-                      <option value="">Válassz időpontot</option>
-                    </select>
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label for="foglalasVege" class="form-label">Vége ideje *</label>
-                    <select class="form-select" id="foglalasVege" required>
-                      <option value="">Válassz időpontot</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="foglalasOsszeg" class="form-label">Összeg</label>
-                  <input type="text" class="form-control" id="foglalasOsszeg" disabled />
-                  <small class="text-muted">Automatikusan kiszámított az órák száma alapján</small>
-                </div>
-
-                <div class="alert alert-info">
-                  <small>* Kötelező mezők. A foglalási kérelem az tulajdonoshoz kerül elfogadásra.</small>
-                </div>
-              </form>
             </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bezárás</button>
-            <button type="button" class="btn btn-accent" id="foglalasKuldBtn">Foglalás elküldése</button>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./auth-nav.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="./auth-nav.js"></script>
 
-    <script>
-      const htmlEl = document.documentElement;
-      const btn = document.getElementById("themeToggle");
+        <script>
+            const htmlEl = document.documentElement;
+            const btn = document.getElementById("themeToggle");
 
-      function setTheme(theme) {
-        htmlEl.setAttribute("data-bs-theme", theme);
-        localStorage.setItem("theme", theme);
+            function setTheme(theme) {
+                htmlEl.setAttribute("data-bs-theme", theme);
+                localStorage.setItem("theme", theme);
 
-        if (theme === "dark") {
-          btn.textContent = "☀️ Light";
-          btn.classList.remove("btn-outline-secondary");
-          btn.classList.add("btn-outline-light");
-        } else {
-          btn.textContent = "🌙 Dark";
-          btn.classList.remove("btn-outline-light");
-          btn.classList.add("btn-outline-secondary");
-        }
-      }
+                if (theme === "dark") {
+                    btn.textContent = "☀️ Light";
+                    btn.classList.remove("btn-outline-secondary");
+                    btn.classList.add("btn-outline-light");
+                } else {
+                    btn.textContent = "🌙 Dark";
+                    btn.classList.remove("btn-outline-light");
+                    btn.classList.add("btn-outline-secondary");
+                }
+            }
 
-      const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(saved ?? (prefersDark ? "dark" : "light"));
+            const saved = localStorage.getItem("theme");
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(saved ?? (prefersDark ? "dark" : "light"));
 
-      btn.addEventListener("click", () => {
-        const current = htmlEl.getAttribute("data-bs-theme") || "light";
-        setTheme(current === "dark" ? "light" : "dark");
-      });
+            btn.addEventListener("click", () => {
+                const current = htmlEl.getAttribute("data-bs-theme") || "light";
+                setTheme(current === "dark" ? "light" : "dark");
+            });
 
-      // ===== PÁLYÁK KEZELÉS =====
-      const API_URL = "http://localhost:4000/api/palyak";
-      const container = document.getElementById("palyakContainer");
+            // ===== PÁLYÁK KEZELÉS =====
+            const API_URL = "http://localhost:4000/api/palyak";
+            const container = document.getElementById("palyakContainer");
+            const helyszinInput = document.getElementById("helyszin");
+            const helyszinModalElement = document.getElementById("helyszinModal");
+            const helyszinModal = helyszinModalElement ? new bootstrap.Modal(helyszinModalElement) : null;
+            const selectedLocations = new Set();
 
-      // Pályák megjelenítése
-      function formatTimeOnly(value) {
-        if (!value) return "--:--";
-        const raw = String(value);
-        const hhmmMatch = raw.match(/(\d{1,2}):(\d{2})/);
-        if (hhmmMatch) {
-          return `${hhmmMatch[1].padStart(2, "0")}:${hhmmMatch[2]}`;
-        }
-        const d = new Date(value);
-        if (!Number.isNaN(d.getTime())) {
-          return d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit", hour12: false });
-        }
-        return "--:--";
-      }
+            const budapestKeruletek = Array.from({ length: 23 }, (_, i) => `${toRoman(i + 1)}. kerület`);
+            const megyek = [
+                "Bács-Kiskun",
+                "Baranya",
+                "Békés",
+                "Borsod-Abaúj-Zemplén",
+                "Csongrád-Csanád",
+                "Fejér",
+                "Győr-Moson-Sopron",
+                "Hajdú-Bihar",
+                "Heves",
+                "Jász-Nagykun-Szolnok",
+                "Komárom-Esztergom",
+                "Nógrád",
+                "Pest",
+                "Somogy",
+                "Szabolcs-Szatmár-Bereg",
+                "Tolna",
+                "Vas",
+                "Veszprém",
+                "Zala",
+            ];
+            const varosok = [
+                "Budapest",
+                "Debrecen",
+                "Győr",
+                "Kecskemét",
+                "Miskolc",
+                "Nyíregyháza",
+                "Pécs",
+                "Sopron",
+                "Szeged",
+                "Székesfehérvár",
+                "Szentendre",
+            ];
 
-      function renderPalyak(palyak) {
-        container.innerHTML = "";
-        
-        if (palyak.length === 0) {
-          container.innerHTML = '<div class="col-12"><p class="text-center text-body-secondary">Nincsenek találatok</p></div>';
-          return;
-        }
+            function toRoman(num) {
+                const map = [
+                    [10, "X"],
+                    [9, "IX"],
+                    [5, "V"],
+                    [4, "IV"],
+                    [1, "I"],
+                ];
+                let out = "";
+                let n = num;
+                map.forEach(([value, numeral]) => {
+                    while (n >= value) {
+                        out += numeral;
+                        n -= value;
+                    }
+                });
+                return out;
+            }
 
-        palyak.forEach(palya => {
-          let ownerImageUrl = palya.profil_kep_url;
-          if (ownerImageUrl && !ownerImageUrl.startsWith("http")) {
-            ownerImageUrl = `http://localhost:4000${ownerImageUrl}`;
-          }
-          
-          const ownerAvatarUrl = ownerImageUrl ? 
-            `<img src="${ownerImageUrl}" alt="${palya.teljes_nev}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.75rem;" />` :
-            `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-right: 0.75rem;">👤</div>`;
-          
-          const card = document.createElement("div");
-          card.className = "col-md-6 col-lg-4";
-          card.innerHTML = `
+            function normalizeLocationText(text) {
+                let normalized = String(text || "")
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .toLowerCase();
+
+                const romanDistrictMatch = normalized.match(/^([ivxlcdm]+)\.\s*kerulet\b/);
+                if (romanDistrictMatch) {
+                    const districtNumber = romanToNumber(romanDistrictMatch[1]);
+                    if (districtNumber > 0) {
+                        normalized = normalized.replace(/^([ivxlcdm]+)\.\s*kerulet\b/, `${districtNumber}. kerulet`);
+                    }
+                }
+
+                return normalized;
+            }
+
+            function romanToNumber(roman) {
+                const values = { i: 1, v: 5, x: 10, l: 50, c: 100, d: 500, m: 1000 };
+                let total = 0;
+                let prev = 0;
+                const chars = String(roman || "").toLowerCase().split("").reverse();
+                chars.forEach((char) => {
+                    const current = values[char] || 0;
+                    if (current < prev) {
+                        total -= current;
+                    } else {
+                        total += current;
+                    }
+                    prev = current;
+                });
+                return total;
+            }
+
+            function isBudapestDistrict(normalizedLocation) {
+                return /^\d{1,2}\.\s*kerulet\b/.test(normalizedLocation);
+            }
+
+            function renderLocationOptions(containerId, items, prefix) {
+                const root = document.getElementById(containerId);
+                if (!root) return;
+                root.innerHTML = items
+                    .map(
+                        (item, index) => `
+              <div class="col-12 col-md-4">
+                <div class="form-check mb-2">
+                  <input class="form-check-input helyszin-choice" type="checkbox" id="${prefix}_${index}" value="${item}">
+                  <label class="form-check-label" for="${prefix}_${index}">${item}</label>
+                </div>
+              </div>
+            `,
+                    )
+                    .join("");
+            }
+
+            function updateSelectedLocationSummary() {
+                const list = Array.from(selectedLocations);
+                const badgesRoot = document.getElementById("kivalasztottHelyszinek");
+                if (!badgesRoot) return;
+
+                if (list.length === 0) {
+                    badgesRoot.innerHTML = '<span class="text-body-secondary">Nincs kiválasztott helyszín</span>';
+                    helyszinInput.value = "";
+                    return;
+                }
+
+                badgesRoot.innerHTML = list
+                    .map((item) => `<span class="badge rounded-pill text-bg-success fs-6 px-3 py-2 me-2 mb-2">${item}</span>`)
+                    .join("");
+                helyszinInput.value = list.join(", ");
+            }
+
+            function syncLocationCheckboxes() {
+                document.querySelectorAll(".helyszin-choice").forEach((checkbox) => {
+                    checkbox.checked = selectedLocations.has(checkbox.value);
+                });
+            }
+
+            function initHelyszinModal() {
+                renderLocationOptions("budapestKeruletekContainer", budapestKeruletek, "kerulet");
+                renderLocationOptions("megyekContainer", megyek, "megye");
+                renderLocationOptions("varosokContainer", varosok, "varos");
+                syncLocationCheckboxes();
+                updateSelectedLocationSummary();
+
+                document.querySelectorAll(".helyszin-choice").forEach((checkbox) => {
+                    checkbox.addEventListener("change", (event) => {
+                        const location = event.target.value;
+                        if (event.target.checked) {
+                            selectedLocations.add(location);
+                        } else {
+                            selectedLocations.delete(location);
+                        }
+                        updateSelectedLocationSummary();
+                    });
+                });
+            }
+
+            // Pályák megjelenítése
+            function formatTimeOnly(value) {
+                if (!value) return "--:--";
+                const raw = String(value);
+                const hhmmMatch = raw.match(/(\d{1,2}):(\d{2})/);
+                if (hhmmMatch) {
+                    return `${hhmmMatch[1].padStart(2, "0")}:${hhmmMatch[2]}`;
+                }
+                const d = new Date(value);
+                if (!Number.isNaN(d.getTime())) {
+                    return d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit", hour12: false });
+                }
+                return "--:--";
+            }
+
+            function renderPalyak(palyak) {
+                container.innerHTML = "";
+
+                if (palyak.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-body-secondary">Nincsenek találatok</p></div>';
+                    return;
+                }
+
+                palyak.forEach((palya) => {
+                    let ownerImageUrl = palya.profil_kep_url;
+                    if (ownerImageUrl && !ownerImageUrl.startsWith("http")) {
+                        ownerImageUrl = `http://localhost:4000${ownerImageUrl}`;
+                    }
+
+                    const ownerAvatarUrl = ownerImageUrl
+                        ? `<img src="${ownerImageUrl}" alt="${palya.teljes_nev}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 0.75rem;" />`
+                        : `<div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.2rem; margin-right: 0.75rem;">👤</div>`;
+
+                    const card = document.createElement("div");
+                    card.className = "col-md-6 col-lg-4";
+                    card.innerHTML = `
             <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="${palya.kep_url || './palyanetlogo.png'}" class="card-img-top" alt="${palya.nev}" style="height:200px; object-fit:cover;" />
+              <img src="${palya.kep_url || "./palyanetlogo.png"}" class="card-img-top" alt="${palya.nev}" style="height:200px; object-fit:cover;" />
               <div class="palya-info">
                 <h5 class="card-title fw-bold">${palya.nev}</h5>
                 <div class="palya-badge">
@@ -768,490 +1056,531 @@ footer {
               </div>
             </div>
           `;
-          container.appendChild(card);
-        });
-      }
+                    container.appendChild(card);
+                });
+            }
 
-      // Pályák betöltése az API-ról
-      async function loadPalyak(filters = {}) {
-        try {
-          const params = new URLSearchParams();
-          if (filters.sportag) params.append("sportag", filters.sportag);
-          if (filters.helyszin) params.append("helyszin", filters.helyszin);
-          if (filters.maxar) params.append("maxar", filters.maxar);
+            // Pályák betöltése az API-ról
+            async function loadPalyak(filters = {}) {
+                try {
+                    const params = new URLSearchParams();
+                    if (filters.sportag) params.append("sportag", filters.sportag);
+                    if (filters.maxar) params.append("maxar", filters.maxar);
 
-          const response = await fetch(`${API_URL}?${params}`);
-          const palyak = await response.json();
-          renderPalyak(palyak);
-        } catch (error) {
-          console.error("Pályák betöltési hiba:", error);
-          container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Betöltési hiba</p></div>';
-        }
-      }
+                    const response = await fetch(`${API_URL}?${params}`);
+                    let palyak = await response.json();
 
-      // Szűrő gomb
-      document.getElementById("keresesBtn").addEventListener("click", () => {
-        const filters = {
-          sportag: document.getElementById("sportag").value,
-          helyszin: document.getElementById("helyszin").value,
-          maxar: document.getElementById("maxar").value
-        };
-        loadPalyak(filters);
-      });
+                    if (Array.isArray(filters.helyszinLista) && filters.helyszinLista.length > 0) {
+                        const normalizedTargets = filters.helyszinLista.map(normalizeLocationText);
+                        palyak = palyak.filter((palya) => {
+                            const normalizedSource = normalizeLocationText(palya.helyszin);
+                            return normalizedTargets.some((target) => {
+                                if (target === "budapest") {
+                                    return normalizedSource.includes("budapest") || isBudapestDistrict(normalizedSource);
+                                }
+                                return normalizedSource.includes(target);
+                            });
+                        });
+                    }
 
-      // Új pálya hozzáadása
-      const ujPalyaKuldBtn = document.getElementById("ujPalyaKuldBtn");
-      if (ujPalyaKuldBtn) ujPalyaKuldBtn.addEventListener("click", async () => {
-        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
-        
-        if (!user) {
-          alert("Bejelentkezés szükséges!");
-          window.location.href = "./login.html";
-          return;
-        }
+                    renderPalyak(palyak);
+                } catch (error) {
+                    console.error("Pályák betöltési hiba:", error);
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Betöltési hiba</p></div>';
+                }
+            }
 
-        console.log("User objektum:", user);
+            function runSearch() {
+                const selected = Array.from(selectedLocations);
+                const filters = {
+                    sportag: document.getElementById("sportag").value,
+                    maxar: document.getElementById("maxar").value,
+                    helyszinLista: selected,
+                };
 
-        const formData = {
-          tulaj_id: user.felhasznalo_id || 1,
-          nev: document.getElementById("modalNev").value,
-          sportag: document.getElementById("modalSportag").value,
-          helyszin: document.getElementById("modalHelyszin").value,
-          ar_ora: parseInt(document.getElementById("modalAr").value),
-          leiras: document.getElementById("modalLeiras").value,
-          kep_url: document.getElementById("modalKepUrl").value,
-          nyitas: document.getElementById("modalNyitas").value,
-          zaras: document.getElementById("modalZaras").value
-        };
+                loadPalyak(filters);
+            }
 
-        console.log("Küldött adatok:", formData);
+            // Szűrő gomb
+            document.getElementById("keresesBtn").addEventListener("click", runSearch);
 
-        try {
-          const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-          });
+            if (helyszinInput && helyszinModal) {
+                helyszinInput.addEventListener("click", () => {
+                    helyszinModal.show();
+                });
+            }
 
-          const responseData = await response.json();
-          console.log("API válasz:", responseData);
+            const helyszinSzurokTorleseBtn = document.getElementById("helyszinSzurokTorleseBtn");
+            if (helyszinSzurokTorleseBtn) {
+                helyszinSzurokTorleseBtn.addEventListener("click", () => {
+                    selectedLocations.clear();
+                    syncLocationCheckboxes();
+                    updateSelectedLocationSummary();
+                });
+            }
 
-          if (response.ok) {
-            alert("Pálya sikeresen hozzáadva!");
-            document.getElementById("ujPalyaForm").reset();
-            bootstrap.Modal.getInstance(document.getElementById("ujPalyaModal")).hide();
-            loadPalyak();
-          } else {
-            alert("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
-          }
-        } catch (error) {
-          console.error("Hiba:", error);
-          alert("Szövegalkalmazás hiba: " + error.message);
-        }
-      });
+            const helyszinKeresesBtn = document.getElementById("helyszinKeresesBtn");
+            if (helyszinKeresesBtn) {
+                helyszinKeresesBtn.addEventListener("click", () => {
+                    runSearch();
+                    if (helyszinModal) helyszinModal.hide();
+                });
+            }
 
-      // ===== NOTIFICATION SYSTEM =====
-      function initNotifications() {
-        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
-        const notificationContainer = document.getElementById("notificationContainer");
-        
-        if (!user) {
-          return;
-        }
+            // Új pálya hozzáadása
+            const ujPalyaKuldBtn = document.getElementById("ujPalyaKuldBtn");
+            if (ujPalyaKuldBtn)
+                ujPalyaKuldBtn.addEventListener("click", async () => {
+                    const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
-        notificationContainer.style.display = "block";
+                    if (!user) {
+                        alert("Bejelentkezés szükséges!");
+                        window.location.href = "./login.html";
+                        return;
+                    }
 
-        loadNotifications(user);
-      }
+                    console.log("User objektum:", user);
 
-      function loadNotifications(user) {
-        loadRealNotifications(user);
-      }
+                    const formData = {
+                        tulaj_id: user.felhasznalo_id || 1,
+                        nev: document.getElementById("modalNev").value,
+                        sportag: document.getElementById("modalSportag").value,
+                        helyszin: document.getElementById("modalHelyszin").value,
+                        ar_ora: parseInt(document.getElementById("modalAr").value),
+                        leiras: document.getElementById("modalLeiras").value,
+                        kep_url: document.getElementById("modalKepUrl").value,
+                        nyitas: document.getElementById("modalNyitas").value,
+                        zaras: document.getElementById("modalZaras").value,
+                    };
 
-      async function loadRealNotifications(user) {
-        try {
-          const userId = user.felhasznalo_id || user.id || user.userId;
-          if (!userId) throw new Error("Hianyzik a user ID");
+                    console.log("Küldött adatok:", formData);
 
-          const response = await fetch(`http://localhost:4000/api/notifications/${userId}`);
-          if (!response.ok) throw new Error("Ertesitesek lekerese sikertelen");
+                    try {
+                        const response = await fetch(API_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(formData),
+                        });
 
-          const notifications = await response.json();
-          const notificationsList = notifications.map((n) => ({
-            type: "system",
-            title: n.olvasott ? "Ertesites" : "Uj ertesites",
-            message: n.uzenet,
-            time: new Date(n.letrehozva).toLocaleString("hu-HU", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: false
-            })
-          }));
+                        const responseData = await response.json();
+                        console.log("API válasz:", responseData);
 
-          displayNotifications(notificationsList);
-        } catch (error) {
-          console.error("Valodi ertesitesek betoltesi hiba:", error);
-          displayNotifications([]);
-        }
-      }
-      function displayNotifications(notifications) {
-        const dropdown = document.getElementById("notificationDropdown");
-        const badge = document.getElementById("notificationBadge");
+                        if (response.ok) {
+                            alert("Pálya sikeresen hozzáadva!");
+                            document.getElementById("ujPalyaForm").reset();
+                            bootstrap.Modal.getInstance(document.getElementById("ujPalyaModal")).hide();
+                            loadPalyak();
+                        } else {
+                            alert("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
+                        }
+                    } catch (error) {
+                        console.error("Hiba:", error);
+                        alert("Szövegalkalmazás hiba: " + error.message);
+                    }
+                });
 
-        if (notifications.length === 0) {
-          dropdown.innerHTML = '<div class="notification-empty">Nincsenek értesítések</div>';
-          badge.style.display = "none";
-          return;
-        }
+            // ===== NOTIFICATION SYSTEM =====
+            function initNotifications() {
+                const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+                const notificationContainer = document.getElementById("notificationContainer");
 
-        badge.textContent = notifications.length;
-        badge.style.display = "flex";
+                if (!user) {
+                    return;
+                }
 
-        dropdown.innerHTML = notifications
-          .map(
-            (notif) => `
+                notificationContainer.style.display = "block";
+
+                loadNotifications(user);
+            }
+
+            function loadNotifications(user) {
+                loadRealNotifications(user);
+            }
+
+            async function loadRealNotifications(user) {
+                try {
+                    const userId = user.felhasznalo_id || user.id || user.userId;
+                    if (!userId) throw new Error("Hianyzik a user ID");
+
+                    const response = await fetch(`http://localhost:4000/api/notifications/${userId}`);
+                    if (!response.ok) throw new Error("Ertesitesek lekerese sikertelen");
+
+                    const notifications = await response.json();
+                    const notificationsList = notifications.map((n) => ({
+                        type: "system",
+                        title: n.olvasott ? "Ertesites" : "Uj ertesites",
+                        message: n.uzenet,
+                        time: new Date(n.letrehozva).toLocaleString("hu-HU", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: false,
+                        }),
+                    }));
+
+                    displayNotifications(notificationsList);
+                } catch (error) {
+                    console.error("Valodi ertesitesek betoltesi hiba:", error);
+                    displayNotifications([]);
+                }
+            }
+            function displayNotifications(notifications) {
+                const dropdown = document.getElementById("notificationDropdown");
+                const badge = document.getElementById("notificationBadge");
+
+                if (notifications.length === 0) {
+                    dropdown.innerHTML = '<div class="notification-empty">Nincsenek értesítések</div>';
+                    badge.style.display = "none";
+                    return;
+                }
+
+                badge.textContent = notifications.length;
+                badge.style.display = "flex";
+
+                dropdown.innerHTML = notifications
+                    .map(
+                        (notif) => `
           <div class="notification-item">
             <div class="notification-title">${notif.title}</div>
             <div class="notification-message">${notif.message}</div>
             <div class="notification-time">${notif.time}</div>
           </div>
-        `
-          )
-          .join("");
-      }
+        `,
+                    )
+                    .join("");
+            }
 
-      document.getElementById("notificationIcon").addEventListener("click", () => {
-        const dropdown = document.getElementById("notificationDropdown");
-        dropdown.classList.toggle("show");
-      });
+            document.getElementById("notificationIcon").addEventListener("click", () => {
+                const dropdown = document.getElementById("notificationDropdown");
+                dropdown.classList.toggle("show");
+            });
 
-      document.addEventListener("click", (e) => {
-        const notifContainer = document.getElementById("notificationContainer");
-        const dropdown = document.getElementById("notificationDropdown");
-        
-        if (!notifContainer.contains(e.target) && dropdown.classList.contains("show")) {
-          dropdown.classList.remove("show");
-        }
-      });
+            document.addEventListener("click", (e) => {
+                const notifContainer = document.getElementById("notificationContainer");
+                const dropdown = document.getElementById("notificationDropdown");
 
-      initNotifications();
-      setInterval(initNotifications, 5000);
+                if (!notifContainer.contains(e.target) && dropdown.classList.contains("show")) {
+                    dropdown.classList.remove("show");
+                }
+            });
 
-      // ===== BOOKING SYSTEM =====
-      let currentPalyaId = null;
-      let currentAr = null;
-      let currentNyitas = "00:00";
-      let currentZaras = "23:59";
+            initNotifications();
+            setInterval(initNotifications, 5000);
 
-      function timeToMinutes(timeText) {
-        if (!timeText || !timeText.includes(":")) return null;
-        const [h, m] = timeText.split(":").map(Number);
-        if (Number.isNaN(h) || Number.isNaN(m)) return null;
-        return h * 60 + m;
-      }
+            // ===== BOOKING SYSTEM =====
+            let currentPalyaId = null;
+            let currentAr = null;
+            let currentNyitas = "00:00";
+            let currentZaras = "23:59";
 
-      function isWithinOpening(kezdes, vege) {
-        const start = timeToMinutes(kezdes);
-        const end = timeToMinutes(vege);
-        const open = timeToMinutes(currentNyitas);
-        const close = timeToMinutes(currentZaras);
-        if (start === null || end === null || open === null || close === null) return false;
-        return start >= open && end <= close;
-      }
+            function timeToMinutes(timeText) {
+                if (!timeText || !timeText.includes(":")) return null;
+                const [h, m] = timeText.split(":").map(Number);
+                if (Number.isNaN(h) || Number.isNaN(m)) return null;
+                return h * 60 + m;
+            }
 
-      function minutesToTimeText(totalMinutes) {
-        const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
-        const m = String(totalMinutes % 60).padStart(2, "0");
-        return `${h}:${m}`;
-      }
+            function isWithinOpening(kezdes, vege) {
+                const start = timeToMinutes(kezdes);
+                const end = timeToMinutes(vege);
+                const open = timeToMinutes(currentNyitas);
+                const close = timeToMinutes(currentZaras);
+                if (start === null || end === null || open === null || close === null) return false;
+                return start >= open && end <= close;
+            }
 
-      function populateTimeSelectOptions(openTime, closeTime) {
-        const kezdesSelect = document.getElementById("foglalasKezdes");
-        const vegeSelect = document.getElementById("foglalasVege");
-        const open = timeToMinutes(openTime);
-        const close = timeToMinutes(closeTime);
+            function minutesToTimeText(totalMinutes) {
+                const h = String(Math.floor(totalMinutes / 60)).padStart(2, "0");
+                const m = String(totalMinutes % 60).padStart(2, "0");
+                return `${h}:${m}`;
+            }
 
-        kezdesSelect.innerHTML = '<option value="">Válassz időpontot</option>';
-        vegeSelect.innerHTML = '<option value="">Válassz időpontot</option>';
+            function populateTimeSelectOptions(openTime, closeTime) {
+                const kezdesSelect = document.getElementById("foglalasKezdes");
+                const vegeSelect = document.getElementById("foglalasVege");
+                const open = timeToMinutes(openTime);
+                const close = timeToMinutes(closeTime);
 
-        if (open === null || close === null || close <= open) return;
+                kezdesSelect.innerHTML = '<option value="">Válassz időpontot</option>';
+                vegeSelect.innerHTML = '<option value="">Válassz időpontot</option>';
 
-        // 5 perces lépéssel, 24 órás (00:00-23:59) formátumban
-        for (let min = open; min <= close; min += 5) {
-          const t = minutesToTimeText(min);
-          kezdesSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
-          vegeSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
-        }
-      }
+                if (open === null || close === null || close <= open) return;
 
-      function syncTimeSelectBounds() {
-        const kezdesSelect = document.getElementById("foglalasKezdes");
-        const vegeSelect = document.getElementById("foglalasVege");
-        const kezdes = kezdesSelect.value;
-        const vege = vegeSelect.value;
-        const kezdesMin = timeToMinutes(kezdes);
-        const vegeMin = timeToMinutes(vege);
+                // 5 perces lépéssel, 24 órás (00:00-23:59) formátumban
+                for (let min = open; min <= close; min += 5) {
+                    const t = minutesToTimeText(min);
+                    kezdesSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
+                    vegeSelect.insertAdjacentHTML("beforeend", `<option value="${t}">${t}</option>`);
+                }
+            }
 
-        Array.from(vegeSelect.options).forEach((opt) => {
-          if (!opt.value) return;
-          const optMin = timeToMinutes(opt.value);
-          opt.disabled = kezdesMin !== null ? optMin <= kezdesMin : false;
-        });
+            function syncTimeSelectBounds() {
+                const kezdesSelect = document.getElementById("foglalasKezdes");
+                const vegeSelect = document.getElementById("foglalasVege");
+                const kezdes = kezdesSelect.value;
+                const vege = vegeSelect.value;
+                const kezdesMin = timeToMinutes(kezdes);
+                const vegeMin = timeToMinutes(vege);
 
-        Array.from(kezdesSelect.options).forEach((opt) => {
-          if (!opt.value) return;
-          const optMin = timeToMinutes(opt.value);
-          opt.disabled = vegeMin !== null ? optMin >= vegeMin : false;
-        });
+                Array.from(vegeSelect.options).forEach((opt) => {
+                    if (!opt.value) return;
+                    const optMin = timeToMinutes(opt.value);
+                    opt.disabled = kezdesMin !== null ? optMin <= kezdesMin : false;
+                });
 
-        if (kezdes && vegeMin !== null && kezdesMin !== null && kezdesMin >= vegeMin) {
-          vegeSelect.value = "";
-        }
-        if (vege && kezdesMin !== null && vegeMin !== null && vegeMin <= kezdesMin) {
-          kezdesSelect.value = "";
-        }
-      }
+                Array.from(kezdesSelect.options).forEach((opt) => {
+                    if (!opt.value) return;
+                    const optMin = timeToMinutes(opt.value);
+                    opt.disabled = vegeMin !== null ? optMin >= vegeMin : false;
+                });
 
-      function validateBookingTimeInputs() {
-        const kezdesInput = document.getElementById("foglalasKezdes");
-        const vegeInput = document.getElementById("foglalasVege");
-        const kezdes = kezdesInput.value;
-        const vege = vegeInput.value;
+                if (kezdes && vegeMin !== null && kezdesMin !== null && kezdesMin >= vegeMin) {
+                    vegeSelect.value = "";
+                }
+                if (vege && kezdesMin !== null && vegeMin !== null && vegeMin <= kezdesMin) {
+                    kezdesSelect.value = "";
+                }
+            }
 
-        kezdesInput.setCustomValidity("");
-        vegeInput.setCustomValidity("");
+            function validateBookingTimeInputs() {
+                const kezdesInput = document.getElementById("foglalasKezdes");
+                const vegeInput = document.getElementById("foglalasVege");
+                const kezdes = kezdesInput.value;
+                const vege = vegeInput.value;
 
-        if (!kezdes || !vege) return true;
+                kezdesInput.setCustomValidity("");
+                vegeInput.setCustomValidity("");
 
-        if (!isWithinOpening(kezdes, vege)) {
-          const msg = `Csak a nyitvatartásban foglalhatsz: ${currentNyitas}-${currentZaras}`;
-          kezdesInput.setCustomValidity(msg);
-          vegeInput.setCustomValidity(msg);
-          return false;
-        }
+                if (!kezdes || !vege) return true;
 
-        if (timeToMinutes(vege) <= timeToMinutes(kezdes)) {
-          const msg = "A vég időpontnak később kell lennie, mint a kezdésnek.";
-          vegeInput.setCustomValidity(msg);
-          return false;
-        }
+                if (!isWithinOpening(kezdes, vege)) {
+                    const msg = `Csak a nyitvatartásban foglalhatsz: ${currentNyitas}-${currentZaras}`;
+                    kezdesInput.setCustomValidity(msg);
+                    vegeInput.setCustomValidity(msg);
+                    return false;
+                }
 
-        return true;
-      }
+                if (timeToMinutes(vege) <= timeToMinutes(kezdes)) {
+                    const msg = "A vég időpontnak később kell lennie, mint a kezdésnek.";
+                    vegeInput.setCustomValidity(msg);
+                    return false;
+                }
 
-      function getTodayDateText() {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, "0");
-        const day = String(now.getDate()).padStart(2, "0");
-        return `${year}-${month}-${day}`;
-      }
+                return true;
+            }
 
-      function validateBookingDateInput() {
-        const datumInput = document.getElementById("foglalasDatum");
-        const datum = datumInput.value;
-        const todayText = getTodayDateText();
+            function getTodayDateText() {
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, "0");
+                const day = String(now.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
+            }
 
-        datumInput.min = todayText;
-        datumInput.setCustomValidity("");
+            function validateBookingDateInput() {
+                const datumInput = document.getElementById("foglalasDatum");
+                const datum = datumInput.value;
+                const todayText = getTodayDateText();
 
-        if (!datum) return true;
-        if (datum < todayText) {
-          datumInput.setCustomValidity("Múltbeli dátumra nem lehet foglalni.");
-          return false;
-        }
+                datumInput.min = todayText;
+                datumInput.setCustomValidity("");
 
-        return true;
-      }
+                if (!datum) return true;
+                if (datum < todayText) {
+                    datumInput.setCustomValidity("Múltbeli dátumra nem lehet foglalni.");
+                    return false;
+                }
 
-      function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras) {
-        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+                return true;
+            }
 
-        if (!user) {
-          alert("Bejelentkezés szükséges!");
-          window.location.href = "./login.html";
-          return;
-        }
+            function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras) {
+                const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
-        currentPalyaId = palyaId;
-        currentAr = parseInt(ar);
-        const validTime = /^\d{2}:\d{2}$/;
-        if (!validTime.test(nyitas || "") || !validTime.test(zaras || "")) {
-          alert("Ehhez a pályához nincs érvényes nyitás/zárás idő beállítva.");
-          return;
-        }
-        currentNyitas = nyitas;
-        currentZaras = zaras;
+                if (!user) {
+                    alert("Bejelentkezés szükséges!");
+                    window.location.href = "./login.html";
+                    return;
+                }
 
-        document.getElementById("palyaNev").textContent = palyaNev;
-        document.getElementById("palyaDetails").textContent = `${sportag} • ${helyszin}`;
-        document.getElementById("palyaArValue").textContent = ar;
-        const old = document.getElementById("palyaNyitvaInfo");
-        if (old) old.remove();
-        document.getElementById("palyaAr").insertAdjacentHTML("afterend", `<p id="palyaNyitvaInfo" class="text-muted mb-3">Nyitás-zárás: ${currentNyitas} - ${currentZaras}</p>`);
+                currentPalyaId = palyaId;
+                currentAr = parseInt(ar);
+                const validTime = /^\d{2}:\d{2}$/;
+                if (!validTime.test(nyitas || "") || !validTime.test(zaras || "")) {
+                    alert("Ehhez a pályához nincs érvényes nyitás/zárás idő beállítva.");
+                    return;
+                }
+                currentNyitas = nyitas;
+                currentZaras = zaras;
 
-        document.getElementById("foglalasForm").reset();
-        const datumInput = document.getElementById("foglalasDatum");
-        datumInput.min = getTodayDateText();
-        validateBookingDateInput();
-        document.getElementById("foglalasOsszeg").value = "";
-        populateTimeSelectOptions(currentNyitas, currentZaras);
-        syncTimeSelectBounds();
+                document.getElementById("palyaNev").textContent = palyaNev;
+                document.getElementById("palyaDetails").textContent = `${sportag} • ${helyszin}`;
+                document.getElementById("palyaArValue").textContent = ar;
+                const old = document.getElementById("palyaNyitvaInfo");
+                if (old) old.remove();
+                document
+                    .getElementById("palyaAr")
+                    .insertAdjacentHTML(
+                        "afterend",
+                        `<p id="palyaNyitvaInfo" class="text-muted mb-3">Nyitás-zárás: ${currentNyitas} - ${currentZaras}</p>`,
+                    );
 
-        const modal = new bootstrap.Modal(document.getElementById("foglalasModal"));
-        modal.show();
-      }
-      function calculatePrice() {
-        const datum = document.getElementById("foglalasDatum").value;
-        const kezdes = document.getElementById("foglalasKezdes").value;
-        const vege = document.getElementById("foglalasVege").value;
+                document.getElementById("foglalasForm").reset();
+                const datumInput = document.getElementById("foglalasDatum");
+                datumInput.min = getTodayDateText();
+                validateBookingDateInput();
+                document.getElementById("foglalasOsszeg").value = "";
+                populateTimeSelectOptions(currentNyitas, currentZaras);
+                syncTimeSelectBounds();
 
-        if (!datum || !kezdes || !vege) {
-          document.getElementById("foglalasOsszeg").value = "";
-          return;
-        }
+                const modal = new bootstrap.Modal(document.getElementById("foglalasModal"));
+                modal.show();
+            }
+            function calculatePrice() {
+                const datum = document.getElementById("foglalasDatum").value;
+                const kezdes = document.getElementById("foglalasKezdes").value;
+                const vege = document.getElementById("foglalasVege").value;
 
-        if (!validateBookingDateInput()) {
-          document.getElementById("foglalasOsszeg").value = "Múltbeli dátumra nem lehet foglalni";
-          return;
-        }
+                if (!datum || !kezdes || !vege) {
+                    document.getElementById("foglalasOsszeg").value = "";
+                    return;
+                }
 
-        if (!validateBookingTimeInputs()) {
-          document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
-          return;
-        }
+                if (!validateBookingDateInput()) {
+                    document.getElementById("foglalasOsszeg").value = "Múltbeli dátumra nem lehet foglalni";
+                    return;
+                }
 
-        const kezdesTime = new Date(`${datum}T${kezdes}`);
-        const vegeTime = new Date(`${datum}T${vege}`);
+                if (!validateBookingTimeInputs()) {
+                    document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
+                    return;
+                }
 
-        if (vegeTime <= kezdesTime) {
-          document.getElementById("foglalasOsszeg").value = "Hibás időintervallum";
-          return;
-        }
+                const kezdesTime = new Date(`${datum}T${kezdes}`);
+                const vegeTime = new Date(`${datum}T${vege}`);
 
-        if (!isWithinOpening(kezdes, vege)) {
-          document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
-          return;
-        }
+                if (vegeTime <= kezdesTime) {
+                    document.getElementById("foglalasOsszeg").value = "Hibás időintervallum";
+                    return;
+                }
 
-        const hours = (vegeTime - kezdesTime) / (1000 * 60 * 60);
-        const osszeg = Math.round(hours * currentAr);
+                if (!isWithinOpening(kezdes, vege)) {
+                    document.getElementById("foglalasOsszeg").value = `Csak nyitvatartásban lehet: ${currentNyitas}-${currentZaras}`;
+                    return;
+                }
 
-        document.getElementById("foglalasOsszeg").value = `${osszeg} Ft (${hours} óra)`;
-      }
+                const hours = (vegeTime - kezdesTime) / (1000 * 60 * 60);
+                const osszeg = Math.round(hours * currentAr);
 
-      document.getElementById("foglalasDatum").addEventListener("change", () => {
-        validateBookingDateInput();
-        calculatePrice();
-      });
-      document.getElementById("foglalasKezdes").addEventListener("change", () => {
-        syncTimeSelectBounds();
-        calculatePrice();
-      });
-      document.getElementById("foglalasVege").addEventListener("change", () => {
-        syncTimeSelectBounds();
-        calculatePrice();
-      });
-      document.getElementById("foglalasKezdes").addEventListener("input", () => {
-        syncTimeSelectBounds();
-        calculatePrice();
-      });
-      document.getElementById("foglalasVege").addEventListener("input", () => {
-        syncTimeSelectBounds();
-        calculatePrice();
-      });
+                document.getElementById("foglalasOsszeg").value = `${osszeg} Ft (${hours} óra)`;
+            }
 
-      document.getElementById("foglalasKuldBtn").addEventListener("click", async () => {
-        const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
+            document.getElementById("foglalasDatum").addEventListener("change", () => {
+                validateBookingDateInput();
+                calculatePrice();
+            });
+            document.getElementById("foglalasKezdes").addEventListener("change", () => {
+                syncTimeSelectBounds();
+                calculatePrice();
+            });
+            document.getElementById("foglalasVege").addEventListener("change", () => {
+                syncTimeSelectBounds();
+                calculatePrice();
+            });
+            document.getElementById("foglalasKezdes").addEventListener("input", () => {
+                syncTimeSelectBounds();
+                calculatePrice();
+            });
+            document.getElementById("foglalasVege").addEventListener("input", () => {
+                syncTimeSelectBounds();
+                calculatePrice();
+            });
 
-        if (!user) {
-          alert("Bejelentkezés szükséges!");
-          window.location.href = "./login.html";
-          return;
-        }
+            document.getElementById("foglalasKuldBtn").addEventListener("click", async () => {
+                const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
-        const datum = document.getElementById("foglalasDatum").value;
-        const kezdes = document.getElementById("foglalasKezdes").value;
-        const vege = document.getElementById("foglalasVege").value;
+                if (!user) {
+                    alert("Bejelentkezés szükséges!");
+                    window.location.href = "./login.html";
+                    return;
+                }
 
-        if (!datum || !kezdes || !vege) {
-          alert("Kérjük, töltsön ki minden mezőt!");
-          return;
-        }
+                const datum = document.getElementById("foglalasDatum").value;
+                const kezdes = document.getElementById("foglalasKezdes").value;
+                const vege = document.getElementById("foglalasVege").value;
 
-        if (!validateBookingDateInput()) {
-          alert("Múltbeli napra nem lehet foglalni.");
-          return;
-        }
+                if (!datum || !kezdes || !vege) {
+                    alert("Kérjük, töltsön ki minden mezőt!");
+                    return;
+                }
 
-        if (!validateBookingTimeInputs()) {
-          alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
-          return;
-        }
+                if (!validateBookingDateInput()) {
+                    alert("Múltbeli napra nem lehet foglalni.");
+                    return;
+                }
 
-        const kezdesDateTime = new Date(`${datum}T${kezdes}`);
-        const vegeDateTime = new Date(`${datum}T${vege}`);
+                if (!validateBookingTimeInputs()) {
+                    alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
+                    return;
+                }
 
-        if (vegeDateTime <= kezdesDateTime) {
-          alert("A vég időpontnak később kell lennie, mint a kezdésnek!");
-          return;
-        }
+                const kezdesDateTime = new Date(`${datum}T${kezdes}`);
+                const vegeDateTime = new Date(`${datum}T${vege}`);
 
-        if (!isWithinOpening(kezdes, vege)) {
-          alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
-          return;
-        }
+                if (vegeDateTime <= kezdesDateTime) {
+                    alert("A vég időpontnak később kell lennie, mint a kezdésnek!");
+                    return;
+                }
 
-        const hours = (vegeDateTime - kezdesDateTime) / (1000 * 60 * 60);
-        const ar = hours > 0 ? Math.round(hours * currentAr) : 0;
-        
-        if (ar === 0 || isNaN(ar)) {
-          alert("Hiba az ár kalkulációban. Ellenőrizd a kezdés és vég időpontot!");
-          return;
-        }
+                if (!isWithinOpening(kezdes, vege)) {
+                    alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
+                    return;
+                }
 
-        try {
-          const response = await fetch("http://localhost:4000/api/bookings/create", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              palya_id: parseInt(currentPalyaId),
-              berlo_id: parseInt(user.felhasznalo_id),
-              kezdes: kezdesDateTime.toISOString(),
-              vege: vegeDateTime.toISOString(),
-              ar: parseInt(ar),
-            }),
-          });
+                const hours = (vegeDateTime - kezdesDateTime) / (1000 * 60 * 60);
+                const ar = hours > 0 ? Math.round(hours * currentAr) : 0;
 
-          const responseData = await response.json();
+                if (ar === 0 || isNaN(ar)) {
+                    alert("Hiba az ár kalkulációban. Ellenőrizd a kezdés és vég időpontot!");
+                    return;
+                }
 
-          if (response.ok) {
-            alert("Foglalási kérelem sikeresen elküldve! Az tulajdonos hamarosan megválaszolja.");
-            bootstrap.Modal.getInstance(document.getElementById("foglalasModal")).hide();
-            document.getElementById("foglalasForm").reset();
-          } else {
-            alert("Hiba a foglalás elküldésekor: " + (responseData.message || "Ismeretlen hiba"));
-          }
-        } catch (error) {
-          console.error("Hiba:", error);
-          alert("Szövegalkalmazás hiba: " + error.message);
-        }
-      });
+                try {
+                    const response = await fetch("http://localhost:4000/api/bookings/create", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            palya_id: parseInt(currentPalyaId),
+                            berlo_id: parseInt(user.felhasznalo_id),
+                            kezdes: kezdesDateTime.toISOString(),
+                            vege: vegeDateTime.toISOString(),
+                            ar: parseInt(ar),
+                        }),
+                    });
 
-      // Kezdeti betöltés
-      validateBookingDateInput();
-      loadPalyak();
-    </script>
-  </body>
+                    const responseData = await response.json();
+
+                    if (response.ok) {
+                        alert("Foglalási kérelem sikeresen elküldve! Az tulajdonos hamarosan megválaszolja.");
+                        bootstrap.Modal.getInstance(document.getElementById("foglalasModal")).hide();
+                        document.getElementById("foglalasForm").reset();
+                    } else {
+                        alert("Hiba a foglalás elküldésekor: " + (responseData.message || "Ismeretlen hiba"));
+                    }
+                } catch (error) {
+                    console.error("Hiba:", error);
+                    alert("Szövegalkalmazás hiba: " + error.message);
+                }
+            });
+
+            // Kezdeti betöltés
+            validateBookingDateInput();
+            initHelyszinModal();
+            loadPalyak();
+        </script>
+    </body>
 </html>
-
-
-
-
-
-

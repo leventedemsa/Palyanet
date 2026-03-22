@@ -26,7 +26,8 @@
 
 ## 03.19:
 - profil részleg újrastrukturálása (CSS-el nem foglalkoztam.) ✅
-- Szűrés megyék és települések alapján (az ingatlan.com mintájára).
+- Szűrés megyék és települések alapján (az ingatlan.com mintájára). ✅
+- Ugyanez a logika a Pályák létrehozására is.
 - Hiba oldalak megcsinálása ✅
 - Pályáim részleg újrastrukturálása: ✅
   - A HTML kód section-re bontása. ✅
