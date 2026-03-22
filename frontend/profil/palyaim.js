@@ -88,22 +88,25 @@
   }
 
   function wireSidebar(user) {
-    var palyaimLink = document.querySelector('a[href="./palyaim.html"]');
-    var foglalasaimLink = document.querySelector('a[href="./foglalasaim.html"]');
-    var berleseimLink = document.querySelector('a[href="./berleseim.html"]');
+    var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
+    var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
     var isOwner = user.szerep === "palyatulajdonos";
 
-    if (palyaimLink) palyaimLink.parentElement.style.display = isOwner ? "" : "none";
-    if (foglalasaimLink) foglalasaimLink.parentElement.style.display = isOwner ? "" : "none";
-    if (berleseimLink) berleseimLink.parentElement.style.display = "";
+    palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    berleseimItems.forEach(function (item) { item.style.display = ""; });
 
-    var dropdownName = document.getElementById("sidebarUserName");
-    var dropdownAvatar = document.getElementById("sidebarUserAvatar");
-    if (dropdownName) dropdownName.textContent = user.teljes_nev || user.username || "Felhasznalo";
-    if (dropdownAvatar && user.profil_kep_url) dropdownAvatar.src = absoluteImageUrl(user.profil_kep_url);
+    var names = document.querySelectorAll(".sidebar-user-name");
+    var avatars = document.querySelectorAll(".sidebar-user-avatar");
+    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    names.forEach(function (el) { el.textContent = displayName; });
+    avatars.forEach(function (el) {
+      if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
+    });
 
-    var logoutBtn = document.getElementById("sidebarLogoutBtn");
-    if (logoutBtn) {
+    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn");
+    logoutBtns.forEach(function (logoutBtn) {
       logoutBtn.addEventListener("click", function (e) {
         e.preventDefault();
         localStorage.removeItem("token");
@@ -112,8 +115,7 @@
         sessionStorage.removeItem("user");
         window.location.href = "../login.html";
       });
-    }
-    initSidebarNotifications(user);
+    });
   }
 
   async function loadPalyaimPage(user) {

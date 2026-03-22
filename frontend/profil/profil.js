@@ -45,29 +45,34 @@
   }
 
   function initSidebarNotifications(user) {
-    var sidebar = document.querySelector(".profile-sidebar");
-    if (!sidebar) return;
-    if (document.getElementById("sidebarNotificationsBox")) return;
+    var sidebars = document.querySelectorAll(".profile-sidebar");
+    if (!sidebars.length) return;
     var userId = getUserId(user);
     if (!userId) return;
+    var widgets = [];
 
-    var box = document.createElement("div");
-    box.id = "sidebarNotificationsBox";
-    box.className = "mt-3";
-    box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Ertesites <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
-      '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek ertesitesek</div>' +
-      "</div>";
-    sidebar.appendChild(box);
+    sidebars.forEach(function (sidebar) {
+      if (sidebar.querySelector(".sidebar-notifications-box")) return;
+      var box = document.createElement("div");
+      box.className = "sidebar-notifications-box mt-3";
+      box.innerHTML =
+        '<button class="btn btn-outline-secondary btn-sm w-100 sidebar-notif-toggle" type="button">Ertesites <span class="badge bg-danger ms-1 sidebar-notif-badge" style="display:none;">0</span></button>' +
+        '<div class="mt-2 p-2 bg-white text-dark rounded shadow-sm sidebar-notif-dropdown" style="display:none;max-height:260px;overflow:auto;">' +
+        '<div class="small text-muted">Nincsenek ertesitesek</div>' +
+        "</div>";
+      sidebar.appendChild(box);
 
-    var toggle = document.getElementById("sidebarNotifToggle");
-    var badge = document.getElementById("sidebarNotifBadge");
-    var dropdown = document.getElementById("sidebarNotifDropdown");
+      var toggle = box.querySelector(".sidebar-notif-toggle");
+      var badge = box.querySelector(".sidebar-notif-badge");
+      var dropdown = box.querySelector(".sidebar-notif-dropdown");
+      if (!toggle || !badge || !dropdown) return;
 
-    toggle.addEventListener("click", function () {
-      dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+      toggle.addEventListener("click", function () {
+        dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+      });
+      widgets.push({ badge: badge, dropdown: dropdown });
     });
+    if (!widgets.length) return;
 
     async function refreshNotifications() {
       try {
@@ -75,23 +80,26 @@
         if (!res.ok) return;
         var items = await res.json();
         var unread = items.filter(function (n) { return !n.olvasott; }).length;
-        if (unread > 0) {
-          badge.style.display = "inline-block";
-          badge.textContent = String(unread);
-        } else {
-          badge.style.display = "none";
-        }
-        if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
-          return;
-        }
-        dropdown.innerHTML = items.slice(0, 15).map(function (n) {
+        var html = items.slice(0, 15).map(function (n) {
           return '<div class="small border-bottom pb-2 mb-2">' +
             '<div style="font-weight:600;">' + (n.olvasott ? "Ertesites" : "Uj ertesites") + "</div>" +
             '<div>' + (n.uzenet || "") + "</div>" +
             '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
         }).join("");
+        widgets.forEach(function (widget) {
+          if (unread > 0) {
+            widget.badge.style.display = "inline-block";
+            widget.badge.textContent = String(unread);
+          } else {
+            widget.badge.style.display = "none";
+          }
+          if (!items.length) {
+            widget.dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
+            return;
+          }
+          widget.dropdown.innerHTML = html;
+        });
       } catch (_) {}
     }
 
@@ -105,22 +113,25 @@
   }
 
   function wireSidebar(user) {
-    var palyaimLink = document.querySelector('a[href="./palyaim.html"]');
-    var foglalasaimLink = document.querySelector('a[href="./foglalasaim.html"]');
-    var berleseimLink = document.querySelector('a[href="./berleseim.html"]');
+    var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
+    var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
     var isOwner = user.szerep === "palyatulajdonos";
 
-    if (palyaimLink) palyaimLink.parentElement.style.display = isOwner ? "" : "none";
-    if (foglalasaimLink) foglalasaimLink.parentElement.style.display = isOwner ? "" : "none";
-    if (berleseimLink) berleseimLink.parentElement.style.display = "";
+    palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    berleseimItems.forEach(function (item) { item.style.display = ""; });
 
-    var dropdownName = document.getElementById("sidebarUserName");
-    var dropdownAvatar = document.getElementById("sidebarUserAvatar");
-    if (dropdownName) dropdownName.textContent = user.teljes_nev || user.username || "Felhasznalo";
-    if (dropdownAvatar && user.profil_kep_url) dropdownAvatar.src = absoluteImageUrl(user.profil_kep_url);
+    var dropdownNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
+    var dropdownAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
+    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    dropdownNames.forEach(function (el) { el.textContent = displayName; });
+    dropdownAvatars.forEach(function (el) {
+      if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
+    });
 
-    var logoutBtn = document.getElementById("sidebarLogoutBtn");
-    if (logoutBtn) {
+    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn, #sidebarLogoutBtn");
+    logoutBtns.forEach(function (logoutBtn) {
       logoutBtn.addEventListener("click", function (e) {
         e.preventDefault();
         localStorage.removeItem("token");
@@ -129,8 +140,7 @@
         sessionStorage.removeItem("user");
         window.location.href = "../login.html";
       });
-    }
-    initSidebarNotifications(user);
+    });
   }
 
   function setQuickStats(items) {
@@ -220,7 +230,8 @@
     function paint(profileData) {
       var displayName = profileData.teljes_nev || profileData.username || "Felhasznalo";
       var avatarUrl = profileData.profil_kep_url ? absoluteImageUrl(profileData.profil_kep_url) : "https://github.com/mdo.png";
-      var sidebarUserAvatar = document.getElementById("sidebarUserAvatar");
+      var sidebarUserAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
+      var sidebarUserNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
       currentProfile = Object.assign({}, currentProfile, profileData);
 
       document.getElementById("profileCardName").textContent = displayName;
@@ -236,9 +247,8 @@
       var createdAt = document.getElementById("profileCreatedAtValue");
       if (createdAt) createdAt.textContent = formatDateOnly(profileData.letrehozva);
       toggleDeletePictureButton(!!profileData.profil_kep_url);
-      if (sidebarUserAvatar) {
-        sidebarUserAvatar.src = avatarUrl;
-      }
+      sidebarUserAvatars.forEach(function (avatar) { avatar.src = avatarUrl; });
+      sidebarUserNames.forEach(function (name) { name.textContent = displayName; });
     }
 
     function syncStoredUser(profileData) {

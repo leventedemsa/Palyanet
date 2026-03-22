@@ -97,10 +97,10 @@
     container.style.position = "relative";
     container.setAttribute("data-auth-nav", "notification");
     container.innerHTML = `
-      <button id="notificationIcon" type="button" style="border:1px solid #dee2e6;background:#fff;border-radius:999px;width:36px;height:36px;line-height:1;position:relative;cursor:pointer;">??</button>
+      <button id="notificationIcon" type="button" style="border:1px solid #dee2e6;background:#fff;border-radius:999px;width:36px;height:36px;line-height:1;position:relative;cursor:pointer;">&#128276;</button>
       <span id="notificationBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#d32f2f;color:white;border-radius:50%;min-width:18px;height:18px;padding:0 4px;font-size:11px;line-height:18px;text-align:center;">0</span>
       <div id="notificationDropdown" style="display:none;position:absolute;right:0;top:42px;width:320px;max-height:360px;overflow:auto;background:#fff;border:1px solid #dee2e6;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:1200;">
-        <div style="padding:12px;color:#6c757d;">Nincsenek �rtes�t�sek</div>
+        <div style="padding:12px;color:#6c757d;">Nincsenek &eacute;rtes&iacute;t&eacute;sek</div>
       </div>
     `;
     menu.appendChild(container);
@@ -130,7 +130,7 @@
       }
 
       if (!items.length) {
-        ui.dropdown.innerHTML = '<div style="padding:12px;color:#6c757d;">Nincsenek �rtes�t�sek</div>';
+        ui.dropdown.innerHTML = '<div style="padding:12px;color:#6c757d;">Nincsenek &eacute;rtes&iacute;t&eacute;sek</div>';
         return;
       }
 
@@ -138,7 +138,7 @@
         .slice(0, 20)
         .map((n) => `
           <div style="padding:10px 12px;border-bottom:1px solid #f1f3f5;">
-            <div style="font-weight:600;color:${n.olvasott ? "#495057" : "#d9480f"};">${n.olvasott ? "�rtes�t�s" : "�j �rtes�t�s"}</div>
+            <div style="font-weight:600;color:${n.olvasott ? "#495057" : "#d9480f"};">${n.olvasott ? "&Eacute;rtes&iacute;t&eacute;s" : "&Uacute;j &eacute;rtes&iacute;t&eacute;s"}</div>
             <div style="font-size:13px;color:#495057;margin-top:4px;">${n.uzenet || ""}</div>
             <div style="font-size:11px;color:#868e96;margin-top:4px;">${new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })}</div>
           </div>

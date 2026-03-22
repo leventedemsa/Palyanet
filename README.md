@@ -1,4 +1,4 @@
-# TODO Határ: Due(03.29)
+﻿# TODO Határ: Due(03.29)
 
 - Közös:
   - Weboldal public domain
@@ -12,15 +12,16 @@
 # Levi:
 ## 03.21:
 - Kép hozzáadása lehetőség a Pályákhoz, ami a részletekbe megtekinthető legyen.
-- Értesítések fülnél, lehessen törölni az adott értesítést
+- Új Értesítések menü a Profil részlegnél. ✅
+- Értesítések fülnél, lehessen törölni az adott értesítést ✅
 - Alap Admin menü:
-  - Pályák menü: 
+  - Pályák menü: 1
     - Profil résznél Pályák menü, ahol az összes pályát ki listázza, és ID/név alapján lehet szürni
     - Lehessen törölni az adott pályát.
   - Bejelentések menü: 
     - Mutatja a bejelentéseket, amiket a felhasználók tettek, és ki írja az indokot is.
 - Pályáim Javascript részét át emelni a profile.js-ből. ✅
-- A Profil részlegnél a Sidebar legyen collapsable. (Telefonon ez jobban működik.)
+- A Profil részlegnél a Sidebar legyen collapsable. (Telefonon ez jobban működik.) ✅
 - Auth controller átszervezése (controller/service/repository + auth/index import) ✅
 
 ## 03.19:

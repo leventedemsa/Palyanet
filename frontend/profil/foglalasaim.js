@@ -94,16 +94,19 @@
   }
 
   function wireSidebar(user) {
-    var sidebarUserName = document.getElementById("sidebarUserName");
-    var sidebarUserAvatar = document.getElementById("sidebarUserAvatar");
-    var sidebarLogoutBtn = document.getElementById("sidebarLogoutBtn");
-    if (sidebarUserName) sidebarUserName.textContent = user.teljes_nev || user.username || "Felhasznalo";
-    if (sidebarUserAvatar) sidebarUserAvatar.src = absoluteImageUrl(user.profil_kep_url);
-    if (sidebarLogoutBtn) sidebarLogoutBtn.addEventListener("click", function (e) { e.preventDefault(); logout(); });
+    var names = document.querySelectorAll(".sidebar-user-name");
+    var avatars = document.querySelectorAll(".sidebar-user-avatar");
+    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    names.forEach(function (el) { el.textContent = displayName; });
+    avatars.forEach(function (el) { el.src = absoluteImageUrl(user.profil_kep_url); });
 
-    var berleseimLink = document.querySelector('a[href="./berleseim.html"]');
-    if (berleseimLink) berleseimLink.parentElement.style.display = "";
-    initSidebarNotifications(user);
+    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn");
+    logoutBtns.forEach(function (btn) {
+      btn.addEventListener("click", function (e) { e.preventDefault(); logout(); });
+    });
+
+    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    berleseimItems.forEach(function (item) { item.style.display = ""; });
   }
 
   function statusText(status) {

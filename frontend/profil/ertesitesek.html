@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palyanet - Foglalásaim</title>
+  <title>Palyanet - Értesítések</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/line-awesome@1.3.0/dist/line-awesome/css/line-awesome.min.css">
   <style>
@@ -46,9 +46,9 @@
     <ul class="sidebar-links">
       <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
       <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-      <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link is-active"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
+      <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
       <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
     </ul>
     <div class="sidebar-user-wrap">
       <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -62,9 +62,9 @@
       <ul class="sidebar-links">
         <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
         <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-        <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link is-active"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
+        <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
         <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+        <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
       </ul>
       <div class="sidebar-user-wrap">
         <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -75,55 +75,15 @@
 
   <main class="main-content">
     <div class="p-4 p-md-5">
-      <h1 class="h3 mb-2">Foglalásaim</h1>
-      <p class="text-muted mb-4">A pályáidra érkezett foglalási kérelmek.</p>
-
-      <div class="accordion" id="bookingsAccordion">
-        <div class="accordion-item mb-3 border rounded-3 overflow-hidden">
-          <h2 class="accordion-header" id="bookingsHeading">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#bookingsCollapse" aria-expanded="true" aria-controls="bookingsCollapse">Foglalások</button>
-          </h2>
-          <div id="bookingsCollapse" class="accordion-collapse collapse show" aria-labelledby="bookingsHeading" data-bs-parent="#bookingsAccordion">
-            <div class="accordion-body">
-              <ul class="nav nav-tabs mb-4" role="tablist">
-                <li class="nav-item" role="presentation"><button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">Függőben <span class="badge text-bg-warning" id="pendingBadge">0</span></button></li>
-                <li class="nav-item" role="presentation"><button class="nav-link" id="accepted-tab" data-bs-toggle="tab" data-bs-target="#accepted" type="button" role="tab">Elfogadva <span class="badge text-bg-success" id="acceptedBadge">0</span></button></li>
-                <li class="nav-item" role="presentation"><button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected" type="button" role="tab">Elutasítva <span class="badge text-bg-danger" id="rejectedBadge">0</span></button></li>
-              </ul>
-
-              <div class="tab-content">
-                <div class="tab-pane fade show active" id="pending" role="tabpanel"><div id="pendingBookingsContainer" class="row g-3"></div></div>
-                <div class="tab-pane fade" id="accepted" role="tabpanel"><div id="acceptedBookingsContainer" class="row g-3"></div></div>
-                <div class="tab-pane fade" id="rejected" role="tabpanel"><div id="rejectedBookingsContainer" class="row g-3"></div></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="accordion-item border rounded-3 overflow-hidden">
-          <h2 class="accordion-header" id="calendarHeading">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#calendarCollapse" aria-expanded="false" aria-controls="calendarCollapse">Foglaltsági naptár</button>
-          </h2>
-          <div id="calendarCollapse" class="accordion-collapse collapse" aria-labelledby="calendarHeading" data-bs-parent="#bookingsAccordion">
-            <div class="accordion-body">
-              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <div class="d-flex align-items-center gap-2">
-                  <button class="btn btn-outline-secondary btn-sm" id="calendarPrevMonth" type="button">&lt;</button>
-                  <strong id="calendarMonthLabel"></strong>
-                  <button class="btn btn-outline-secondary btn-sm" id="calendarNextMonth" type="button">&gt;</button>
-                </div>
-              </div>
-
-              <div class="d-flex flex-wrap gap-3 mb-3 small">
-                <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-warning">Foglalt</span> nap</span>
-                <span class="d-inline-flex align-items-center gap-2"><span class="badge text-bg-success">Szabad</span> nap</span>
-              </div>
-
-              <div id="calendarGrid" class="table-responsive"></div>
-            </div>
-          </div>
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <h1 class="h3 mb-0">Értesítések</h1>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge text-bg-primary" id="notificationsCount">0</span>
+          <button type="button" class="btn btn-outline-danger btn-sm" id="clearAllNotificationsBtn">Összes törlése</button>
         </div>
       </div>
+
+      <div id="notificationsList"></div>
     </div>
   </main>
 
@@ -136,8 +96,7 @@
         document.documentElement.setAttribute('data-bs-theme','dark');
     })();
   </script>
-  <script src="foglalasaim.js"></script>
+  <script src="ertesitesek.js"></script>
 </body>
 </html>
-
 
