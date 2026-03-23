@@ -9,12 +9,11 @@
 - index.html re-designolása
 - Fájlkezelőből kép feltöltés
 - Felugró ablak alert helyett (pl sikeres bejelentkezésnél)
+- Kép hozzáadása lehetőség a Pályákhoz, ami a részletekbe megtekinthető legyen.
 
 # Levi:
 
 ## 03.21:
-
-- Kép hozzáadása lehetőség a Pályákhoz, ami a részletekbe megtekinthető legyen.
 - Új Értesítések menü a Profil részlegnél. ✅
 - Értesítések fülnél, lehessen törölni az adott értesítést ✅
 - Moderációs rendszer: ✅
