@@ -239,6 +239,126 @@
                 object-fit: cover;
             }
 
+            .gallery-main-image {
+                width: 100%;
+                height: auto;
+                object-fit: contain;
+                border-radius: 14px;
+                border: 1px solid rgba(0, 0, 0, 0.08);
+                background: #0a0d12;
+                display: block;
+                margin: 0 auto;
+            }
+
+            .gallery-viewer {
+                position: relative;
+                background: #0a0d12;
+                border-radius: 14px;
+                padding: 8px;
+            }
+
+            .gallery-viewer:fullscreen {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: #000;
+                border-radius: 0;
+                overflow: hidden;
+            }
+
+            .gallery-viewer:fullscreen .gallery-main-image {
+                width: 100%;
+                height: calc(100vh - 40px);
+                object-fit: contain;
+                border: none;
+                border-radius: 0;
+                background: #000;
+            }
+
+            .gallery-nav-btn {
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                border: 1px solid rgba(255, 255, 255, 0.4);
+                background: rgba(0, 0, 0, 0.45);
+                color: #fff;
+                font-size: 1.25rem;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+                z-index: 2;
+            }
+
+            .gallery-nav-btn:hover {
+                background: rgba(255, 122, 24, 0.85);
+                border-color: rgba(255, 122, 24, 0.85);
+            }
+
+            .gallery-nav-prev {
+                left: 14px;
+            }
+
+            .gallery-nav-next {
+                right: 14px;
+            }
+
+            .gallery-counter {
+                position: absolute;
+                right: 14px;
+                bottom: 14px;
+                padding: 0.25rem 0.65rem;
+                border-radius: 999px;
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: #fff;
+                background: rgba(0, 0, 0, 0.55);
+                z-index: 2;
+            }
+
+            .gallery-fullscreen-btn {
+                position: absolute;
+                left: 14px;
+                bottom: 14px;
+                padding: 0.3rem 0.7rem;
+                border-radius: 999px;
+                border: 1px solid rgba(255, 255, 255, 0.45);
+                background: rgba(0, 0, 0, 0.55);
+                color: #fff;
+                font-size: 0.8rem;
+                font-weight: 600;
+                z-index: 2;
+                transition: all 0.2s ease;
+            }
+
+            .gallery-fullscreen-btn:hover {
+                background: rgba(255, 122, 24, 0.85);
+                border-color: rgba(255, 122, 24, 0.85);
+            }
+
+            .gallery-thumb {
+                width: 90px;
+                height: 66px;
+                object-fit: cover;
+                border-radius: 10px;
+                border: 1px solid rgba(0, 0, 0, 0.12);
+                cursor: pointer;
+                transition: transform 0.2s ease;
+            }
+
+            .gallery-thumb:hover {
+                transform: translateY(-2px);
+            }
+
+            .gallery-thumb.is-active {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 2px rgba(255, 122, 24, 0.25);
+            }
+
             .palya-info {
                 padding: 1.25rem;
             }
@@ -833,6 +953,27 @@
         </div>
     </div>
 
+    <div class="modal fade" id="palyaKepekModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pályaképek</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Bezárás"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="gallery-viewer mb-3">
+                        <img id="palyaKepekMain" class="gallery-main-image" src="" alt="Pályakép" />
+                        <button type="button" class="gallery-nav-btn gallery-nav-prev" id="galleryPrevBtn" aria-label="Előző kép">‹</button>
+                        <button type="button" class="gallery-nav-btn gallery-nav-next" id="galleryNextBtn" aria-label="Következő kép">›</button>
+                        <button type="button" class="gallery-fullscreen-btn" id="galleryFullscreenBtn" aria-label="Teljes képernyő">Teljes képernyő</button>
+                        <div class="gallery-counter" id="galleryCounter">1 / 1</div>
+                    </div>
+                    <div id="palyaKepekThumbs" class="d-flex flex-wrap gap-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./auth-nav.js"></script>
 
@@ -871,6 +1012,19 @@
             const helyszinModalElement = document.getElementById("helyszinModal");
             const helyszinModal = helyszinModalElement ? new bootstrap.Modal(helyszinModalElement) : null;
             const selectedLocations = new Set();
+            const palyaKepekModalElement = document.getElementById("palyaKepekModal");
+            const palyaKepekModal = palyaKepekModalElement ? new bootstrap.Modal(palyaKepekModalElement) : null;
+            const palyaKepekMain = document.getElementById("palyaKepekMain");
+            const palyaKepekThumbs = document.getElementById("palyaKepekThumbs");
+            const galleryViewer = document.querySelector(".gallery-viewer");
+            const galleryPrevBtn = document.getElementById("galleryPrevBtn");
+            const galleryNextBtn = document.getElementById("galleryNextBtn");
+            const galleryCounter = document.getElementById("galleryCounter");
+            const galleryFullscreenBtn = document.getElementById("galleryFullscreenBtn");
+            const palyaImagesById = {};
+            let activeGalleryImages = [];
+            let activeGalleryIndex = 0;
+            let touchStartX = null;
 
             const budapestKeruletek = Array.from({ length: 23 }, (_, i) => `${toRoman(i + 1)}. kerület`);
             const megyek = [
@@ -1040,6 +1194,187 @@
                 return "--:--";
             }
 
+            function parseImageUrls(value) {
+                if (!value) return [];
+                if (Array.isArray(value)) return value.filter(Boolean);
+
+                const raw = String(value).trim();
+                if (!raw) return [];
+
+                if (raw.startsWith("[")) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) {
+                            return parsed.filter(Boolean);
+                        }
+                    } catch (_) {}
+                }
+
+                return [raw];
+            }
+
+            function toAbsoluteImageUrl(url) {
+                if (!url) return "./palyanetlogo.png";
+                if (url.startsWith("http") || url.startsWith("data:") || url.startsWith("blob:")) {
+                    return url;
+                }
+                if (url.startsWith("/")) {
+                    return `http://localhost:4000${url}`;
+                }
+                return url;
+            }
+
+            function openImagesModal(palyaId) {
+                if (!palyaKepekModal || !palyaKepekMain || !palyaKepekThumbs) return;
+                const urls = palyaImagesById[String(palyaId)] || [];
+                if (!urls.length) return;
+
+                activeGalleryImages = urls.map((url) => toAbsoluteImageUrl(url));
+                activeGalleryIndex = 0;
+
+                palyaKepekThumbs.innerHTML = activeGalleryImages
+                    .map(
+                        (url, index) =>
+                            `<img src="${url}" class="gallery-thumb" alt="Pályakép ${index + 1}" data-index="${index}" />`,
+                    )
+                    .join("");
+
+                renderGalleryImage();
+                palyaKepekModal.show();
+            }
+
+            function renderGalleryImage() {
+                if (!activeGalleryImages.length || !palyaKepekMain) return;
+                if (activeGalleryIndex < 0) activeGalleryIndex = 0;
+                if (activeGalleryIndex >= activeGalleryImages.length) activeGalleryIndex = activeGalleryImages.length - 1;
+
+                palyaKepekMain.src = activeGalleryImages[activeGalleryIndex];
+
+                if (galleryCounter) {
+                    galleryCounter.textContent = `${activeGalleryIndex + 1} / ${activeGalleryImages.length}`;
+                }
+
+                if (galleryPrevBtn) {
+                    galleryPrevBtn.style.display = activeGalleryImages.length > 1 ? "flex" : "none";
+                }
+                if (galleryNextBtn) {
+                    galleryNextBtn.style.display = activeGalleryImages.length > 1 ? "flex" : "none";
+                }
+
+                if (palyaKepekThumbs) {
+                    palyaKepekThumbs.querySelectorAll(".gallery-thumb").forEach((thumb, idx) => {
+                        thumb.classList.toggle("is-active", idx === activeGalleryIndex);
+                    });
+                }
+            }
+
+            function updateFullscreenButtonState() {
+                if (!galleryFullscreenBtn) return;
+                const isFullscreen = !!document.fullscreenElement;
+                galleryFullscreenBtn.textContent = isFullscreen ? "Kilépés teljes képernyőről" : "Teljes képernyő";
+                galleryFullscreenBtn.setAttribute(
+                    "aria-label",
+                    isFullscreen ? "Kilépés teljes képernyőről" : "Teljes képernyő",
+                );
+            }
+
+            function toggleFullscreen() {
+                if (!galleryViewer) return;
+                if (!document.fullscreenElement) {
+                    galleryViewer.requestFullscreen?.();
+                    return;
+                }
+                document.exitFullscreen?.();
+            }
+
+            function showNextImage() {
+                if (!activeGalleryImages.length) return;
+                activeGalleryIndex = (activeGalleryIndex + 1) % activeGalleryImages.length;
+                renderGalleryImage();
+            }
+
+            function showPrevImage() {
+                if (!activeGalleryImages.length) return;
+                activeGalleryIndex = (activeGalleryIndex - 1 + activeGalleryImages.length) % activeGalleryImages.length;
+                renderGalleryImage();
+            }
+
+            window.openImagesModal = openImagesModal;
+
+            if (palyaKepekThumbs) {
+                palyaKepekThumbs.addEventListener("click", (event) => {
+                    const thumb = event.target.closest("img[data-index]");
+                    if (!thumb || !palyaKepekMain) return;
+                    const nextIndex = Number(thumb.getAttribute("data-index"));
+                    if (Number.isNaN(nextIndex)) return;
+                    activeGalleryIndex = nextIndex;
+                    renderGalleryImage();
+                });
+            }
+
+            if (galleryNextBtn) {
+                galleryNextBtn.addEventListener("click", showNextImage);
+            }
+
+            if (galleryPrevBtn) {
+                galleryPrevBtn.addEventListener("click", showPrevImage);
+            }
+
+            if (galleryFullscreenBtn) {
+                galleryFullscreenBtn.addEventListener("click", toggleFullscreen);
+            }
+
+            if (palyaKepekMain) {
+                palyaKepekMain.addEventListener("touchstart", (event) => {
+                    if (!event.touches || !event.touches.length) return;
+                    touchStartX = event.touches[0].clientX;
+                }, { passive: true });
+
+                palyaKepekMain.addEventListener("touchend", (event) => {
+                    if (touchStartX === null || !event.changedTouches || !event.changedTouches.length) return;
+                    const endX = event.changedTouches[0].clientX;
+                    const delta = endX - touchStartX;
+                    touchStartX = null;
+
+                    if (Math.abs(delta) < 40) return;
+                    if (delta < 0) {
+                        showNextImage();
+                    } else {
+                        showPrevImage();
+                    }
+                }, { passive: true });
+            }
+
+            document.addEventListener("fullscreenchange", updateFullscreenButtonState);
+            updateFullscreenButtonState();
+
+            if (palyaKepekModalElement) {
+                palyaKepekModalElement.addEventListener("hidden.bs.modal", () => {
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen?.();
+                    }
+                    activeGalleryImages = [];
+                    activeGalleryIndex = 0;
+                    updateFullscreenButtonState();
+                });
+            }
+
+            document.addEventListener("keydown", (event) => {
+                if (!palyaKepekModalElement || !palyaKepekModalElement.classList.contains("show")) return;
+                if (event.key === "ArrowRight") {
+                    event.preventDefault();
+                    showNextImage();
+                }
+                if (event.key === "ArrowLeft") {
+                    event.preventDefault();
+                    showPrevImage();
+                }
+                if (event.key === "f" || event.key === "F") {
+                    event.preventDefault();
+                    toggleFullscreen();
+                }
+            });
+
             function renderPalyak(palyak) {
                 container.innerHTML = "";
 
@@ -1049,6 +1384,10 @@
                 }
 
                 palyak.forEach((palya) => {
+                    const imageUrls = parseImageUrls(palya.kep_url);
+                    const primaryImage = toAbsoluteImageUrl(imageUrls[0] || "./palyanetlogo.png");
+                    palyaImagesById[String(palya.palya_id)] = imageUrls;
+
                     let ownerImageUrl = palya.profil_kep_url;
                     if (ownerImageUrl && !ownerImageUrl.startsWith("http")) {
                         ownerImageUrl = `http://localhost:4000${ownerImageUrl}`;
@@ -1062,7 +1401,7 @@
                     card.className = "col-md-6 col-lg-4";
                     card.innerHTML = `
             <div class="card palya-card bg-body-tertiary border shadow-sm">
-              <img src="${palya.kep_url || "./palyanetlogo.png"}" class="card-img-top" alt="${palya.nev}" style="height:200px; object-fit:cover;" />
+                            <img src="${primaryImage}" class="card-img-top" alt="${palya.nev}" style="height:200px; object-fit:cover;" />
               <div class="palya-info">
                 <h5 class="card-title fw-bold">${palya.nev}</h5>
                 <div class="palya-badge">
@@ -1081,6 +1420,7 @@
                   </div>
                 </div>
                 <button class="btn btn-accent w-100 mt-3" onclick="openBookingModal('${palya.palya_id}', '${palya.nev}', '${palya.ar_ora}', '${palya.helyszin}', '${palya.sportag}', '${formatTimeOnly(palya.nyitas)}', '${formatTimeOnly(palya.zaras)}')">📅 Foglalás</button>
+                                <button class="btn btn-outline-primary w-100 mt-2" onclick="openImagesModal('${palya.palya_id}')">🖼️ Képek megtekintése</button>
               </div>
             </div>
           `;

@@ -29,7 +29,28 @@
 
   function absoluteImageUrl(url) {
     if (!url) return "";
-    return url.startsWith("http") ? url : API_BASE + url;
+    if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("data:")) {
+      return url;
+    }
+    return API_BASE + url;
+  }
+
+  function parseImageUrls(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) {
+      return value.filter(Boolean);
+    }
+    var raw = String(value).trim();
+    if (!raw) return [];
+    if (raw[0] === "[") {
+      try {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(Boolean);
+        }
+      } catch (_) {}
+    }
+    return [raw];
   }
 
   function initSidebarNotifications(user) {
@@ -137,6 +158,8 @@
     var modalHelyszinInput = document.getElementById("modalHelyszin");
     var modalArInput = document.getElementById("modalAr");
     var modalKepUrlInput = document.getElementById("modalKepUrl");
+    var modalKepekInput = document.getElementById("modalKepek");
+    var modalKepekPreview = document.getElementById("modalKepekPreview");
     var modalLeirasInput = document.getElementById("modalLeiras");
     var modalNyitasInput = document.getElementById("modalNyitas");
     var modalZarasInput = document.getElementById("modalZaras");
@@ -153,6 +176,7 @@
     var selectedLocation = "";
     var switchingToLocationModal = false;
     var restorePalyaModalAfterLocationModal = false;
+    var uploadedImageUrls = [];
 
     var budapestKeruletek = Array.from({ length: 23 }, function (_, i) {
       return toRoman(i + 1) + ". kerület";
@@ -249,6 +273,46 @@
       return Number(value).toLocaleString("hu-HU") + " Ft/ora";
     }
 
+    function getPrimaryImage(field) {
+      var list = parseImageUrls(field && field.kep_url);
+      if (list.length) return absoluteImageUrl(list[0]);
+      return "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1000&q=80&auto=format&fit=crop";
+    }
+
+    function renderModalImagePreview() {
+      if (!modalKepekPreview) return;
+      var images = uploadedImageUrls.slice();
+      if (!images.length) {
+        modalKepekPreview.innerHTML = '<span class="text-muted small">Nincs kiválasztott kép.</span>';
+        return;
+      }
+      modalKepekPreview.innerHTML = images.map(function (imgUrl) {
+        var abs = absoluteImageUrl(imgUrl);
+        return '<img src="' + abs + '" alt="Palyakep" style="width:92px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e9ecef;">';
+      }).join("");
+    }
+
+    async function uploadSelectedImages() {
+      if (!modalKepekInput || !modalKepekInput.files || !modalKepekInput.files.length) {
+        return [];
+      }
+
+      var formData = new FormData();
+      Array.from(modalKepekInput.files).forEach(function (file) {
+        formData.append("images", file);
+      });
+
+      var response = await fetch(API_BASE + "/api/palyak/upload-images", {
+        method: "POST",
+        body: formData,
+      });
+      var data = await response.json().catch(function () { return {}; });
+      if (!response.ok) {
+        throw new Error(data.error || data.message || "Kepfeltoltes sikertelen");
+      }
+      return Array.isArray(data.urls) ? data.urls : [];
+    }
+
     function renderFields() {
       if (!fields.length) {
         myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Meg nincs sajat palya.</div></div>';
@@ -257,7 +321,7 @@
 
       myFieldsList.innerHTML = fields.map(function (field) {
         var kep = field.kep_url && field.kep_url.trim()
-          ? field.kep_url
+          ? getPrimaryImage(field)
           : "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1000&q=80&auto=format&fit=crop";
         return (
           '<div class="col-12 col-md-6 col-lg-4">' +
@@ -289,6 +353,9 @@
       modalNyitasInput.value = "08:00";
       modalZarasInput.value = "20:00";
       selectedLocation = "";
+      uploadedImageUrls = [];
+      if (modalKepekInput) modalKepekInput.value = "";
+      renderModalImagePreview();
       syncHelyszinRadios();
       updateHelyszinSummary();
       if (modalTitle) modalTitle.textContent = "Uj palya hozzaadasa";
@@ -314,6 +381,12 @@
       updateHelyszinSummary();
       modalArInput.value = String(field.ar_ora || "");
       modalKepUrlInput.value = field.kep_url || "";
+      uploadedImageUrls = parseImageUrls(field.kep_url);
+      if (uploadedImageUrls.length > 1 || (uploadedImageUrls[0] && uploadedImageUrls[0].startsWith("/uploads/"))) {
+        modalKepUrlInput.value = "";
+      }
+      if (modalKepekInput) modalKepekInput.value = "";
+      renderModalImagePreview();
       modalLeirasInput.value = field.leiras || "";
       modalNyitasInput.value = toTimeInput(field.nyitas, "08:00");
       modalZarasInput.value = toTimeInput(field.zaras, "20:00");
@@ -359,13 +432,33 @@
         sportag: modalSportagInput.value,
         helyszin: modalHelyszinInput.value.trim(),
         ar_ora: Number(modalArInput.value),
-        kep_url: modalKepUrlInput.value.trim(),
+        kep_url: "",
         leiras: modalLeirasInput.value.trim(),
         nyitas: modalNyitasInput.value,
         zaras: modalZarasInput.value
       };
 
       try {
+        var newUploaded = await uploadSelectedImages();
+        if (newUploaded.length) {
+          uploadedImageUrls = newUploaded;
+        }
+
+        var manualUrl = modalKepUrlInput.value.trim();
+        var allImages = uploadedImageUrls.slice();
+        if (manualUrl) {
+          allImages.unshift(manualUrl);
+        }
+        allImages = allImages.filter(function (url, index, arr) {
+          return url && arr.indexOf(url) === index;
+        });
+
+        if (allImages.length > 1) {
+          payload.kep_url = JSON.stringify(allImages);
+        } else if (allImages.length === 1) {
+          payload.kep_url = allImages[0];
+        }
+
         var endpoint = editingId ? (API_BASE + "/api/palyak/" + editingId) : (API_BASE + "/api/palyak");
         var method = editingId ? "PUT" : "POST";
         var response = await fetch(endpoint, {
@@ -403,6 +496,18 @@
         switchingToLocationModal = true;
         restorePalyaModalAfterLocationModal = true;
         palyaModal.hide();
+      });
+    }
+    if (modalKepekInput) {
+      modalKepekInput.addEventListener("change", function () {
+        var selectedFiles = Array.from(modalKepekInput.files || []);
+        if (!selectedFiles.length) {
+          return;
+        }
+        uploadedImageUrls = selectedFiles.map(function (file) {
+          return URL.createObjectURL(file);
+        });
+        renderModalImagePreview();
       });
     }
     if (palyaimHelyszinTorlesBtn) {
@@ -448,6 +553,7 @@
 
     initHelyszinModal();
     resetModalForm();
+    renderModalImagePreview();
     fetchFields();
   }
 

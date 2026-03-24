@@ -6,6 +6,11 @@
   var pastContainer = document.getElementById("pastRentalsContainer");
   var currentCount = document.getElementById("currentRentalsCount");
   var pastCount = document.getElementById("pastRentalsCount");
+  var rentalImagesModalEl = document.getElementById("rentalImagesModal");
+  var rentalImagesMain = document.getElementById("rentalImagesMain");
+  var rentalImagesThumbs = document.getElementById("rentalImagesThumbs");
+  var rentalImagesModal = rentalImagesModalEl ? bootstrap.Modal.getOrCreateInstance(rentalImagesModalEl) : null;
+  var rentalImagesById = {};
 
   if (!currentContainer || !pastContainer || !currentCount || !pastCount) return;
 
@@ -30,6 +35,24 @@
   function absoluteImageUrl(url) {
     if (!url) return "https://github.com/mdo.png";
     return url.startsWith("http") ? url : API_BASE + url;
+  }
+
+  function parseImageUrls(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) {
+      return value.filter(Boolean);
+    }
+    var raw = String(value).trim();
+    if (!raw) return [];
+    if (raw[0] === "[") {
+      try {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(Boolean);
+        }
+      } catch (_) {}
+    }
+    return [raw];
   }
 
   function initSidebarNotifications(user) {
@@ -137,6 +160,10 @@
   }
 
   function renderCard(booking) {
+    var imageUrls = parseImageUrls(booking.kep_url);
+    var imagesButton = imageUrls.length
+      ? '<button class="btn btn-outline-primary btn-sm" type="button" data-action="images" data-id="' + booking.foglalas_id + '">Képek megtekintése</button>'
+      : "";
     return (
       '<div class="col-12 col-md-6">' +
       '<div class="card shadow-sm h-100"><div class="card-body">' +
@@ -146,9 +173,23 @@
       '<p class="mb-1"><strong>Kezdes:</strong> ' + formatDateTime(booking.kezdes) + "</p>" +
       '<p class="mb-2"><strong>Vege:</strong> ' + formatDateTime(booking.vege) + "</p>" +
       '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
+      '<div class="mt-3">' + imagesButton + '</div>' +
       "</div></div>" +
       "</div>"
     );
+  }
+
+  function openImagesModal(foglalasId) {
+    if (!rentalImagesModal || !rentalImagesMain || !rentalImagesThumbs) return;
+    var urls = rentalImagesById[foglalasId] || [];
+    if (!urls.length) return;
+
+    var absoluteUrls = urls.map(function (url) { return absoluteImageUrl(url); });
+    rentalImagesMain.src = absoluteUrls[0];
+    rentalImagesThumbs.innerHTML = absoluteUrls.map(function (url, index) {
+      return '<img src="' + url + '" alt="Palyakep ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
+    }).join("");
+    rentalImagesModal.show();
   }
 
   function renderList(container, list) {
@@ -160,6 +201,11 @@
   }
 
   function render(rentals) {
+    rentalImagesById = {};
+    rentals.forEach(function (booking) {
+      rentalImagesById[booking.foglalas_id] = parseImageUrls(booking.kep_url);
+    });
+
     var current = rentals
       .filter(function (b) { return isCurrentBooking(b); })
       .sort(function (a, b) { return new Date(a.kezdes) - new Date(b.kezdes); });
@@ -172,6 +218,26 @@
     pastCount.textContent = String(past.length);
     renderList(currentContainer, current);
     renderList(pastContainer, past);
+  }
+
+  [currentContainer, pastContainer].forEach(function (container) {
+    container.addEventListener("click", function (event) {
+      var button = event.target.closest('button[data-action="images"]');
+      if (!button) return;
+      var id = Number(button.getAttribute("data-id"));
+      if (!id) return;
+      openImagesModal(id);
+    });
+  });
+
+  if (rentalImagesThumbs) {
+    rentalImagesThumbs.addEventListener("click", function (event) {
+      var thumb = event.target.closest('img[data-action="thumb"]');
+      if (!thumb || !rentalImagesMain) return;
+      var src = thumb.getAttribute("data-src") || "";
+      if (!src) return;
+      rentalImagesMain.src = src;
+    });
   }
 
   async function loadRentals(userId) {

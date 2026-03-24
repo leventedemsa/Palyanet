@@ -12,6 +12,11 @@
   var calendarMonthLabel = document.getElementById("calendarMonthLabel");
   var calendarPrevMonth = document.getElementById("calendarPrevMonth");
   var calendarNextMonth = document.getElementById("calendarNextMonth");
+  var bookingImagesModalEl = document.getElementById("bookingImagesModal");
+  var bookingImagesMain = document.getElementById("bookingImagesMain");
+  var bookingImagesThumbs = document.getElementById("bookingImagesThumbs");
+  var bookingImagesModal = bookingImagesModalEl ? bootstrap.Modal.getOrCreateInstance(bookingImagesModalEl) : null;
+  var bookingImagesById = {};
 
   if (!pendingContainer || !acceptedContainer || !rejectedContainer || !calendarGrid) return;
 
@@ -36,6 +41,24 @@
   function absoluteImageUrl(url) {
     if (!url) return "https://github.com/mdo.png";
     return url.startsWith("http") ? url : API_BASE + url;
+  }
+
+  function parseImageUrls(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) {
+      return value.filter(Boolean);
+    }
+    var raw = String(value).trim();
+    if (!raw) return [];
+    if (raw[0] === "[") {
+      try {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(Boolean);
+        }
+      } catch (_) {}
+    }
+    return [raw];
   }
 
   function initSidebarNotifications(user) {
@@ -136,6 +159,10 @@
   }
 
   function renderBookingCard(booking, withActions) {
+    var imageUrls = parseImageUrls(booking.kep_url);
+    var imagesButton = imageUrls.length
+      ? '<button class="btn btn-outline-primary btn-sm" type="button" data-action="images" data-id="' + booking.foglalas_id + '">Képek megtekintése</button>'
+      : "";
     return (
       '<div class="col-12 col-md-6">' +
       '<div class="card shadow-sm h-100"><div class="card-body d-flex flex-column">' +
@@ -145,8 +172,9 @@
       '<p class="mb-1"><strong>Idopont:</strong> ' + formatDate(booking.kezdes) + ", " + formatTime(booking.kezdes) + " - " + formatTime(booking.vege) + "</p>" +
       '<p class="mb-1"><strong>Ar:</strong> ' + formatPrice(booking.ar) + "</p>" +
       '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
+      '<div class="d-flex gap-2 mt-3 flex-wrap">' + imagesButton + '</div>' +
       (withActions
-        ? '<div class="d-flex gap-2 mt-3">' +
+        ? '<div class="d-flex gap-2 mt-2">' +
         '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + booking.foglalas_id + '">Elfogadas</button>' +
         '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + booking.foglalas_id + '">Elutasitas</button>' +
         "</div>"
@@ -154,6 +182,19 @@
       "</div></div>" +
       "</div>"
     );
+  }
+
+  function openImagesModal(foglalasId) {
+    if (!bookingImagesModal || !bookingImagesMain || !bookingImagesThumbs) return;
+    var urls = bookingImagesById[foglalasId] || [];
+    if (!urls.length) return;
+
+    var absoluteUrls = urls.map(function (url) { return absoluteImageUrl(url); });
+    bookingImagesMain.src = absoluteUrls[0];
+    bookingImagesThumbs.innerHTML = absoluteUrls.map(function (url, index) {
+      return '<img src="' + url + '" alt="Palyakep ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
+    }).join("");
+    bookingImagesModal.show();
   }
 
   function renderList(container, list, withActions) {
@@ -222,6 +263,11 @@
   }
 
   function renderAll() {
+    bookingImagesById = {};
+    bookings.forEach(function (booking) {
+      bookingImagesById[booking.foglalas_id] = parseImageUrls(booking.kep_url);
+    });
+
     var pending = bookings.filter(function (b) { return b.statusz === "pending"; });
     var accepted = bookings.filter(function (b) { return b.statusz === "accepted"; });
     var rejected = bookings.filter(function (b) { return b.statusz === "rejected"; });
@@ -258,6 +304,11 @@
     var id = Number(button.getAttribute("data-id"));
     if (!id) return;
 
+    if (action === "images") {
+      openImagesModal(id);
+      return;
+    }
+
     try {
       await updateBookingStatus(action, id);
       bookings = bookings.map(function (booking) {
@@ -270,6 +321,26 @@
       alert("Hiba a foglalas allapotanak frissitesekor.");
     }
   });
+
+  [acceptedContainer, rejectedContainer].forEach(function (container) {
+    container.addEventListener("click", function (event) {
+      var button = event.target.closest('button[data-action="images"]');
+      if (!button) return;
+      var id = Number(button.getAttribute("data-id"));
+      if (!id) return;
+      openImagesModal(id);
+    });
+  });
+
+  if (bookingImagesThumbs) {
+    bookingImagesThumbs.addEventListener("click", function (event) {
+      var thumb = event.target.closest('img[data-action="thumb"]');
+      if (!thumb || !bookingImagesMain) return;
+      var src = thumb.getAttribute("data-src") || "";
+      if (!src) return;
+      bookingImagesMain.src = src;
+    });
+  }
 
   calendarPrevMonth.addEventListener("click", function () {
     currentMonth -= 1;
