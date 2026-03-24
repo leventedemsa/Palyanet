@@ -6,10 +6,27 @@
 
 # Kornél:
 
-- index.html re-designolása
-- Fájlkezelőből kép feltöltés
-- Felugró ablak alert helyett (pl sikeres bejelentkezésnél)
-- Kép hozzáadása lehetőség a Pályákhoz, ami a részletekbe megtekinthető legyen.
+## 03.24:
+- Frontend:
+    - index.html újratervezése (design frissítés)
+    - Kép feltöltés megvalósítása fájlkezelőből
+    - Alert helyett felugró ablakok használata (pl. sikeres bejelentkezésnél)
+    - Kép hozzáadás lehetősége a pályákhoz
+        - A feltöltött kép jelenjen meg a pálya részleteinél
+
+- Backend:
+    - BookingController átszervezése új struktúrába:
+        - booking/
+            - controller.js
+            - index.js
+            - repository.js
+            - service.js
+    - ProfileController átszervezése új struktúrába:
+        - profile/
+            - controller.js
+            - index.js
+            - repository.js
+            - service.js
 
 # Levi:
 
