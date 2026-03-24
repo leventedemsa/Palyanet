@@ -34,6 +34,44 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showSuccess(message) {
+    return Swal.fire({
+      icon: "success",
+      title: "Sikeres művelet",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function showWarning(message) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Figyelem",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function confirmAction(message) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Megerősítés",
+      text: message,
+      showCancelButton: true,
+      confirmButtonText: "Igen",
+      cancelButtonText: "Mégsem"
+    });
+  }
+
   function roleLabel(szerep) {
     if (szerep === "admin") return "Admin";
     return szerep === "palyatulajdonos" ? "Palyatulajdonos" : "Berlo";
@@ -288,13 +326,13 @@
         if (!file) return;
 
         if (!file.type || !file.type.startsWith("image/")) {
-          alert("Csak kepfajlt lehet feltolteni.");
+          showWarning("Csak kepfajlt lehet feltolteni.");
           fileInput.value = "";
           return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-          alert("A kep merete legfeljebb 5 MB lehet.");
+          showWarning("A kep merete legfeljebb 5 MB lehet.");
           fileInput.value = "";
           return;
         }
@@ -325,16 +363,17 @@
           paint(nextProfile);
           syncStoredUser(nextProfile);
           fileInput.value = "";
-          alert("Profilkep sikeresen frissitve.");
+          showSuccess("Profilkep sikeresen frissitve.");
         } catch (err) {
           console.error(err);
-          alert("Hiba a profilkep frissitesekor: " + err.message);
+          showError("Hiba a profilkep frissitesekor: " + err.message);
           fileInput.value = "";
         }
       });
 
       deleteBtn.addEventListener("click", async function () {
-        if (!confirm("Biztosan torolni szeretned a profilkepet?")) return;
+        var confirmResult = await confirmAction("Biztosan torolni szeretned a profilkepet?");
+        if (!confirmResult.isConfirmed) return;
         try {
           var storedUser = readUser() || user || {};
           var userId = getUserId(storedUser) || getUserId(currentProfile);
@@ -351,10 +390,10 @@
           var nextProfile = Object.assign({}, currentProfile, { profil_kep_url: null });
           paint(nextProfile);
           syncStoredUser(nextProfile);
-          alert("Profilkep sikeresen torolve.");
+          showSuccess("Profilkep sikeresen torolve.");
         } catch (err) {
           console.error(err);
-          alert("Hiba a profilkep torlesekor: " + err.message);
+          showError("Hiba a profilkep torlesekor: " + err.message);
         }
       });
     }
@@ -405,10 +444,10 @@
 
           var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
           modal.hide();
-          alert("Profil adatok sikeresen frissitve.");
+          showSuccess("Profil adatok sikeresen frissitve.");
         } catch (err) {
           console.error(err);
-          alert("Hiba a profil adatok mentesekor: " + err.message);
+          showError("Hiba a profil adatok mentesekor: " + err.message);
         }
       });
     }
@@ -445,15 +484,15 @@
         var confirmPassword = confirmInput.value || "";
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-          alert("Kerlek tolts ki minden jelszo mezot.");
+          showWarning("Kerlek tolts ki minden jelszo mezot.");
           return;
         }
         if (newPassword.length < 8) {
-          alert("Az uj jelszo legalabb 8 karakter legyen.");
+          showWarning("Az uj jelszo legalabb 8 karakter legyen.");
           return;
         }
         if (newPassword !== confirmPassword) {
-          alert("Az uj jelszo es a megerosites nem egyezik.");
+          showWarning("Az uj jelszo es a megerosites nem egyezik.");
           return;
         }
 
@@ -473,10 +512,10 @@
           resetForm();
           var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
           modal.hide();
-          alert("Jelszo sikeresen modositva.");
+          showSuccess("Jelszo sikeresen modositva.");
         } catch (err) {
           console.error(err);
-          alert("Hiba a jelszo modositasakor: " + err.message);
+          showError("Hiba a jelszo modositasakor: " + err.message);
         }
       });
     }

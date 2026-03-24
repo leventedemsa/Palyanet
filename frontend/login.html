@@ -386,6 +386,7 @@ footer {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./auth-nav.js"></script>
 
     <script>
@@ -451,7 +452,12 @@ footer {
         const data = await response.json();
 
         if (!response.ok) {
-          alert(data.message || "Hibás bejelentkezés.");
+          await Swal.fire({
+            icon: "error",
+            title: "Bejelentkezési hiba",
+            text: data.message || "Hibás bejelentkezés.",
+            confirmButtonColor: "#ff7a18"
+          });
           return;
         }
 
@@ -463,11 +469,22 @@ footer {
           sessionStorage.setItem("user", JSON.stringify(data.user));
         }
 
-        alert("Sikeres bejelentkezés!");
+        await Swal.fire({
+          icon: "success",
+          title: "Sikeres bejelentkezés",
+          text: "Üdv újra a Pályaneten!",
+          timer: 1200,
+          showConfirmButton: false
+        });
         window.location.href = "./index.html";
       } catch (error) {
         console.error("Login fetch hiba:", error);
-        alert("Nem sikerült kapcsolódni a szerverhez.");
+        await Swal.fire({
+          icon: "error",
+          title: "Kapcsolódási hiba",
+          text: "Nem sikerült kapcsolódni a szerverhez.",
+          confirmButtonColor: "#ff7a18"
+        });
       }
 
       form.classList.add("was-validated");

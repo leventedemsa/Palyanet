@@ -975,6 +975,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./auth-nav.js"></script>
 
         <script>
@@ -1004,6 +1005,33 @@
                 const current = htmlEl.getAttribute("data-bs-theme") || "light";
                 setTheme(current === "dark" ? "light" : "dark");
             });
+
+            function showSuccess(message) {
+                return Swal.fire({
+                    icon: "success",
+                    title: "Sikeres művelet",
+                    text: message,
+                    confirmButtonText: "Rendben",
+                });
+            }
+
+            function showError(message) {
+                return Swal.fire({
+                    icon: "error",
+                    title: "Hiba",
+                    text: message,
+                    confirmButtonText: "Rendben",
+                });
+            }
+
+            function showWarning(message) {
+                return Swal.fire({
+                    icon: "warning",
+                    title: "Figyelem",
+                    text: message,
+                    confirmButtonText: "Rendben",
+                });
+            }
 
             // ===== PÁLYÁK KEZELÉS =====
             const API_URL = "http://localhost:4000/api/palyak";
@@ -1502,7 +1530,7 @@
                     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
                     if (!user) {
-                        alert("Bejelentkezés szükséges!");
+                        showWarning("Bejelentkezés szükséges!");
                         window.location.href = "./login.html";
                         return;
                     }
@@ -1534,16 +1562,16 @@
                         console.log("API válasz:", responseData);
 
                         if (response.ok) {
-                            alert("Pálya sikeresen hozzáadva!");
+                            showSuccess("Pálya sikeresen hozzáadva!");
                             document.getElementById("ujPalyaForm").reset();
                             bootstrap.Modal.getInstance(document.getElementById("ujPalyaModal")).hide();
                             loadPalyak();
                         } else {
-                            alert("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
+                            showError("Hiba a pálya hozzáadásakor: " + (responseData.error || responseData.message || "Ismeretlen hiba"));
                         }
                     } catch (error) {
                         console.error("Hiba:", error);
-                        alert("Szövegalkalmazás hiba: " + error.message);
+                        showError("Szövegalkalmazás hiba: " + error.message);
                     }
                 });
 
@@ -1769,7 +1797,7 @@
                 const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
                 if (!user) {
-                    alert("Bejelentkezés szükséges!");
+                    showWarning("Bejelentkezés szükséges!");
                     window.location.href = "./login.html";
                     return;
                 }
@@ -1779,7 +1807,7 @@
                 currentAr = parseInt(ar);
                 const validTime = /^\d{2}:\d{2}$/;
                 if (!validTime.test(nyitas || "") || !validTime.test(zaras || "")) {
-                    alert("Ehhez a pályához nincs érvényes nyitás/zárás idő beállítva.");
+                    showWarning("Ehhez a pályához nincs érvényes nyitás/zárás idő beállítva.");
                     return;
                 }
                 currentNyitas = nyitas;
@@ -1814,12 +1842,12 @@
                 bejelentesModalOpenBtn.addEventListener("click", () => {
                     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
                     if (!user) {
-                        alert("Bejelentkezés szükséges!");
+                        showWarning("Bejelentkezés szükséges!");
                         window.location.href = "./login.html";
                         return;
                     }
                     if (!currentPalyaId) {
-                        alert("Előbb válassz pályát.");
+                        showWarning("Előbb válassz pályát.");
                         return;
                     }
 
@@ -1837,18 +1865,18 @@
                 bejelentesKuldBtn.addEventListener("click", async () => {
                     const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
                     if (!user) {
-                        alert("Bejelentkezés szükséges!");
+                        showWarning("Bejelentkezés szükséges!");
                         window.location.href = "./login.html";
                         return;
                     }
                     if (!currentPalyaId) {
-                        alert("Nincs kiválasztott pálya.");
+                        showWarning("Nincs kiválasztott pálya.");
                         return;
                     }
 
                     const szoveg = String(document.getElementById("bejelentesSzoveg").value || "").trim();
                     if (!szoveg) {
-                        alert("A bejelentés szövege kötelező.");
+                        showWarning("A bejelentés szövege kötelező.");
                         return;
                     }
 
@@ -1868,11 +1896,11 @@
                             throw new Error(data.message || "Bejelentés küldése sikertelen.");
                         }
 
-                        alert("A bejelentést rögzítettük.");
+                        showSuccess("A bejelentést rögzítettük.");
                         bootstrap.Modal.getOrCreateInstance(document.getElementById("bejelentesModal")).hide();
                     } catch (error) {
                         console.error(error);
-                        alert(error.message || "Hiba a bejelentés küldésekor.");
+                        showError(error.message || "Hiba a bejelentés küldésekor.");
                     }
                 });
             }
@@ -1940,7 +1968,7 @@
                 const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
                 if (!user) {
-                    alert("Bejelentkezés szükséges!");
+                    showWarning("Bejelentkezés szükséges!");
                     window.location.href = "./login.html";
                     return;
                 }
@@ -1950,17 +1978,17 @@
                 const vege = document.getElementById("foglalasVege").value;
 
                 if (!datum || !kezdes || !vege) {
-                    alert("Kérjük, töltsön ki minden mezőt!");
+                    showWarning("Kérjük, töltsön ki minden mezőt!");
                     return;
                 }
 
                 if (!validateBookingDateInput()) {
-                    alert("Múltbeli napra nem lehet foglalni.");
+                    showWarning("Múltbeli napra nem lehet foglalni.");
                     return;
                 }
 
                 if (!validateBookingTimeInputs()) {
-                    alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
+                    showWarning(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
                     return;
                 }
 
@@ -1968,12 +1996,12 @@
                 const vegeDateTime = new Date(`${datum}T${vege}`);
 
                 if (vegeDateTime <= kezdesDateTime) {
-                    alert("A vég időpontnak később kell lennie, mint a kezdésnek!");
+                    showWarning("A vég időpontnak később kell lennie, mint a kezdésnek!");
                     return;
                 }
 
                 if (!isWithinOpening(kezdes, vege)) {
-                    alert(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
+                    showWarning(`Csak a pálya nyitvatartásán belül foglalhatsz: ${currentNyitas}-${currentZaras}`);
                     return;
                 }
 
@@ -1981,7 +2009,7 @@
                 const ar = hours > 0 ? Math.round(hours * currentAr) : 0;
 
                 if (ar === 0 || isNaN(ar)) {
-                    alert("Hiba az ár kalkulációban. Ellenőrizd a kezdés és vég időpontot!");
+                    showWarning("Hiba az ár kalkulációban. Ellenőrizd a kezdés és vég időpontot!");
                     return;
                 }
 
@@ -2003,15 +2031,15 @@
                     const responseData = await response.json();
 
                     if (response.ok) {
-                        alert("Foglalási kérelem sikeresen elküldve! Az tulajdonos hamarosan megválaszolja.");
+                        showSuccess("Foglalási kérelem sikeresen elküldve! Az tulajdonos hamarosan megválaszolja.");
                         bootstrap.Modal.getInstance(document.getElementById("foglalasModal")).hide();
                         document.getElementById("foglalasForm").reset();
                     } else {
-                        alert("Hiba a foglalás elküldésekor: " + (responseData.message || "Ismeretlen hiba"));
+                        showError("Hiba a foglalás elküldésekor: " + (responseData.message || "Ismeretlen hiba"));
                     }
                 } catch (error) {
                     console.error("Hiba:", error);
-                    alert("Szövegalkalmazás hiba: " + error.message);
+                    showError("Szövegalkalmazás hiba: " + error.message);
                 }
             });
 

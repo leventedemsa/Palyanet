@@ -17,6 +17,15 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
   function absoluteImageUrl(url) {
     if (!url) return "https://github.com/mdo.png";
     return url.startsWith("http") ? url : API_BASE + url;
@@ -183,7 +192,7 @@
       await refresh();
     } catch (error) {
       console.error(error);
-      alert(error.message || "Nem sikerült frissíteni a bejelentést.");
+      showError(error.message || "Nem sikerült frissíteni a bejelentést.");
       button.disabled = false;
     }
   });

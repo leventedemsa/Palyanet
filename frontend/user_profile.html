@@ -661,6 +661,7 @@ footer {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./auth-nav.js"></script>
 
     <script>
@@ -690,6 +691,44 @@ footer {
         const current = htmlEl.getAttribute("data-bs-theme");
         setTheme(current === "dark" ? "light" : "dark");
       });
+
+      function showSuccess(message) {
+        return Swal.fire({
+          icon: "success",
+          title: "Sikeres művelet",
+          text: message,
+          confirmButtonText: "Rendben"
+        });
+      }
+
+      function showError(message) {
+        return Swal.fire({
+          icon: "error",
+          title: "Hiba",
+          text: message,
+          confirmButtonText: "Rendben"
+        });
+      }
+
+      function showWarning(message) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Figyelem",
+          text: message,
+          confirmButtonText: "Rendben"
+        });
+      }
+
+      function confirmAction(message) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Megerősítés",
+          text: message,
+          showCancelButton: true,
+          confirmButtonText: "Igen",
+          cancelButtonText: "Mégsem"
+        });
+      }
 
       function loadProfile() {
         try {
@@ -753,19 +792,19 @@ footer {
         if (!file) return;
 
         if (!file.type.startsWith("image/")) {
-          alert("Csak képfájlokat lehet feltölteni!");
+          showWarning("Csak képfájlokat lehet feltölteni!");
           return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-          alert("A fájl túl nagy! Maximum 5MB lehet.");
+          showWarning("A fájl túl nagy! Maximum 5MB lehet.");
           return;
         }
 
         try {
           const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
           if (!user) {
-            alert("Bejelentkezés szükséges!");
+            showWarning("Bejelentkezés szükséges!");
             window.location.href = "./login.html";
             return;
           }
@@ -791,27 +830,28 @@ footer {
             displayProfilePicture(user);
             document.getElementById("deletePictureBtn").style.display = "inline-block";
             
-            alert("Profilkép sikeresen frissítve!");
+            showSuccess("Profilkép sikeresen frissítve!");
             
             document.getElementById("profilePictureInput").value = "";
           } else {
-            alert("Hiba a profilkép feltöltésekor: " + (responseData.message || "Ismeretlen hiba"));
+            showError("Hiba a profilkép feltöltésekor: " + (responseData.message || "Ismeretlen hiba"));
           }
         } catch (error) {
           console.error("Hiba:", error);
-          alert("Szövegalkalmazás hiba: " + error.message);
+          showError("Szövegalkalmazás hiba: " + error.message);
         }
       });
 
       document.getElementById("deletePictureBtn").addEventListener("click", async () => {
-        if (!confirm("Biztosan szeretnéd törölni a profilképet?")) {
+        const confirmResult = await confirmAction("Biztosan szeretnéd törölni a profilképet?");
+        if (!confirmResult.isConfirmed) {
           return;
         }
 
         try {
           const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
           if (!user) {
-            alert("Bejelentkezés szükséges!");
+            showWarning("Bejelentkezés szükséges!");
             window.location.href = "./login.html";
             return;
           }
@@ -836,18 +876,19 @@ footer {
             displayProfilePicture(user);
             document.getElementById("deletePictureBtn").style.display = "none";
             
-            alert("Profilkép sikeresen törölve!");
+            showSuccess("Profilkép sikeresen törölve!");
           } else {
-            alert("Hiba a profilkép törlésekor: " + (responseData.message || "Ismeretlen hiba"));
+            showError("Hiba a profilkép törlésekor: " + (responseData.message || "Ismeretlen hiba"));
           }
         } catch (error) {
           console.error("Hiba:", error);
-          alert("Szövegalkalmazás hiba: " + error.message);
+          showError("Szövegalkalmazás hiba: " + error.message);
         }
       });
 
-      function logout() {
-        if (confirm("Biztosan ki szeretnél jelentkezni?")) {
+      async function logout() {
+        const confirmResult = await confirmAction("Biztosan ki szeretnél jelentkezni?");
+        if (confirmResult.isConfirmed) {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           sessionStorage.removeItem("token");

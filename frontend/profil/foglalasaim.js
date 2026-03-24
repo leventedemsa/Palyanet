@@ -30,6 +30,15 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -318,7 +327,7 @@
       renderAll();
     } catch (error) {
       console.error(error);
-      alert("Hiba a foglalas allapotanak frissitesekor.");
+      showError("Hiba a foglalas allapotanak frissitesekor.");
     }
   });
 

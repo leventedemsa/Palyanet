@@ -27,6 +27,26 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function confirmAction(message) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Megerősítés",
+      text: message,
+      showCancelButton: true,
+      confirmButtonText: "Igen",
+      cancelButtonText: "Mégsem"
+    });
+  }
+
   function absoluteImageUrl(url) {
     if (!url) return "";
     if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("data:")) {
@@ -396,7 +416,8 @@
     }
 
     async function deleteField(fieldId) {
-      if (!confirm("Biztosan torolni szeretned ezt a palyat?")) return;
+      var confirmResult = await confirmAction("Biztosan torolni szeretned ezt a palyat?");
+      if (!confirmResult.isConfirmed) return;
       try {
         var response = await fetch(API_BASE + "/api/palyak/" + fieldId, { method: "DELETE" });
         var data = await response.json().catch(function () { return {}; });
@@ -404,7 +425,7 @@
         await fetchFields();
       } catch (error) {
         console.error(error);
-        alert("Hiba a palya torlesekor: " + error.message);
+        showError("Hiba a palya torlesekor: " + error.message);
       }
     }
 
@@ -474,7 +495,7 @@
         await fetchFields();
       } catch (error) {
         console.error(error);
-        alert("Hiba a palya mentesekor: " + error.message);
+        showError("Hiba a palya mentesekor: " + error.message);
       }
     }
 

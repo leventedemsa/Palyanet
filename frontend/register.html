@@ -411,6 +411,7 @@ footer {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./auth-nav.js"></script>
 
     <script>
@@ -462,7 +463,12 @@ footer {
     }
 
     if (password !== confirmPassword) {
-      alert("A két jelszó nem egyezik.");
+      await Swal.fire({
+        icon: "warning",
+        title: "Eltérő jelszavak",
+        text: "A két jelszó nem egyezik.",
+        confirmButtonColor: "#ff7a18"
+      });
       return;
     }
 
@@ -484,18 +490,33 @@ footer {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.message || "Hiba történt regisztráció közben.");
+        await Swal.fire({
+          icon: "error",
+          title: "Regisztrációs hiba",
+          text: data.message || "Hiba történt regisztráció közben.",
+          confirmButtonColor: "#ff7a18"
+        });
         return;
       }
 
 
       localStorage.setItem("user", JSON.stringify(data.user));
       
-      alert("Sikeres regisztráció!");
+      await Swal.fire({
+        icon: "success",
+        title: "Sikeres regisztráció",
+        text: "Most már be tudsz jelentkezni.",
+        confirmButtonColor: "#ff7a18"
+      });
       window.location.href = "./login.html";
     } catch (error) {
       console.error(error);
-      alert("Nem sikerült kapcsolódni a szerverhez.");
+      await Swal.fire({
+        icon: "error",
+        title: "Kapcsolódási hiba",
+        text: "Nem sikerült kapcsolódni a szerverhez.",
+        confirmButtonColor: "#ff7a18"
+      });
     }
   });
 </script>

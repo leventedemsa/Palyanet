@@ -18,6 +18,26 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function confirmAction(message) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Megerősítés",
+      text: message,
+      showCancelButton: true,
+      confirmButtonText: "Igen",
+      cancelButtonText: "Mégsem"
+    });
+  }
+
   function absoluteImageUrl(url) {
     if (!url) return "https://github.com/mdo.png";
     return url.startsWith("http") ? url : API_BASE + url;
@@ -172,20 +192,21 @@
       await refresh();
     } catch (error) {
       console.error(error);
-      alert("Nem sikerült törölni az értesítést.");
+      showError("Nem sikerült törölni az értesítést.");
       button.disabled = false;
     }
   });
 
   clearAllButton.addEventListener("click", async function () {
-    if (!confirm("Biztosan törölni szeretnéd az összes értesítést?")) return;
+    var confirmResult = await confirmAction("Biztosan törölni szeretnéd az összes értesítést?");
+    if (!confirmResult.isConfirmed) return;
     clearAllButton.disabled = true;
     try {
       await clearAllNotifications(userId);
       await refresh();
     } catch (error) {
       console.error(error);
-      alert("Nem sikerült törölni az értesítéseket.");
+      showError("Nem sikerült törölni az értesítéseket.");
       clearAllButton.disabled = false;
     }
   });

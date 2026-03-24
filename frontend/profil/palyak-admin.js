@@ -20,6 +20,44 @@
     return user && (user.felhasznalo_id || user.id || user.userId);
   }
 
+  function showError(message) {
+    return Swal.fire({
+      icon: "error",
+      title: "Hiba",
+      text: message,
+      confirmButtonText: "Rendben"
+    });
+  }
+
+  function confirmDelete() {
+    return Swal.fire({
+      icon: "warning",
+      title: "Biztosan törlöd?",
+      text: "Ez a művelet nem vonható vissza.",
+      showCancelButton: true,
+      confirmButtonText: "Igen, törlöm",
+      cancelButtonText: "Mégsem"
+    });
+  }
+
+  function askDeleteReason() {
+    return Swal.fire({
+      title: "Törlés indoka",
+      input: "text",
+      inputLabel: "Kötelező mező",
+      inputPlaceholder: "Add meg a törlés indokát",
+      showCancelButton: true,
+      confirmButtonText: "Törlés",
+      cancelButtonText: "Mégsem",
+      inputValidator: function (value) {
+        if (!value || !String(value).trim()) {
+          return "A törlés indoka kötelező.";
+        }
+        return null;
+      }
+    });
+  }
+
   function absoluteImageUrl(url) {
     if (!url) return "https://github.com/mdo.png";
     return url.startsWith("http") ? url : API_BASE + url;
@@ -162,21 +200,20 @@
     var palyaId = Number(gomb.getAttribute("data-id"));
     if (!palyaId) return;
 
-    if (!confirm("Biztosan törölni szeretnéd ezt a pályát?")) return;
+    var confirmResult = await confirmDelete();
+    if (!confirmResult.isConfirmed) return;
 
-    var torlesIndok = prompt("Add meg a törlés indokát:");
-    if (!torlesIndok || !String(torlesIndok).trim()) {
-      alert("A törlés indoka kötelező.");
-      return;
-    }
+    var reasonResult = await askDeleteReason();
+    if (!reasonResult.isConfirmed) return;
+    var torlesIndok = String(reasonResult.value || "").trim();
 
     gomb.disabled = true;
     try {
-      await adminPalyaTorles(userId, palyaId, String(torlesIndok).trim());
+      await adminPalyaTorles(userId, palyaId, torlesIndok);
       await frissit();
     } catch (error) {
       console.error(error);
-      alert(error.message || "Nem sikerült törölni a pályát.");
+      showError(error.message || "Nem sikerült törölni a pályát.");
       gomb.disabled = false;
     }
   });
