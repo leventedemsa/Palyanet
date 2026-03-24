@@ -7,27 +7,56 @@
 # Kornél:
 
 ## 03.24:
-- Frontend:
-    - index.html újratervezése (design frissítés)
-    - Kép feltöltés megvalósítása fájlkezelőből
-    - Alert helyett felugró ablakok használata (pl. sikeres bejelentkezésnél)
-    - Kép hozzáadás lehetősége a pályákhoz
-        - A feltöltött kép jelenjen meg a pálya részleteinél
+- BookingController átszervezése új struktúrába: ✅
+    - Controller logika külön fájlba szervezése ✅
+    - Service réteg kialakítása ✅
+    - Repository réteg kialakítása (adatkezelés szétválasztása) ✅
+    - Moduláris index fájl létrehozása ✅
+- ProfileController átszervezése új struktúrába: ✅
+    - Controller logika szétbontása ✅
+    - Service réteg implementálása ✅
+    - Repository réteg létrehozása ✅
+    - Moduláris felépítés kialakítása ✅
+- Alert-ek teljes eltávolítása a projektből ✅
+- SweetAlert2 implementálása mindenhol: ✅
+    - Sikeres műveletek visszajelzése ✅
+    - Hibák felhasználóbarát megjelenítése ✅
+    - Egységes felugró rendszer kialakítása ✅
+- Kép feltöltés megvalósítása fájlkezelőből: ✅
+    - Fájl kiválasztás kezelése frontend oldalon ✅
+    - Kép feltöltés backend feldolgozása ✅
+    - Feltöltött fájlok tárolása ✅
+- Kép hozzáadás lehetősége a pályákhoz: ✅
+    - Kép hozzárendelése pályához ✅
+    - Feltöltött kép megjelenítése a pálya részleteinél ✅
+    - Dinamikus képbetöltés megvalósítása ✅
+- index.html újratervezése (design frissítés): ✅
+    - UI elemek átdolgozása ✅
+    - Elrendezés modernizálása ✅
+    - Felhasználói élmény javítása ✅
 
-- Backend:
-    - BookingController átszervezése új struktúrába:
-        - booking/
-            - controller.js
-            - index.js
-            - repository.js
-            - service.js
-    - ProfileController átszervezése új struktúrába:
-        - profile/
-            - controller.js
-            - index.js
-            - repository.js
-            - service.js
+## 03.17:
+- Profile mappán belüli HTML fájlok teljes redesignja: ✅
+    - Layout újratervezése ✅
+    - UI elemek egységesítése ✅
+    - Reszponzív megjelenés javítása ✅
+- Apró hibák javítása: ✅
+    - Megjelenítési hibák javítása ✅
+    - Strukturális hibák korrigálása ✅
 
+## 03.12:
+- Profilkép feltöltés implementálása: ✅
+    - Kép kiválasztás kezelése ✅
+    - Feltöltési folyamat megvalósítása ✅
+- Profilkép megjelenítése pályáknál: ✅
+    - Tulajdonos adatainak megjelenítése ✅
+    - Profilkép dinamikus betöltése ✅
+- Bérlő rendszer fejlesztése (~80%): ✅
+    - Alap logika kialakítása ✅
+    - Foglalási folyamat implementálása ✅
+    - Backend struktúra előkészítése ✅
+
+  
 # Levi:
 
 ## 03.21:
