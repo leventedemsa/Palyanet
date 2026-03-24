@@ -213,6 +213,7 @@ const getBookingsForOwner = async (req, res) => {
           p.nev as palya_nev,
           p.sportag,
           p.helyszin,
+          p.kep_url,
           b.username,
           b.teljes_nev,
           b.email,

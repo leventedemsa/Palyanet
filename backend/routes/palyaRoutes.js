@@ -1,6 +1,57 @@
 const express = require("express");
 const router = express.Router();
 const { sql, poolPromise } = require("../db");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+
+const palyaUploadsDir = path.join(__dirname, "..", "uploads", "palya");
+if (!fs.existsSync(palyaUploadsDir)) {
+  fs.mkdirSync(palyaUploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (_req, _file, cb) {
+    cb(null, palyaUploadsDir);
+  },
+  filename: function (_req, file, cb) {
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    const safeExt = ext && [".jpg", ".jpeg", ".png", ".webp"].includes(ext) ? ext : ".jpg";
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, "palya-" + unique + safeExt);
+  },
+});
+
+const imageFileFilter = (_req, file, cb) => {
+  if (!file || !file.mimetype) {
+    return cb(new Error("Ervenytelen fajl"));
+  }
+  if (file.mimetype.startsWith("image/")) {
+    return cb(null, true);
+  }
+  return cb(new Error("Csak kep fajlok tolthetők fel"));
+};
+
+const upload = multer({
+  storage,
+  fileFilter: imageFileFilter,
+  limits: { fileSize: 5 * 1024 * 1024, files: 8 },
+});
+
+router.post("/upload-images", upload.array("images", 8), async (req, res) => {
+  try {
+    const files = Array.isArray(req.files) ? req.files : [];
+    if (!files.length) {
+      return res.status(400).json({ error: "Nincs feltoltott kep" });
+    }
+
+    const urls = files.map((file) => "/uploads/palya/" + file.filename);
+    return res.status(201).json({ message: "Kepek sikeresen feltoltve", urls });
+  } catch (error) {
+    console.error("Palya kep feltoltesi hiba:", error);
+    return res.status(500).json({ error: "Kep feltoltes sikertelen" });
+  }
+});
 
 async function adminE(adminId) {
   const id = parseInt(adminId, 10);
