@@ -10,7 +10,7 @@ const {
   getUserProfile,
   updateUserProfile,
   changePassword,
-} = require("../controllers/profileController");
+} = require("../controllers/profile");
 
 // Create temp directory if it doesn't exist
 const tempDir = path.join(__dirname, "../temp");

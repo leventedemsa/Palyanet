@@ -7,7 +7,7 @@ const {
   acceptBooking,
   rejectBooking,
   getPendingBookingCount,
-} = require("../controllers/bookingController");
+} = require("../controllers/booking");
 
 // Create new booking
 router.post("/create", createBooking);
