@@ -56,32 +56,6 @@
     - Foglalási folyamat implementálása ✅
     - Backend struktúra előkészítése ✅
 
-## 03.11:
-- TODO lista frissítve ✅
-
-## 03.10:
-- palyak.html keresője megvalósítása ✅
-- Pálya hozzáadás gomb elkészítése ✅
-- Kommunikáció az SQL szerverrel ✅
-- SQL-ből való adatok betöltése ✅
-- Dinamikus betöltés megvalósítása ✅
-- osszes.html redesign ✅
-- user_profile létrehozva és működőképes ✅
-
-## 03.06:
-- contact.html style fejlesztése és javítása ✅
-
-## 03.05:
-- index.html Bejelentkezés gomb style-ja light mode-ban javítva ✅
-- HTML oldalak közötti univerzális linkek (./) ✅
-- index.html modernizált style elkészítése (dark és light módra optimalizálva) ✅
-
-## 02.27:
-- palyak.html hozzáadva és frissítve ✅
-- forgot-password.html hozzáadva ✅
-
-
-
   
 # Levi:
 
