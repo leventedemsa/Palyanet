@@ -1,9 +1,9 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="hu" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Palyanet - Értesítések</title>
+  <title>Palyanet - Statisztika</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/line-awesome@1.3.0/dist/line-awesome/css/line-awesome.min.css">
   <style>
@@ -171,13 +171,7 @@
     }
 
     .offcanvas-title:hover { color: var(--accent); }
-
-    .offcanvas-body {
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
+    .offcanvas-body { padding: 0; display: flex; flex-direction: column; height: 100%; }
 
     .main-content {
       margin-top: var(--topbar-height);
@@ -186,98 +180,47 @@
       min-height: 100vh;
     }
 
-    .main-content h1,
-    .main-content h2,
-    .main-content h3,
-    .main-content h4,
-    .main-content h5 {
-      color: #1a2233;
-    }
-
-    .text-muted,
-    .text-body-secondary {
-      color: var(--muted) !important;
-    }
-
     .card,
-    .modal-content,
-    .alert,
-    .border.rounded {
+    .table-wrap {
       border: 1px solid rgba(226, 232, 243, 0.92) !important;
       border-radius: 18px !important;
       box-shadow: var(--shadow-soft);
       background: var(--surface);
     }
 
-    .card .card,
-    .modal-content .card {
-      box-shadow: none;
+    .table > :not(caption) > * > * {
+      padding: 0.9rem 0.8rem;
+      vertical-align: middle;
     }
 
-    #notificationsList .card {
-      border: 1px solid rgba(226, 232, 243, 0.92) !important;
-      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    .table thead th {
+      font-size: 0.86rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom-width: 1px;
     }
 
-    #notificationsList .card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-medium);
+    .stat-value {
+      font-size: 1.7rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin: 0;
     }
 
-    .badge.text-bg-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-soft)) !important;
-      color: #fff;
+    .chart-card canvas {
+      width: 100% !important;
+      height: 320px !important;
     }
 
-    .badge.text-bg-secondary {
-      background: rgba(111, 122, 144, 0.18) !important;
-      color: #48536a;
-    }
-
-    .btn-primary {
-      border: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
-      box-shadow: 0 10px 24px rgba(255, 122, 24, 0.28);
-    }
-
-    .btn-primary:hover,
-    .btn-primary:focus {
-      background: linear-gradient(135deg, var(--accent-soft), var(--accent));
-    }
-
-    .btn-outline-secondary,
-    .btn-outline-primary,
-    .btn-outline-danger {
-      border-radius: 10px;
-    }
-
-    .btn-outline-secondary {
-      border-color: rgba(255, 122, 24, 0.42);
-      color: #9a4f12;
-    }
-
-    .btn-outline-secondary:hover {
-      background: rgba(255, 122, 24, 0.14);
-      color: #8c460f;
-      border-color: rgba(255, 122, 24, 0.58);
-    }
-
-    .btn-outline-danger {
-      border-color: rgba(220, 53, 69, 0.45);
-    }
-
-    .btn-outline-danger:hover {
-      background: rgba(220, 53, 69, 0.12);
-    }
-
-    .modal-header,
-    .modal-footer {
-      border-color: #edf1f8;
+    #monthlyLineChart {
+      height: 280px !important;
     }
 
     @media (max-width: 991.98px) {
       .sidebar-desktop { display: none; }
       .main-content { margin-left: 0; padding: 18px; }
+      .chart-card canvas { height: 260px !important; }
     }
 
     @media (min-width: 992px) {
@@ -323,12 +266,7 @@
     }
 
     [data-bs-theme="dark"] .sidebar-brand a,
-    [data-bs-theme="dark"] .offcanvas-title,
-    [data-bs-theme="dark"] .main-content h1,
-    [data-bs-theme="dark"] .main-content h2,
-    [data-bs-theme="dark"] .main-content h3,
-    [data-bs-theme="dark"] .main-content h4,
-    [data-bs-theme="dark"] .main-content h5 {
+    [data-bs-theme="dark"] .offcanvas-title {
       color: #eef3fd;
     }
 
@@ -342,43 +280,15 @@
       background: linear-gradient(90deg, rgba(255, 122, 24, 0.3), rgba(255, 155, 61, 0.1));
     }
 
-    [data-bs-theme="dark"] .text-muted,
-    [data-bs-theme="dark"] .text-body-secondary {
-      color: #aab5cc !important;
-    }
-
     [data-bs-theme="dark"] .card,
-    [data-bs-theme="dark"] .modal-content,
-    [data-bs-theme="dark"] .alert,
-    [data-bs-theme="dark"] .border.rounded {
+    [data-bs-theme="dark"] .table-wrap {
       background-color: #151c27 !important;
       border-color: rgba(255, 255, 255, 0.08) !important;
       color: #e7edf8;
     }
 
-    [data-bs-theme="dark"] .badge.text-bg-secondary {
-      background: rgba(172, 182, 204, 0.2) !important;
-      color: #d6dff0;
-    }
-
-    [data-bs-theme="dark"] .btn-outline-secondary {
-      color: #ffcfa6;
-      border-color: rgba(255, 155, 61, 0.52);
-    }
-
-    [data-bs-theme="dark"] .btn-outline-secondary:hover {
-      color: #ffe0c4;
-      background: rgba(255, 122, 24, 0.2);
-    }
-
-    [data-bs-theme="dark"] .btn-outline-danger {
-      color: #ffb4bc;
-      border-color: rgba(255, 145, 156, 0.5);
-    }
-
-    [data-bs-theme="dark"] .btn-outline-danger:hover {
-      color: #ffd8dd;
-      background: rgba(220, 53, 69, 0.2);
+    [data-bs-theme="dark"] .table thead th {
+      color: #aab5cc;
     }
   </style>
 </head>
@@ -388,17 +298,14 @@
   </div>
 
   <aside class="sidebar-desktop profile-sidebar">
-    <div class="sidebar-brand"><a href="../index.html">Palyanet</a></div>
+    <div class="sidebar-brand"><a href="../../index.html">Palyanet</a></div>
     <ul class="sidebar-links">
-      <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
-      <li data-sidebar-item="palyaim"><a href="./palyatulajdonos/palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-      <li data-sidebar-item="foglalasaim"><a href="./palyatulajdonos/foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
-      <li data-sidebar-item="statisztika"><a href="./palyatulajdonos/statisztika.html" class="sidebar-link"><span class="icon"><i class="las la-chart-pie"></i></span>Statisztika</a></li>
-      <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-      <li data-sidebar-item="bejelentesek"><a href="./admin/bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
-      <li data-sidebar-item="admin-palyak"><a href="./admin/palyak-admin.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
-      <li data-sidebar-item="admin-felhasznalok"><a href="./admin/felhasznalok.html" class="sidebar-link"><span class="icon"><i class="las la-users"></i></span>Felhasználók</a></li>
-      <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+      <li data-sidebar-item="profil"><a href="../profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
+      <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
+      <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
+      <li data-sidebar-item="statisztika"><a href="./statisztika.html" class="sidebar-link is-active"><span class="icon"><i class="las la-chart-pie"></i></span>Statisztika</a></li>
+      <li data-sidebar-item="berleseim"><a href="../berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
+      <li data-sidebar-item="ertesitesek"><a href="../ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
     </ul>
     <div class="sidebar-user-wrap">
       <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -407,18 +314,15 @@
   </aside>
 
   <div class="offcanvas offcanvas-start bg-white border-0 profile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
-    <div class="offcanvas-header border-bottom"><a href="../index.html" class="offcanvas-title" id="mobileSidebarLabel">Palyanet</a><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Bezárás"></button></div>
+    <div class="offcanvas-header border-bottom"><a href="../../index.html" class="offcanvas-title" id="mobileSidebarLabel">Palyanet</a><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Bezárás"></button></div>
     <div class="offcanvas-body">
       <ul class="sidebar-links">
-        <li data-sidebar-item="profil"><a href="./profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
-        <li data-sidebar-item="palyaim"><a href="./palyatulajdonos/palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
-        <li data-sidebar-item="foglalasaim"><a href="./palyatulajdonos/foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
-        <li data-sidebar-item="statisztika"><a href="./palyatulajdonos/statisztika.html" class="sidebar-link"><span class="icon"><i class="las la-chart-pie"></i></span>Statisztika</a></li>
-        <li data-sidebar-item="berleseim"><a href="./berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
-        <li data-sidebar-item="bejelentesek"><a href="./admin/bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
-        <li data-sidebar-item="admin-palyak"><a href="./admin/palyak-admin.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
-        <li data-sidebar-item="admin-felhasznalok"><a href="./admin/felhasznalok.html" class="sidebar-link"><span class="icon"><i class="las la-users"></i></span>Felhasználók</a></li>
-        <li data-sidebar-item="ertesitesek"><a href="./ertesitesek.html" class="sidebar-link is-active"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+        <li data-sidebar-item="profil"><a href="../profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
+        <li data-sidebar-item="palyaim"><a href="./palyaim.html" class="sidebar-link"><span class="icon"><i class="las la-pager"></i></span>Pályáim</a></li>
+        <li data-sidebar-item="foglalasaim"><a href="./foglalasaim.html" class="sidebar-link"><span class="icon"><i class="las la-university"></i></span>Foglalásaim</a></li>
+        <li data-sidebar-item="statisztika"><a href="./statisztika.html" class="sidebar-link is-active"><span class="icon"><i class="las la-chart-pie"></i></span>Statisztika</a></li>
+        <li data-sidebar-item="berleseim"><a href="../berleseim.html" class="sidebar-link"><span class="icon"><i class="las la-calendar-check"></i></span>Bérléseim</a></li>
+        <li data-sidebar-item="ertesitesek"><a href="../ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
       </ul>
       <div class="sidebar-user-wrap">
         <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
@@ -430,14 +334,61 @@
   <main class="main-content">
     <div class="p-4 p-md-5">
       <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <h1 class="h3 mb-0">Értesítések</h1>
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge text-bg-primary" id="notificationsCount">0</span>
-          <button type="button" class="btn btn-outline-danger btn-sm" id="clearAllNotificationsBtn">Összes törlése</button>
+        <div>
+          <h1 class="h3 mb-1">Statisztika</h1>
+          <p class="text-muted mb-0">Elfogadott foglalások és bevétel bontások.</p>
         </div>
       </div>
 
-      <div id="notificationsList"></div>
+      <section class="row g-3">
+        <div class="col-12 col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Hónap</p>
+              <p class="stat-value" id="summaryMonthValue">-</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Elfogadott foglalások</p>
+              <p class="stat-value" id="summaryAcceptedCount">0</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="card h-100">
+            <div class="card-body">
+              <p class="text-muted small mb-1">Várható bevétel (elfogadott)</p>
+              <p class="stat-value" id="summaryRevenue">0 Ft</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-wrap p-3 p-md-4 mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h5 mb-0">Egyéni pálya bevétel - <span id="tableMonthLabel">-</span></h2>
+          <span class="text-muted small">Csak elfogadott foglalások</span>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Pálya neve</th>
+                <th class="text-center">Elfogadott foglalás</th>
+                <th class="text-end">Várható bevétel</th>
+              </tr>
+            </thead>
+            <tbody id="fieldStatsTableBody">
+              <tr>
+                <td colspan="3" class="text-center text-muted">Betöltés...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -445,14 +396,13 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     (function(){
-      const saved = localStorage.getItem('theme');
-      if(saved) document.documentElement.setAttribute('data-bs-theme', saved);
-      else if(window.matchMedia('(prefers-color-scheme: dark)').matches)
-        document.documentElement.setAttribute('data-bs-theme','dark');
+      const saved = localStorage.getItem("theme");
+      if (saved) document.documentElement.setAttribute("data-bs-theme", saved);
+      else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        document.documentElement.setAttribute("data-bs-theme", "dark");
+      }
     })();
   </script>
-  <script src="ertesitesek.js"></script>
+  <script src="statisztika.js"></script>
 </body>
 </html>
-
-

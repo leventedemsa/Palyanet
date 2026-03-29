@@ -154,6 +154,7 @@
   function wireSidebar(user) {
     var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
     var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
     var bejelentesekItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
     var adminPalyakItems = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
@@ -163,6 +164,7 @@
 
     palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
     foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    statisztikaItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
     berleseimItems.forEach(function (item) { item.style.display = isAdmin ? "none" : ""; });
     bejelentesekItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
     adminPalyakItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });

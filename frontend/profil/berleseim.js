@@ -124,9 +124,11 @@
 
     var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
     var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     var isOwner = user.szerep === "palyatulajdonos";
     palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
     foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
+    statisztikaItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
   }
 
   function statusText(status) {

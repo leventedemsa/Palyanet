@@ -138,7 +138,9 @@
     });
 
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     berleseimItems.forEach(function (item) { item.style.display = ""; });
+    statisztikaItems.forEach(function (item) { item.style.display = ""; });
   }
 
   function statusText(status) {
