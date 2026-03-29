@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   "use strict";
 
   var API_BASE = "http://localhost:4000";
@@ -64,7 +64,7 @@
     var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
     var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"]');
+    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"]');
     var szerep = String(user.szerep || "").toLowerCase();
     var isOwner = szerep === "palyatulajdonos";
     var isAdmin = szerep === "admin";
@@ -213,3 +213,4 @@
 
   refresh();
 })();
+

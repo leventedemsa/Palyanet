@@ -1,4 +1,4 @@
-/* global bootstrap: false */
+﻿/* global bootstrap: false */
 (function () {
   "use strict";
 
@@ -157,6 +157,7 @@
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
     var bejelentesekItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
     var adminPalyakItems = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
+    var adminFelhasznalokItems = document.querySelectorAll('[data-sidebar-item="admin-felhasznalok"]');
     var isOwner = user.szerep === "palyatulajdonos";
     var isAdmin = user.szerep === "admin";
 
@@ -165,6 +166,7 @@
     berleseimItems.forEach(function (item) { item.style.display = isAdmin ? "none" : ""; });
     bejelentesekItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
     adminPalyakItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
+    adminFelhasznalokItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
 
     var dropdownNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
     var dropdownAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
@@ -390,7 +392,7 @@
           var nextProfile = Object.assign({}, currentProfile, { profil_kep_url: null });
           paint(nextProfile);
           syncStoredUser(nextProfile);
-          showSuccess("Profilkép sikeresen tőrőlve.");
+          showSuccess("Profilkép sikeresen törölve.");
         } catch (err) {
           console.error(err);
           showError("Hiba a profilkép törlésekor: " + err.message);
@@ -484,7 +486,7 @@
         var confirmPassword = confirmInput.value || "";
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-          showWarning("Kérlek tőlts ki minden jelszó mezőt.");
+          showWarning("Kérlek tölts ki minden jelszó mezőt.");
           return;
         }
         if (newPassword.length < 8) {
@@ -546,3 +548,4 @@
   loadProfilePage(user);
   loadQuickStats(user);
 })();
+

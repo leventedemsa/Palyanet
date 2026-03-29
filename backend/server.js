@@ -12,6 +12,7 @@ const profileRoutes = require("./routes/profileRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 //hibakezelő directory path-ek.
@@ -62,6 +63,7 @@ app.use("/api/bookings", bookingRoutes);
 app.use("/api/notifications", notificationRoutes);
 // Bejelentések.
 app.use("/api/reports", reportRoutes);
+app.use("/api/users", userRoutes);
 
 // Statikus frontend fájlok kiszolgálása.
 app.use(express.static(frontendDir));

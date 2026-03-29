@@ -17,7 +17,7 @@
   function ensureLoggedIn() {
     var user = readUser();
     if (!user) {
-      window.location.href = "../login.html";
+      window.location.href = "../../login.html";
       return null;
     }
     return user;
@@ -154,7 +154,7 @@
         localStorage.removeItem("user");
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("user");
-        window.location.href = "../login.html";
+        window.location.href = "../../login.html";
       });
     });
   }
@@ -167,7 +167,7 @@
     if (!myFieldsList || !modalElement || !modalForm || !modalSaveButton) return;
 
     if (user.szerep !== "palyatulajdonos") {
-      window.location.href = "./berleseim.html";
+      window.location.href = "../berleseim.html";
       return;
     }
 
