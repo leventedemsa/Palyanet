@@ -24,7 +24,7 @@ const storage = multer.diskStorage({
 
 const imageFileFilter = (_req, file, cb) => {
   if (!file || !file.mimetype) {
-    return cb(new Error("Ervenytelen fajl"));
+    return cb(new Error("Érvénytelen fájl"));
   }
   if (file.mimetype.startsWith("image/")) {
     return cb(null, true);
@@ -42,14 +42,14 @@ router.post("/upload-images", upload.array("images", 8), async (req, res) => {
   try {
     const files = Array.isArray(req.files) ? req.files : [];
     if (!files.length) {
-      return res.status(400).json({ error: "Nincs feltoltott kep" });
+      return res.status(400).json({ error: "Nincs feltöltött kép" });
     }
 
     const urls = files.map((file) => "/uploads/palya/" + file.filename);
-    return res.status(201).json({ message: "Kepek sikeresen feltoltve", urls });
+    return res.status(201).json({ message: "Képek sikeresen feltöltve", urls });
   } catch (error) {
-    console.error("Palya kep feltoltesi hiba:", error);
-    return res.status(500).json({ error: "Kep feltoltes sikertelen" });
+    console.error("Pályakép-feltöltési hiba:", error);
+    return res.status(500).json({ error: "Képfeltöltés sikertelen" });
   }
 });
 
@@ -80,10 +80,11 @@ router.get("/", async (req, res) => {
     let query = `
       SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
              p.kep_url, p.nyitas, p.zaras, p.letrehozva,
+             ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
              f.username, f.teljes_nev, f.profil_kep_url
       FROM Palya p
       JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
-      WHERE 1=1
+      WHERE ISNULL(p.felfuggesztve, 0) = 0
     `;
     
     if (sportag) {
@@ -111,12 +112,12 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ===== TULAJ SAJAT PALYAI =====
+// ===== TULAJ SAJÁT PÁLYÁI =====
 router.get("/owner/:tulaj_id", async (req, res) => {
   try {
     const tulajId = parseInt(req.params.tulaj_id, 10);
     if (!tulajId) {
-      return res.status(400).json({ error: "Ervenytelen tulajdonos ID" });
+      return res.status(400).json({ error: "Érvénytelen tulajdonos ID" });
     }
 
     const pool = await poolPromise;
@@ -136,13 +137,13 @@ router.get("/owner/:tulaj_id", async (req, res) => {
 
     return res.json(result.recordset);
   } catch (error) {
-    console.error("Tulaj palyainak lekerese hiba:", error);
-    return res.status(500).json({ error: "Tulaj palyainak lekerese sikertelen" });
+    console.error("Tulaj pályáinak lekérési hiba:", error);
+    return res.status(500).json({ error: "Tulaj pályáinak lekérése sikertelen" });
   }
 });
 
 // ===== EGYETLEN PÁLYA LEKÉRÉSE =====
-// ===== ADMIN PALYAK LISTAJA (PALYA ID/FELHASZNALONEV SZURES) =====
+// ===== ADMIN PÁLYÁK LISTÁJA (PÁLYA ID/FELHASZNÁLÓNÉV SZŰRÉS) =====
 router.get("/admin/list", async (req, res) => {
   try {
     const adminId = parseInt(req.query.admin_id, 10);
@@ -150,10 +151,10 @@ router.get("/admin/list", async (req, res) => {
     const username = String(req.query.username || "").trim();
 
     if (!adminId) {
-      return res.status(400).json({ error: "Hianyzo admin_id" });
+      return res.status(400).json({ error: "Hiányzó admin_id" });
     }
     if (!(await adminE(adminId))) {
-      return res.status(403).json({ error: "Nincs jogosultsag" });
+      return res.status(403).json({ error: "Nincs jogosultság" });
     }
 
     const pool = await poolPromise;
@@ -161,6 +162,8 @@ router.get("/admin/list", async (req, res) => {
     let query = `
       SELECT
         p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.letrehozva,
+        ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
+        p.felfuggesztes_indok,
         f.felhasznalo_id AS tulaj_id, f.username, f.teljes_nev
       FROM Palya p
       JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
@@ -180,8 +183,8 @@ router.get("/admin/list", async (req, res) => {
     const result = await request.query(query);
     return res.json(result.recordset);
   } catch (error) {
-    console.error("Admin palya lista hiba:", error);
-    return res.status(500).json({ error: "Admin palya lista lekerese sikertelen" });
+    console.error("Admin pályalista hiba:", error);
+    return res.status(500).json({ error: "Admin pályalista lekérése sikertelen" });
   }
 });
 
@@ -193,13 +196,13 @@ router.delete("/admin/:id", async (req, res) => {
     const torlesIndok = String(req.body.torles_indok || "").trim();
 
     if (!adminId || !palyaId) {
-      return res.status(400).json({ error: "Hianyzo admin_id vagy palya_id" });
+      return res.status(400).json({ error: "Hiányzó admin_id vagy palya_id" });
     }
     if (!torlesIndok) {
-      return res.status(400).json({ error: "A torles indoka kotelezo" });
+      return res.status(400).json({ error: "A törlés indoka kötelező" });
     }
     if (!(await adminE(adminId))) {
-      return res.status(403).json({ error: "Nincs jogosultsag" });
+      return res.status(403).json({ error: "Nincs jogosultság" });
     }
 
     const pool = await poolPromise;
@@ -221,7 +224,7 @@ router.delete("/admin/:id", async (req, res) => {
 
       if (!palyaEredmeny.recordset[0]) {
         await transaction.rollback();
-        return res.status(404).json({ error: "Palya nem talalhato" });
+        return res.status(404).json({ error: "Pálya nem található" });
       }
 
       const palya = palyaEredmeny.recordset[0];
@@ -240,7 +243,7 @@ router.delete("/admin/:id", async (req, res) => {
 
       if (!result.recordset[0] || result.recordset[0].affected === 0) {
         await transaction.rollback();
-        return res.status(404).json({ error: "Palya nem talalhato" });
+        return res.status(404).json({ error: "Pálya nem található" });
       }
 
       request.input("cimzett_id", sql.Int, tulajId);
@@ -251,14 +254,63 @@ router.delete("/admin/:id", async (req, res) => {
       `);
 
       await transaction.commit();
-      return res.json({ message: "Palya sikeresen torolve" });
+      return res.json({ message: "Pálya sikeresen törölve" });
     } catch (innerError) {
       await transaction.rollback();
       throw innerError;
     }
   } catch (error) {
-    console.error("Admin palya torles hiba:", error);
-    return res.status(500).json({ error: "Admin palya torles sikertelen" });
+    console.error("Admin pálya törlési hiba:", error);
+    return res.status(500).json({ error: "Admin pálya törlése sikertelen" });
+  }
+});
+
+// Admin pálya felfüggesztés/feldolgozás.
+router.patch("/admin/:id/suspension", async (req, res) => {
+  try {
+    const adminId = parseInt(req.body && req.body.admin_id, 10);
+    const palyaId = parseInt(req.params.id, 10);
+    const felfuggesztve = Boolean(req.body && req.body.felfuggesztve);
+    const indok = String((req.body && req.body.indok) || "").trim();
+
+    if (!adminId || !palyaId) {
+      return res.status(400).json({ error: "Hiányzó admin_id vagy palya_id" });
+    }
+    if (!(await adminE(adminId))) {
+      return res.status(403).json({ error: "Nincs jogosultság" });
+    }
+    if (felfuggesztve && !indok) {
+      return res.status(400).json({ error: "A felfüggesztés indoka kötelező" });
+    }
+
+    const pool = await poolPromise;
+    const request = pool.request();
+    request.input("palya_id", sql.Int, palyaId);
+    request.input("admin_id", sql.Int, adminId);
+    request.input("indok", sql.NVarChar(1500), indok || null);
+    request.input("felfuggesztve", sql.Bit, felfuggesztve ? 1 : 0);
+
+    const result = await request.query(`
+      UPDATE Palya
+      SET
+        felfuggesztve = @felfuggesztve,
+        felfuggesztes_indok = CASE WHEN @felfuggesztve = 1 THEN @indok ELSE NULL END,
+        felfuggesztve_admin_id = CASE WHEN @felfuggesztve = 1 THEN @admin_id ELSE NULL END,
+        felfuggesztve_datum = CASE WHEN @felfuggesztve = 1 THEN SYSDATETIME() ELSE NULL END
+      WHERE palya_id = @palya_id;
+      SELECT @@ROWCOUNT AS affected;
+    `);
+
+    if (!result.recordset[0] || result.recordset[0].affected === 0) {
+      return res.status(404).json({ error: "Pálya nem található" });
+    }
+
+    return res.json({
+      message: felfuggesztve ? "Pálya felfüggesztve" : "Pálya felfüggesztése feloldva",
+    });
+  } catch (error) {
+    console.error("Admin pálya felfüggesztési hiba:", error);
+    return res.status(500).json({ error: "Pálya felfüggesztés frissítése sikertelen" });
   }
 });
 
@@ -365,28 +417,28 @@ router.delete("/:id", async (req, res) => {
       await request.query("DELETE FROM Palya WHERE palya_id = @palya_id");
       await transaction.commit();
 
-      res.json({ message: "Palya sikeresen torolve" });
+      res.json({ message: "Pálya sikeresen törölve" });
     } catch (innerError) {
       await transaction.rollback();
       throw innerError;
     }
   } catch (error) {
-    console.error("Palya torlesi hiba:", error);
-    res.status(500).json({ error: "Palya torlese sikertelen" });
+    console.error("Pálya törlési hiba:", error);
+    res.status(500).json({ error: "Pálya törlése sikertelen" });
   }
 });
 
-// ===== PALYA MODOSITASA =====
+// ===== PÁLYA MÓDOSÍTÁSA =====
 router.put("/:id", async (req, res) => {
   try {
     const palyaId = parseInt(req.params.id, 10);
     const { nev, sportag, helyszin, ar_ora, leiras, kep_url, nyitas, zaras } = req.body;
 
     if (!palyaId) {
-      return res.status(400).json({ error: "Ervenytelen palya ID" });
+      return res.status(400).json({ error: "Érvénytelen pálya ID" });
     }
     if (!nev || !sportag || !helyszin || !ar_ora) {
-      return res.status(400).json({ error: "Hianyzo kotelezo mezok: nev, sportag, helyszin, ar_ora" });
+      return res.status(400).json({ error: "Hiányzó kötelező mezők: nev, sportag, helyszin, ar_ora" });
     }
 
     const nyitasFormatted = (nyitas && String(nyitas).trim()) ? String(nyitas).slice(0, 5) + ":00" : "08:00:00";
@@ -420,15 +472,14 @@ router.put("/:id", async (req, res) => {
       `);
 
     if (!result.recordset[0] || result.recordset[0].affected === 0) {
-      return res.status(404).json({ error: "Palya nem talalhato" });
+      return res.status(404).json({ error: "Pálya nem található" });
     }
 
-    return res.json({ message: "Palya sikeresen modositva" });
+    return res.json({ message: "Pálya sikeresen módosítva" });
   } catch (error) {
-    console.error("Palya modositasi hiba:", error);
-    return res.status(500).json({ error: "Palya modositasa sikertelen" });
+    console.error("Pálya módosítási hiba:", error);
+    return res.status(500).json({ error: "Pálya módosítása sikertelen" });
   }
 });
 
 module.exports = router;
-

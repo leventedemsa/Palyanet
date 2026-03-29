@@ -1,4 +1,4 @@
-﻿require("dotenv").config();
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -14,7 +14,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 
 const app = express();
-//hibakezelő directory path-ek
+//hibakezelő directory path-ek.
 const frontendDir = path.join(__dirname, "..", "frontend");
 const notFoundPage = path.join(frontendDir, "hibakezelo", "404notfound.html");
 const internalErrorPage = path.join(frontendDir, "hibakezelo", "500internalservererror.html");
@@ -40,7 +40,7 @@ if (!fs.existsSync(uploadsDir)) {
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // 503 kezelő: karbantartási mód esetén a weboldalhoz 503-as oldalt,
-// API kéréseknél pedig JSON hibaválaszt ad vissza
+// API kéréseknél pedig JSON hibaválaszt ad vissza.
 app.use((req, res, next) => {
     if (isMaintenanceMode !== "true") {
         return next();
@@ -60,13 +60,13 @@ app.use("/api/palyak", palyaRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/notifications", notificationRoutes);
-// Bejelentések
+// Bejelentések.
 app.use("/api/reports", reportRoutes);
 
-// Statikus frontend fájlok kiszolgálása
+// Statikus frontend fájlok kiszolgálása.
 app.use(express.static(frontendDir));
 
-// 404 kezelő: API-hoz JSON, oldalhoz HTML válasz
+// 404 kezelő: API-hoz JSON, oldalhoz HTML válasz.
 app.use((req, res) => {
     const isApiRequest = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
 
@@ -78,7 +78,7 @@ app.use((req, res) => {
 });
 
 // 500 kezelő: szerverhiba esetén API kéréseknél JSON hibaválaszt,
-// egyébként 500-as hibaoldalt küld
+// egyébként 500-as hibaoldalt küld.
 app.use((err, req, res, next) => {
     console.error(err);
 
@@ -94,7 +94,7 @@ app.use((err, req, res, next) => {
 
     return res.status(500).sendFile(internalErrorPage);
 });
-// Alapértelmezett admin felhasználó létrehozása, ha még nincs admin a rendszerben
+// Alapértelmezett admin felhasználó létrehozása, ha még nincs admin a rendszerben.
 async function ensureDefaultAdmin() {
     const pool = await poolPromise;
     const adminCountResult = await pool.request().query(`
@@ -120,7 +120,7 @@ async function ensureDefaultAdmin() {
           VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
         `);
 
-    console.log("Alap admin felhasznalo letrehozva: username=admin");
+    console.log("Alap admin felhasználó létrehozva: username=admin");
 }
 
 async function startServer() {
@@ -134,7 +134,7 @@ async function startServer() {
             console.log(`Fő oldal: http://localhost:4000/index.html`);
         });
     } catch (error) {
-        console.error("Szerver inditasi hiba:", error);
+        console.error("Szerver indítási hiba:", error);
         process.exit(1);
     }
 }

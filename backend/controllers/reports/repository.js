@@ -98,28 +98,99 @@ const bejelentesekListazasa = async () => {
         b.letrehozva,
         b.eldontve,
         k.username AS kuldo_username,
+        k.teljes_nev AS kuldo_teljes_nev,
+        k.email AS kuldo_email,
         j.username AS bejelentett_username,
-        p.nev AS palya_nev
+        j.teljes_nev AS bejelentett_teljes_nev,
+        j.email AS bejelentett_email,
+        p.nev AS palya_nev,
+        ISNULL(p.felfuggesztve, 0) AS palya_felfuggesztve
       FROM Bejelentesek b
       JOIN Felhasznalok k ON b.kuldo_felhasznalo_id = k.felhasznalo_id
       JOIN Felhasznalok j ON b.bejelentett_felhasznalo_id = j.felhasznalo_id
       JOIN Palya p ON b.palya_id = p.palya_id
-      ORDER BY b.statusz ASC, b.letrehozva DESC
+      ORDER BY CASE WHEN b.statusz = N'pending' THEN 0 ELSE 1 END, b.letrehozva DESC
     `);
 
     return eredmeny.recordset;
+};
+
+// Lekéri az adott bejelentést részletes nézethez.
+const bejelentesReszletekLekerese = async (bejelentesAzonosito) => {
+    const pool = await poolPromise;
+    const eredmeny = await pool.request().input("bejelentes_id", sql.Int, bejelentesAzonosito).query(`
+      SELECT TOP 1
+        b.bejelentes_id,
+        b.kuldo_felhasznalo_id,
+        b.bejelentett_felhasznalo_id,
+        b.palya_id,
+        b.szoveg,
+        b.statusz,
+        b.admin_id,
+        b.admin_megjegyzes,
+        b.letrehozva,
+        b.eldontve,
+        k.username AS kuldo_username,
+        k.teljes_nev AS kuldo_teljes_nev,
+        k.email AS kuldo_email,
+        j.username AS bejelentett_username,
+        j.teljes_nev AS bejelentett_teljes_nev,
+        j.email AS bejelentett_email,
+        p.nev AS palya_nev,
+        p.helyszin AS palya_helyszin,
+        p.sportag AS palya_sportag,
+        ISNULL(p.felfuggesztve, 0) AS palya_felfuggesztve
+      FROM Bejelentesek b
+      JOIN Felhasznalok k ON b.kuldo_felhasznalo_id = k.felhasznalo_id
+      JOIN Felhasznalok j ON b.bejelentett_felhasznalo_id = j.felhasznalo_id
+      JOIN Palya p ON b.palya_id = p.palya_id
+      WHERE b.bejelentes_id = @bejelentes_id
+    `);
+
+    return eredmeny.recordset[0] || null;
 };
 
 // Lekéri az adott bejelentést.
 const bejelentesLekerese = async (bejelentesAzonosito) => {
     const pool = await poolPromise;
     const eredmeny = await pool.request().input("bejelentes_id", sql.Int, bejelentesAzonosito).query(`
-      SELECT bejelentes_id, statusz, kuldo_felhasznalo_id
+      SELECT bejelentes_id, statusz, kuldo_felhasznalo_id, bejelentett_felhasznalo_id, palya_id
       FROM Bejelentesek
       WHERE bejelentes_id = @bejelentes_id
     `);
 
     return eredmeny.recordset[0] || null;
+};
+
+// Felhasználó tiltása.
+const felhasznaloTiltasa = async (felhasznaloAzonosito) => {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("felhasznalo_id", sql.Int, felhasznaloAzonosito)
+        .query(`
+      UPDATE Felhasznalok
+      SET tiltva = 1
+      WHERE felhasznalo_id = @felhasznalo_id
+    `);
+};
+
+// Pálya felfüggesztése.
+const palyaFelfuggesztese = async ({ palyaAzonosito, adminAzonosito, indok }) => {
+    const pool = await poolPromise;
+    await pool
+        .request()
+        .input("palya_id", sql.Int, palyaAzonosito)
+        .input("admin_id", sql.Int, adminAzonosito)
+        .input("indok", sql.NVarChar(1500), indok || null)
+        .query(`
+      UPDATE Palya
+      SET felfuggesztve = 1,
+          felfuggesztes_indok = @indok,
+          felfuggesztve_admin_id = @admin_id,
+          felfuggesztve_datum = SYSDATETIME()
+      WHERE palya_id = @palya_id
+    `);
 };
 
 // Frissíti a bejelentés státuszát admin döntés után.
@@ -148,6 +219,9 @@ module.exports = {
     ertesitesLetrehozasa,
     adminokLekerese,
     bejelentesekListazasa,
+    bejelentesReszletekLekerese,
     bejelentesLekerese,
+    felhasznaloTiltasa,
+    palyaFelfuggesztese,
     bejelentesStatuszFrissites,
 };

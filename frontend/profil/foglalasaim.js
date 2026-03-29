@@ -81,9 +81,9 @@
     box.id = "sidebarNotificationsBox";
     box.className = "mt-3";
     box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Ertesites <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
+      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Értesítés <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
       '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek ertesitesek</div>' +
+      '<div class="small text-muted">Nincsenek értesítések</div>' +
       "</div>";
     sidebar.appendChild(box);
 
@@ -108,12 +108,12 @@
           badge.style.display = "none";
         }
         if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
+          dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
           return;
         }
         dropdown.innerHTML = items.slice(0, 15).map(function (n) {
           return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Ertesites" : "Uj ertesites") + "</div>" +
+            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
             '<div>' + (n.uzenet || "") + "</div>" +
             '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
@@ -128,7 +128,7 @@
   function wireSidebar(user) {
     var names = document.querySelectorAll(".sidebar-user-name");
     var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    var displayName = user.teljes_nev || user.username || "Felhasználó";
     names.forEach(function (el) { el.textContent = displayName; });
     avatars.forEach(function (el) { el.src = absoluteImageUrl(user.profil_kep_url); });
 
@@ -142,9 +142,9 @@
   }
 
   function statusText(status) {
-    if (status === "pending") return "Fuggoben";
+    if (status === "pending") return "Függőben";
     if (status === "accepted") return "Elfogadva";
-    return "Elutasitva";
+    return "Elutasítva";
   }
 
   function statusBadgeClass(status) {
@@ -177,15 +177,15 @@
       '<div class="card shadow-sm h-100"><div class="card-body d-flex flex-column">' +
       '<h3 class="h6 mb-1">' + booking.palya_nev + "</h3>" +
       '<p class="text-muted mb-2">' + booking.sportag + " - " + booking.helyszin + "</p>" +
-      '<p class="mb-1"><strong>Foglalo:</strong> ' + (booking.teljes_nev || "-") + ' <span class="text-muted">(@' + (booking.username || "-") + ")</span></p>" +
-      '<p class="mb-1"><strong>Idopont:</strong> ' + formatDate(booking.kezdes) + ", " + formatTime(booking.kezdes) + " - " + formatTime(booking.vege) + "</p>" +
-      '<p class="mb-1"><strong>Ar:</strong> ' + formatPrice(booking.ar) + "</p>" +
+      '<p class="mb-1"><strong>Foglaló:</strong> ' + (booking.teljes_nev || "-") + ' <span class="text-muted">(@' + (booking.username || "-") + ")</span></p>" +
+      '<p class="mb-1"><strong>Időpont:</strong> ' + formatDate(booking.kezdes) + ", " + formatTime(booking.kezdes) + " - " + formatTime(booking.vege) + "</p>" +
+      '<p class="mb-1"><strong>Ár:</strong> ' + formatPrice(booking.ar) + "</p>" +
       '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
       '<div class="d-flex gap-2 mt-3 flex-wrap">' + imagesButton + '</div>' +
       (withActions
         ? '<div class="d-flex gap-2 mt-2">' +
-        '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + booking.foglalas_id + '">Elfogadas</button>' +
-        '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + booking.foglalas_id + '">Elutasitas</button>' +
+        '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + booking.foglalas_id + '">Elfogadás</button>' +
+        '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + booking.foglalas_id + '">Elutasítás</button>' +
         "</div>"
         : "") +
       "</div></div>" +
@@ -201,20 +201,20 @@
     var absoluteUrls = urls.map(function (url) { return absoluteImageUrl(url); });
     bookingImagesMain.src = absoluteUrls[0];
     bookingImagesThumbs.innerHTML = absoluteUrls.map(function (url, index) {
-      return '<img src="' + url + '" alt="Palyakep ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
+      return '<img src="' + url + '" alt="Pályakép ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
     }).join("");
     bookingImagesModal.show();
   }
 
   function renderList(container, list, withActions) {
     if (!list.length) {
-      container.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs foglalas ebben a kategoriaban.</div></div>';
+      container.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs foglalás ebben a kategóriában.</div></div>';
       return;
     }
     container.innerHTML = list.map(function (booking) { return renderBookingCard(booking, withActions); }).join("");
   }
 
-  var monthNames = ["Januar", "Februar", "Marcius", "Aprilis", "Majus", "Junius", "Julius", "Augusztus", "Szeptember", "Oktober", "November", "December"];
+  var monthNames = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
   var weekDays = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
   var bookings = [];
   var currentDate = new Date();
@@ -256,9 +256,9 @@
       var booked = isDayBooked(dateText);
       var bookingCount = getDayBookingCount(dateText);
       var cellClass = booked ? "table-warning" : "table-success";
-      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + ' - ' + String(bookingCount) + ' foglalas">' +
+      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + ' - ' + String(bookingCount) + ' foglalás">' +
         '<div class="fw-semibold">' + String(day) + "</div>" +
-        '<div class="small text-muted">' + String(bookingCount) + " foglalas</div>" +
+        '<div class="small text-muted">' + String(bookingCount) + " foglalás</div>" +
         "</td>";
       dayCellCount += 1;
       if (dayCellCount % 7 === 0 && day !== daysInMonth) html += "</tr><tr>";
@@ -291,7 +291,7 @@
 
   async function loadBookings(userId) {
     var response = await fetch(API_BASE + "/api/bookings/owner/" + userId);
-    if (!response.ok) throw new Error("Foglalasok lekerese sikertelen");
+    if (!response.ok) throw new Error("Foglalások lekérése sikertelen");
     bookings = await response.json();
     renderAll();
   }
@@ -303,7 +303,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ foglalas_id: foglalasId })
     });
-    if (!response.ok) throw new Error("Statusz frissites sikertelen");
+    if (!response.ok) throw new Error("Státusz frissítése sikertelen");
   }
 
   pendingContainer.addEventListener("click", async function (event) {
@@ -327,7 +327,7 @@
       renderAll();
     } catch (error) {
       console.error(error);
-      showError("Hiba a foglalas allapotanak frissitesekor.");
+      showError("Hiba a foglalás állapotának frissítésekor.");
     }
   });
 
@@ -377,7 +377,7 @@
   function refreshOwnerBookings() {
     return loadBookings(getUserId(user)).catch(function (err) {
       console.error(err);
-      pendingContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a foglalasok betoltesekor.</div></div>';
+      pendingContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a foglalások betoltesekor.</div></div>';
       acceptedContainer.innerHTML = "";
       rejectedContainer.innerHTML = "";
     });

@@ -66,9 +66,9 @@
     box.id = "sidebarNotificationsBox";
     box.className = "mt-3";
     box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Ertesites <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
+      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Értesítés <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
       '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek ertesitesek</div>' +
+      '<div class="small text-muted">Nincsenek értesítések</div>' +
       "</div>";
     sidebar.appendChild(box);
 
@@ -93,12 +93,12 @@
           badge.style.display = "none";
         }
         if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
+          dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
           return;
         }
         dropdown.innerHTML = items.slice(0, 15).map(function (n) {
           return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Ertesites" : "Uj ertesites") + "</div>" +
+            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
             '<div>' + (n.uzenet || "") + "</div>" +
             '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
@@ -113,7 +113,7 @@
   function wireSidebar(user) {
     var names = document.querySelectorAll(".sidebar-user-name");
     var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    var displayName = user.teljes_nev || user.username || "Felhasználó";
     names.forEach(function (el) { el.textContent = displayName; });
     avatars.forEach(function (el) { el.src = absoluteImageUrl(user.profil_kep_url); });
 
@@ -130,9 +130,9 @@
   }
 
   function statusText(status) {
-    if (status === "pending") return "Fuggoben";
+    if (status === "pending") return "Függőben";
     if (status === "accepted") return "Elfogadva";
-    return "Elutasitva";
+    return "Elutasítva";
   }
 
   function statusBadgeClass(status) {
@@ -169,9 +169,9 @@
       '<div class="card shadow-sm h-100"><div class="card-body">' +
       '<h3 class="h6 mb-1">' + booking.palya_nev + "</h3>" +
       '<p class="text-muted mb-2">' + booking.sportag + " - " + booking.helyszin + "</p>" +
-      '<p class="mb-1"><strong>Ar:</strong> ' + formatPrice(booking.ar) + "</p>" +
-      '<p class="mb-1"><strong>Kezdes:</strong> ' + formatDateTime(booking.kezdes) + "</p>" +
-      '<p class="mb-2"><strong>Vege:</strong> ' + formatDateTime(booking.vege) + "</p>" +
+      '<p class="mb-1"><strong>Ár:</strong> ' + formatPrice(booking.ar) + "</p>" +
+      '<p class="mb-1"><strong>Kezdés:</strong> ' + formatDateTime(booking.kezdes) + "</p>" +
+      '<p class="mb-2"><strong>Vége:</strong> ' + formatDateTime(booking.vege) + "</p>" +
       '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
       '<div class="mt-3">' + imagesButton + '</div>' +
       "</div></div>" +
@@ -187,14 +187,14 @@
     var absoluteUrls = urls.map(function (url) { return absoluteImageUrl(url); });
     rentalImagesMain.src = absoluteUrls[0];
     rentalImagesThumbs.innerHTML = absoluteUrls.map(function (url, index) {
-      return '<img src="' + url + '" alt="Palyakep ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
+      return '<img src="' + url + '" alt="Pályakép ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
     }).join("");
     rentalImagesModal.show();
   }
 
   function renderList(container, list) {
     if (!list.length) {
-      container.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs megjelenitheto foglalas.</div></div>';
+      container.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs megjeleníthető foglalás.</div></div>';
       return;
     }
     container.innerHTML = list.map(function (booking) { return renderCard(booking); }).join("");
@@ -242,7 +242,7 @@
 
   async function loadRentals(userId) {
     var response = await fetch(API_BASE + "/api/bookings/renter/" + userId);
-    if (!response.ok) throw new Error("Berlesek lekerese sikertelen");
+    if (!response.ok) throw new Error("Bérlések lekérése sikertelen");
     var rentals = await response.json();
     render(rentals);
   }
@@ -260,7 +260,7 @@
   wireSidebar(user);
   loadRentals(getUserId(user)).catch(function (err) {
     console.error(err);
-    currentContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a berlesek betoltesekor.</div></div>';
+    currentContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a bérlések betőltésekor.</div></div>';
     pastContainer.innerHTML = "";
   });
 })();

@@ -84,9 +84,9 @@
     box.id = "sidebarNotificationsBox";
     box.className = "mt-3";
     box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Ertesites <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
+      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Értesítés <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
       '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek ertesitesek</div>' +
+      '<div class="small text-muted">Nincsenek értesítések</div>' +
       "</div>";
     sidebar.appendChild(box);
 
@@ -111,12 +111,12 @@
           badge.style.display = "none";
         }
         if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
+          dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
           return;
         }
         dropdown.innerHTML = items.slice(0, 15).map(function (n) {
           return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Ertesites" : "Uj ertesites") + "</div>" +
+            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
             '<div>' + (n.uzenet || "") + "</div>" +
             '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
@@ -140,7 +140,7 @@
 
     var names = document.querySelectorAll(".sidebar-user-name");
     var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    var displayName = user.teljes_nev || user.username || "Felhasználó";
     names.forEach(function (el) { el.textContent = displayName; });
     avatars.forEach(function (el) {
       if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
@@ -290,7 +290,7 @@
     }
 
     function formatPrice(value) {
-      return Number(value).toLocaleString("hu-HU") + " Ft/ora";
+      return Number(value).toLocaleString("hu-HU") + " Ft/óra";
     }
 
     function getPrimaryImage(field) {
@@ -308,7 +308,7 @@
       }
       modalKepekPreview.innerHTML = images.map(function (imgUrl) {
         var abs = absoluteImageUrl(imgUrl);
-        return '<img src="' + abs + '" alt="Palyakep" style="width:92px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e9ecef;">';
+        return '<img src="' + abs + '" alt="Pályakép" style="width:92px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e9ecef;">';
       }).join("");
     }
 
@@ -328,14 +328,14 @@
       });
       var data = await response.json().catch(function () { return {}; });
       if (!response.ok) {
-        throw new Error(data.error || data.message || "Kepfeltoltes sikertelen");
+        throw new Error(data.error || data.message || "Képfeltöltés sikertelen");
       }
       return Array.isArray(data.urls) ? data.urls : [];
     }
 
     function renderFields() {
       if (!fields.length) {
-        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Meg nincs sajat palya.</div></div>';
+        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Még nincs saját pálya.</div></div>';
         return;
       }
 
@@ -351,10 +351,10 @@
               "</div>" +
               '<div class="card-body p-3 p-lg-4 d-flex flex-column">' +
                 '<h3 class="h6 mb-2">' + field.nev + "</h3>" +
-                '<p class="small mb-2 lh-sm"><strong>Sportag:</strong> ' + field.sportag + "</p>" +
-                '<p class="small mb-2 lh-sm"><strong>Helyszin:</strong> ' + field.helyszin + "</p>" +
-                '<p class="small mb-2 lh-sm"><strong>Ar:</strong> ' + formatPrice(field.ar_ora) + "</p>" +
-                '<p class="small mb-0 lh-sm"><strong>Foglalasok szama:</strong> ' + (field.foglalasok_szama || 0) + "</p>" +
+                '<p class="small mb-2 lh-sm"><strong>Sportág:</strong> ' + field.sportag + "</p>" +
+                '<p class="small mb-2 lh-sm"><strong>Helyszín:</strong> ' + field.helyszin + "</p>" +
+                '<p class="small mb-2 lh-sm"><strong>Ár:</strong> ' + formatPrice(field.ar_ora) + "</p>" +
+                '<p class="small mb-0 lh-sm"><strong>Foglalások száma:</strong> ' + (field.foglalasok_szama || 0) + "</p>" +
                 '<div class="d-flex gap-2 mt-3 mt-auto">' +
                   '<button class="btn btn-outline-primary btn-sm flex-fill mt-2" type="button" data-action="edit" data-id="' + field.palya_id + '">Módosítás</button>' +
                   '<button class="btn btn-outline-danger btn-sm flex-fill mt-2" type="button" data-action="delete" data-id="' + field.palya_id + '">Törlés</button>' +
@@ -378,8 +378,8 @@
       renderModalImagePreview();
       syncHelyszinRadios();
       updateHelyszinSummary();
-      if (modalTitle) modalTitle.textContent = "Uj palya hozzaadasa";
-      modalSaveButton.textContent = "Hozzaadas";
+      if (modalTitle) modalTitle.textContent = "Új pálya hozzáadása";
+      modalSaveButton.textContent = "Hozzáadás";
     }
 
     function toTimeInput(value, fallback) {
@@ -410,34 +410,34 @@
       modalLeirasInput.value = field.leiras || "";
       modalNyitasInput.value = toTimeInput(field.nyitas, "08:00");
       modalZarasInput.value = toTimeInput(field.zaras, "20:00");
-      if (modalTitle) modalTitle.textContent = "Palya modositasa";
-      modalSaveButton.textContent = "Mentes";
+      if (modalTitle) modalTitle.textContent = "Pálya módosítása";
+      modalSaveButton.textContent = "Mentés";
       palyaModal.show();
     }
 
     async function deleteField(fieldId) {
-      var confirmResult = await confirmAction("Biztosan torolni szeretned ezt a palyat?");
+      var confirmResult = await confirmAction("Biztosan törölni szeretnéd ezt a pályát?");
       if (!confirmResult.isConfirmed) return;
       try {
         var response = await fetch(API_BASE + "/api/palyak/" + fieldId, { method: "DELETE" });
         var data = await response.json().catch(function () { return {}; });
-        if (!response.ok) throw new Error(data.error || data.message || "Torlesi hiba");
+        if (!response.ok) throw new Error(data.error || data.message || "Tőrlési hiba");
         await fetchFields();
       } catch (error) {
         console.error(error);
-        showError("Hiba a palya torlesekor: " + error.message);
+        showError("Hiba a pálya törlésekor: " + error.message);
       }
     }
 
     async function fetchFields() {
       try {
         var response = await fetch(API_BASE + "/api/palyak/owner/" + getUserId(user));
-        if (!response.ok) throw new Error("Palya lekeresi hiba");
+        if (!response.ok) throw new Error("Pálya lekérési hiba");
         fields = await response.json();
         renderFields();
       } catch (error) {
         console.error(error);
-        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a palyak betoltesekor.</div></div>';
+        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a pályák betőltésekor.</div></div>';
       }
     }
 
@@ -495,7 +495,7 @@
         await fetchFields();
       } catch (error) {
         console.error(error);
-        showError("Hiba a palya mentesekor: " + error.message);
+        showError("Hiba a pálya mentésekor: " + error.message);
       }
     }
 

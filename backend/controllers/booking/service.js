@@ -80,13 +80,13 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
     kezdesDate.getDate() === vegeDate.getDate();
 
   if (!sameDay) {
-    throw httpError(400, "A foglalas csak egy napon belul lehet.");
+    throw httpError(400, "A foglalás csak egy napon belül lehet.");
   }
 
   if (kezdesMinutes < nyitasMinutes || vegeMinutes > zarasMinutes) {
     throw httpError(
       400,
-      `Csak a palya nyitvatartasan belul lehet foglalni (${palya.nyitas_str || palya.nyitas} - ${palya.zaras_str || palya.zaras}).`
+      `Csak a pálya nyitvatartásán belül lehet foglalni (${palya.nyitas_str || palya.nyitas} - ${palya.zaras_str || palya.zaras}).`
     );
   }
 
@@ -96,11 +96,11 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
   }
 
   if (berlo.tiltva) {
-    throw httpError(403, "A felhasznalo tiltva van, nem tud foglalni.");
+    throw httpError(403, "A felhasználó tiltva van, nem tud foglalni.");
   }
 
   if (String(berlo.szerep || "").toLowerCase() === "admin") {
-    throw httpError(403, "Admin felhasznalo nem foglalhat palyat.");
+    throw httpError(403, "Admin felhasználó nem foglalhat pályát.");
   }
 
   const booking = await createBookingRecord({

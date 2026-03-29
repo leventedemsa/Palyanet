@@ -1,4 +1,4 @@
-﻿/* global bootstrap: false */
+/* global bootstrap: false */
 (function () {
   "use strict";
 
@@ -74,7 +74,7 @@
 
   function roleLabel(szerep) {
     if (szerep === "admin") return "Admin";
-    return szerep === "palyatulajdonos" ? "Palyatulajdonos" : "Berlo";
+    return szerep === "palyatulajdonos" ? "Pályatulajdonos" : "Bérlő";
   }
 
   function toggleDeletePictureButton(show) {
@@ -95,9 +95,9 @@
       var box = document.createElement("div");
       box.className = "sidebar-notifications-box mt-3";
       box.innerHTML =
-        '<button class="btn btn-outline-secondary btn-sm w-100 sidebar-notif-toggle" type="button">Ertesites <span class="badge bg-danger ms-1 sidebar-notif-badge" style="display:none;">0</span></button>' +
+        '<button class="btn btn-outline-secondary btn-sm w-100 sidebar-notif-toggle" type="button">Értesítés <span class="badge bg-danger ms-1 sidebar-notif-badge" style="display:none;">0</span></button>' +
         '<div class="mt-2 p-2 bg-white text-dark rounded shadow-sm sidebar-notif-dropdown" style="display:none;max-height:260px;overflow:auto;">' +
-        '<div class="small text-muted">Nincsenek ertesitesek</div>' +
+        '<div class="small text-muted">Nincsenek értesítések</div>' +
         "</div>";
       sidebar.appendChild(box);
 
@@ -121,7 +121,7 @@
         var unread = items.filter(function (n) { return !n.olvasott; }).length;
         var html = items.slice(0, 15).map(function (n) {
           return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Ertesites" : "Uj ertesites") + "</div>" +
+            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
             '<div>' + (n.uzenet || "") + "</div>" +
             '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
@@ -134,7 +134,7 @@
             widget.badge.style.display = "none";
           }
           if (!items.length) {
-            widget.dropdown.innerHTML = '<div class="small text-muted">Nincsenek ertesitesek</div>';
+            widget.dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
             return;
           }
           widget.dropdown.innerHTML = html;
@@ -168,7 +168,7 @@
 
     var dropdownNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
     var dropdownAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
-    var displayName = user.teljes_nev || user.username || "Felhasznalo";
+    var displayName = user.teljes_nev || user.username || "Felhasználó";
     dropdownNames.forEach(function (el) { el.textContent = displayName; });
     dropdownAvatars.forEach(function (el) {
       if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
@@ -234,9 +234,9 @@
         var pendingCount = ownerBookings.filter(function (b) { return b.statusz === "pending"; }).length;
         var acceptedCount = ownerBookings.filter(function (b) { return b.statusz === "accepted"; }).length;
         setQuickStats([
-          { label: "Sajat palyak", value: String(ownerFields.length) },
-          { label: "Fuggo foglalasok", value: String(pendingCount) },
-          { label: "Elfogadott foglalasok", value: String(acceptedCount) }
+          { label: "Saját pályák", value: String(ownerFields.length) },
+          { label: "Függő foglalások", value: String(pendingCount) },
+          { label: "Elfogadott foglalások", value: String(acceptedCount) }
         ]);
         return;
       }
@@ -253,15 +253,15 @@
         return new Date(b.vege) < now;
       }).length;
       setQuickStats([
-        { label: "Aktiv foglalasok", value: String(activeCount) },
-        { label: "Lejart foglalasok", value: String(pastCount) },
-        { label: "Osszes foglalas", value: String(renterBookings.length) }
+        { label: "Aktív foglalások", value: String(activeCount) },
+        { label: "Lejárt foglalások", value: String(pastCount) },
+        { label: "Összes foglalás", value: String(renterBookings.length) }
       ]);
     } catch (_) {
       setQuickStats([
-        { label: "Aktiv foglalasok", value: "-" },
-        { label: "Lejart foglalasok", value: "-" },
-        { label: "Osszes foglalas", value: "-" }
+        { label: "Aktív foglalások", value: "-" },
+        { label: "Lejárt foglalások", value: "-" },
+        { label: "Összes foglalás", value: "-" }
       ]);
     }
   }
@@ -272,7 +272,7 @@
     var currentProfile = Object.assign({}, user);
 
     function paint(profileData) {
-      var displayName = profileData.teljes_nev || profileData.username || "Felhasznalo";
+      var displayName = profileData.teljes_nev || profileData.username || "Felhasználó";
       var avatarUrl = profileData.profil_kep_url ? absoluteImageUrl(profileData.profil_kep_url) : "https://github.com/mdo.png";
       var sidebarUserAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
       var sidebarUserNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
@@ -326,13 +326,13 @@
         if (!file) return;
 
         if (!file.type || !file.type.startsWith("image/")) {
-          showWarning("Csak kepfajlt lehet feltolteni.");
+          showWarning("Csak képfájlt lehet feltölteni.");
           fileInput.value = "";
           return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-          showWarning("A kep merete legfeljebb 5 MB lehet.");
+          showWarning("A kép mérete legfeljebb 5 MB lehet.");
           fileInput.value = "";
           return;
         }
@@ -340,7 +340,7 @@
         try {
           var storedUser = readUser() || user || {};
           var userId = getUserId(storedUser) || getUserId(currentProfile);
-          if (!userId) throw new Error("Hianyzik a user azonosito.");
+          if (!userId) throw new Error("Hiányzik a felhasználó azonosítója.");
 
           var formData = new FormData();
           formData.append("profilePicture", file);
@@ -355,7 +355,7 @@
             body: formData
           });
           var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || "Profilkep mentesi hiba.");
+          if (!response.ok) throw new Error(data.message || "Profilkép mentési hiba.");
 
           var nextProfile = Object.assign({}, currentProfile, {
             profil_kep_url: data.profil_kep_url || null
@@ -363,21 +363,21 @@
           paint(nextProfile);
           syncStoredUser(nextProfile);
           fileInput.value = "";
-          showSuccess("Profilkep sikeresen frissitve.");
+          showSuccess("Profilkép sikeresen frissítve.");
         } catch (err) {
           console.error(err);
-          showError("Hiba a profilkep frissitesekor: " + err.message);
+          showError("Hiba a profilkép frissítésekor: " + err.message);
           fileInput.value = "";
         }
       });
 
       deleteBtn.addEventListener("click", async function () {
-        var confirmResult = await confirmAction("Biztosan torolni szeretned a profilkepet?");
+        var confirmResult = await confirmAction("Biztosan törölni szeretnéd a profilképet?");
         if (!confirmResult.isConfirmed) return;
         try {
           var storedUser = readUser() || user || {};
           var userId = getUserId(storedUser) || getUserId(currentProfile);
-          if (!userId) throw new Error("Hianyzik a user azonosito.");
+          if (!userId) throw new Error("Hiányzik a felhasználó azonosítója.");
 
           var response = await fetch(API_BASE + "/api/profile/delete", {
             method: "DELETE",
@@ -385,15 +385,15 @@
             body: JSON.stringify({ userId: userId })
           });
           var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || "Profilkep torlesi hiba.");
+          if (!response.ok) throw new Error(data.message || "Profilkép törlési hiba.");
 
           var nextProfile = Object.assign({}, currentProfile, { profil_kep_url: null });
           paint(nextProfile);
           syncStoredUser(nextProfile);
-          showSuccess("Profilkep sikeresen torolve.");
+          showSuccess("Profilkép sikeresen tőrőlve.");
         } catch (err) {
           console.error(err);
-          showError("Hiba a profilkep torlesekor: " + err.message);
+          showError("Hiba a profilkép törlésekor: " + err.message);
         }
       });
     }
@@ -435,7 +435,7 @@
             body: JSON.stringify(payload)
           });
           var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || data.error || ("Profil adat mentesi hiba. HTTP " + response.status));
+          if (!response.ok) throw new Error(data.message || data.error || ("Profil adat mentési hiba. HTTP " + response.status));
 
           if (data.user) {
             paint(data.user);
@@ -444,10 +444,10 @@
 
           var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
           modal.hide();
-          showSuccess("Profil adatok sikeresen frissitve.");
+          showSuccess("Profil adatok sikeresen frissítve.");
         } catch (err) {
           console.error(err);
-          showError("Hiba a profil adatok mentesekor: " + err.message);
+          showError("Hiba a profil adatok mentésekor: " + err.message);
         }
       });
     }
@@ -484,15 +484,15 @@
         var confirmPassword = confirmInput.value || "";
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-          showWarning("Kerlek tolts ki minden jelszo mezot.");
+          showWarning("Kérlek tőlts ki minden jelszó mezőt.");
           return;
         }
         if (newPassword.length < 8) {
-          showWarning("Az uj jelszo legalabb 8 karakter legyen.");
+          showWarning("Az új jelszó legalább 8 karakter legyen.");
           return;
         }
         if (newPassword !== confirmPassword) {
-          showWarning("Az uj jelszo es a megerosites nem egyezik.");
+          showWarning("Az új jelszó és a megerősítés nem egyezik.");
           return;
         }
 
@@ -507,15 +507,15 @@
             })
           });
           var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || data.error || ("Jelszo modositasi hiba. HTTP " + response.status));
+          if (!response.ok) throw new Error(data.message || data.error || ("Jelszó módosítási hiba. HTTP " + response.status));
 
           resetForm();
           var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
           modal.hide();
-          showSuccess("Jelszo sikeresen modositva.");
+          showSuccess("Jelszó sikeresen módosítva.");
         } catch (err) {
           console.error(err);
-          showError("Hiba a jelszo modositasakor: " + err.message);
+          showError("Hiba a jelszó módosításakor: " + err.message);
         }
       });
     }
@@ -528,9 +528,9 @@
 
     try {
       var userId = getUserId(user);
-      if (!userId) throw new Error("Hianyzik a user ID");
+      if (!userId) throw new Error("Hiányzik a felhasználó azonosítója");
       var res = await fetch(API_BASE + "/api/profile/profile?userId=" + encodeURIComponent(userId));
-      if (!res.ok) throw new Error("Profil lekeresi hiba");
+      if (!res.ok) throw new Error("Profil lekérési hiba");
       var profile = await res.json();
       paint(profile);
       syncStoredUser(profile);
@@ -546,4 +546,3 @@
   loadProfilePage(user);
   loadQuickStats(user);
 })();
-
