@@ -7,8 +7,22 @@
   var varhatoBevetelElem = document.getElementById("summaryRevenue");
   var palyaTablaTorzsElem = document.getElementById("fieldStatsTableBody");
   var tablaHonapElem = document.getElementById("tableMonthLabel");
+  var tablaHonapPieElem = document.getElementById("tableMonthLabelPie");
+  var evesBevetelEvLabelElem = document.getElementById("evesBevetelEvLabel");
+  var haviBevetelLineChartElem = document.getElementById("haviBevetelLineChart");
+  var palyaBevetelPieChartElem = document.getElementById("palyaBevetelPieChart");
 
-  if (!honapElem || !elfogadottDbElem || !varhatoBevetelElem || !palyaTablaTorzsElem || !tablaHonapElem) {
+  if (
+    !honapElem ||
+    !elfogadottDbElem ||
+    !varhatoBevetelElem ||
+    !palyaTablaTorzsElem ||
+    !tablaHonapElem ||
+    !tablaHonapPieElem ||
+    !evesBevetelEvLabelElem ||
+    !haviBevetelLineChartElem ||
+    !palyaBevetelPieChartElem
+  ) {
     return;
   }
 
@@ -81,6 +95,16 @@
     });
   }
 
+  // Elfogadott foglalások szűrése a megadott évre.
+  function elfogadottFoglalasokEvre(foglalasok, ev) {
+    return (foglalasok || []).filter(function (foglalas) {
+      if (foglalas.statusz !== "accepted") return false;
+      var datum = new Date(foglalas.kezdes);
+      if (Number.isNaN(datum.getTime())) return false;
+      return datum.getFullYear() === ev;
+    });
+  }
+
   // Felső összegző kártyák kitöltése az aktuális hónap adataival.
   function osszegzesKirajzolas(foglalasok, honapDatuma) {
     var elfogadottak = elfogadottFoglalasokHonapra(foglalasok, honapDatuma);
@@ -144,6 +168,167 @@
     }).join("");
   }
 
+  // Januártól decemberig havi bevételek kirajzolása az adott évre.
+  function haviBevetelekKirajzolas(foglalasok, ev) {
+    var honapNevek = [
+      "Január",
+      "Február",
+      "Március",
+      "Április",
+      "Május",
+      "Június",
+      "Július",
+      "Augusztus",
+      "Szeptember",
+      "Október",
+      "November",
+      "December"
+    ];
+    var honapBevetelek = new Array(12).fill(0);
+    var eviElfogadottak = elfogadottFoglalasokEvre(foglalasok, ev);
+
+    eviElfogadottak.forEach(function (foglalas) {
+      var datum = new Date(foglalas.kezdes);
+      if (Number.isNaN(datum.getTime())) return;
+      var honapIndex = datum.getMonth();
+      honapBevetelek[honapIndex] += Number(foglalas.ar || 0);
+    });
+
+    evesBevetelEvLabelElem.textContent = String(ev);
+
+    return {
+      honapNevek: honapNevek,
+      honapBevetelek: honapBevetelek
+    };
+  }
+
+  var haviBevetelLineChartPeldany = null;
+  var palyaBevetelPieChartPeldany = null;
+
+  // Havi bevételek line chart kirajzolása Chart.js segítségével.
+  function haviBevetelLineChartKirajzolas(honapNevek, honapBevetelek) {
+    if (typeof Chart === "undefined") return;
+
+    if (haviBevetelLineChartPeldany) {
+      haviBevetelLineChartPeldany.destroy();
+      haviBevetelLineChartPeldany = null;
+    }
+
+    haviBevetelLineChartPeldany = new Chart(haviBevetelLineChartElem, {
+      type: "line",
+      data: {
+        labels: honapNevek,
+        datasets: [
+          {
+            label: "Havi bevétel",
+            data: honapBevetelek,
+            fill: false,
+            borderColor: "rgb(75, 192, 192)",
+            tension: 0.1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            display: true
+          },
+          tooltip: {
+            callbacks: {
+              label: function (contextus) {
+                return " " + penznemSzoveg(contextus.parsed.y || 0);
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function (ertek) {
+                return Number(ertek).toLocaleString("hu-HU") + " Ft";
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Pályánkénti bevételi arányok pie chart kirajzolása.
+  function palyaBevetelPieChartKirajzolas(foglalasok, honapDatuma) {
+    if (typeof Chart === "undefined") return;
+
+    var elfogadottak = elfogadottFoglalasokHonapra(foglalasok, honapDatuma);
+    var palyaBevetelek = {};
+
+    elfogadottak.forEach(function (foglalas) {
+      var palyaNev = foglalas.palya_nev || "Ismeretlen pálya";
+      if (!palyaBevetelek[palyaNev]) palyaBevetelek[palyaNev] = 0;
+      palyaBevetelek[palyaNev] += Number(foglalas.ar || 0);
+    });
+
+    var cimkek = Object.keys(palyaBevetelek);
+    var ertekek = cimkek.map(function (cimke) { return palyaBevetelek[cimke]; });
+
+    if (!cimkek.length) {
+      cimkek = ["Nincs bevétel"];
+      ertekek = [1];
+    }
+
+    tablaHonapPieElem.textContent = honapSzoveg(honapDatuma);
+
+    var szinek = [
+      "rgb(255, 99, 132)",
+      "rgb(54, 162, 235)",
+      "rgb(255, 205, 86)",
+      "rgb(75, 192, 192)",
+      "rgb(153, 102, 255)",
+      "rgb(255, 159, 64)",
+      "rgb(46, 204, 113)",
+      "rgb(231, 76, 60)",
+      "rgb(52, 73, 94)",
+      "rgb(241, 196, 15)"
+    ];
+    var hatterSzin = cimkek.map(function (_, index) {
+      return szinek[index % szinek.length];
+    });
+
+    if (palyaBevetelPieChartPeldany) {
+      palyaBevetelPieChartPeldany.destroy();
+      palyaBevetelPieChartPeldany = null;
+    }
+
+    palyaBevetelPieChartPeldany = new Chart(palyaBevetelPieChartElem, {
+      type: "pie",
+      data: {
+        labels: cimkek,
+        datasets: [{
+          label: "Pálya bevételi arány",
+          data: ertekek,
+          backgroundColor: hatterSzin,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function (contextus) {
+                var osszes = contextus.dataset.data.reduce(function (a, b) { return a + Number(b || 0); }, 0);
+                var aktualis = Number(contextus.raw || 0);
+                var szazalek = osszes > 0 ? ((aktualis / osszes) * 100).toFixed(1) : "0.0";
+                return " " + penznemSzoveg(aktualis) + " (" + szazalek + "%)";
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
   // Tulaj foglalások API lekérése.
   async function tulajFoglalasokBetoltese(felhasznaloId) {
     var valasz = await fetch(apiAlapUrl + "/api/bookings/owner/" + felhasznaloId);
@@ -177,14 +362,18 @@
   oldalsavBekotes(felhasznalo);
 
   var most = new Date();
+  var aktualisEv = most.getFullYear();
   var aktualisHonapDatuma = new Date(most.getFullYear(), most.getMonth(), 1);
   var tulajFoglalasok = [];
   var tulajPalyak = [];
 
   // Teljes oldal állapot kirajzolása.
   function allapotKirajzolas() {
+    var haviAdatok = haviBevetelekKirajzolas(tulajFoglalasok, aktualisEv);
+    haviBevetelLineChartKirajzolas(haviAdatok.honapNevek, haviAdatok.honapBevetelek);
     osszegzesKirajzolas(tulajFoglalasok, aktualisHonapDatuma);
     palyaTablaKirajzolas(tulajPalyak, tulajFoglalasok, aktualisHonapDatuma);
+    palyaBevetelPieChartKirajzolas(tulajFoglalasok, aktualisHonapDatuma);
   }
 
   // Kezdő adatbetöltés (foglalások + pályák), majd kezdő kirajzolás.
@@ -200,8 +389,15 @@
       console.error(hiba);
       honapElem.textContent = honapSzoveg(aktualisHonapDatuma);
       tablaHonapElem.textContent = honapSzoveg(aktualisHonapDatuma);
+      tablaHonapPieElem.textContent = honapSzoveg(aktualisHonapDatuma);
+      evesBevetelEvLabelElem.textContent = String(aktualisEv);
       elfogadottDbElem.textContent = "0";
       varhatoBevetelElem.textContent = "0 Ft";
+      haviBevetelLineChartKirajzolas(
+        ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      );
+      palyaBevetelPieChartKirajzolas([], aktualisHonapDatuma);
       palyaTablaTorzsElem.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Nem sikerült betölteni a táblázat adatait.</td></tr>';
       Swal.fire({
         icon: "error",
@@ -211,3 +407,4 @@
       });
     });
 })();
+
