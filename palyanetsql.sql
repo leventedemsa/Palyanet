@@ -61,6 +61,10 @@ CREATE TABLE Palya (
     nyitas TIME NULL,
     zaras TIME NULL,
     extra NVARCHAR(MAX) NULL,
+    felfuggesztve BIT NOT NULL DEFAULT 0,
+    felfuggesztes_indok NVARCHAR(1500) NULL,
+    felfuggesztve_datum DATETIME2(7) NULL,
+    felfuggesztve_admin_id INT NULL,
     letrehozva DATETIME2(7) NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Palya_Tulaj FOREIGN KEY (tulaj_id)
@@ -74,7 +78,10 @@ CREATE TABLE Palya (
         CHECK (
             (nyitas IS NULL AND zaras IS NULL)
             OR (nyitas IS NOT NULL AND zaras IS NOT NULL AND nyitas < zaras)
-        )
+        ),
+
+    CONSTRAINT FK_Palya_FelfuggesztveAdmin FOREIGN KEY (felfuggesztve_admin_id)
+        REFERENCES Felhasznalok(felhasznalo_id)
 );
 
 -- Bejelentesek FK-k utolagos felkotese (a tabla szandekosan van legelol)
@@ -191,6 +198,7 @@ CREATE TABLE Log (
 -- ============================
 CREATE INDEX IX_Palya_Tulaj ON Palya (tulaj_id);
 CREATE INDEX IX_Palya_Szurok ON Palya (sportag, helyszin, ar_ora);
+CREATE INDEX IX_Palya_Felfuggesztve ON Palya (felfuggesztve);
 
 CREATE INDEX IX_Foglalas_Palya_Interval_Statusz
     ON Foglalas (palya_id, kezdes, vege, statusz);
