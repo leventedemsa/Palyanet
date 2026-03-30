@@ -1,4 +1,4 @@
-require("dotenv").config();
+﻿require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -15,12 +15,12 @@ const reportRoutes = require("./routes/reportRoutes");
 const userRoutes = require("./routes/userRoutes");
 
 const app = express();
-//hibakezelő directory path-ek.
-const frontendDir = path.join(__dirname, "..", "frontend");
-const notFoundPage = path.join(frontendDir, "hibakezelo", "404notfound.html");
-const internalErrorPage = path.join(frontendDir, "hibakezelo", "500internalservererror.html");
-const serviceUnavailablePage = path.join(frontendDir, "hibakezelo", "503serviceunavailable.html");
-const isMaintenanceMode = process.env.MAINTENANCE_MODE;
+// Hibakezelő directory path-ek.
+const frontendKonyvtar = path.join(__dirname, "..", "frontend");
+const nemTalalhatoOldal = path.join(frontendKonyvtar, "hibakezelo", "404notfound.html");
+const belsoHibaOldal = path.join(frontendKonyvtar, "hibakezelo", "500internalservererror.html");
+const szolgaltatasNemElerhetoOldal = path.join(frontendKonyvtar, "hibakezelo", "503serviceunavailable.html");
+const karbantartasiMod = process.env.MAINTENANCE_MODE;
 
 app.use(cors());
 app.use(express.json());
@@ -43,17 +43,17 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // 503 kezelő: karbantartási mód esetén a weboldalhoz 503-as oldalt,
 // API kéréseknél pedig JSON hibaválaszt ad vissza.
 app.use((req, res, next) => {
-    if (isMaintenanceMode !== "true") {
+    if (karbantartasiMod !== "true") {
         return next();
     }
 
-    const isApiRequest = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
+    const apiKeres = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
 
-    if (isApiRequest) {
+    if (apiKeres) {
         return res.status(503).json({ error: "Service unavailable" });
     }
 
-    return res.status(503).sendFile(serviceUnavailablePage);
+    return res.status(503).sendFile(szolgaltatasNemElerhetoOldal);
 });
 
 app.use("/auth", authRoutes);
@@ -66,17 +66,17 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/users", userRoutes);
 
 // Statikus frontend fájlok kiszolgálása.
-app.use(express.static(frontendDir));
+app.use(express.static(frontendKonyvtar));
 
 // 404 kezelő: API-hoz JSON, oldalhoz HTML válasz.
 app.use((req, res) => {
-    const isApiRequest = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
+    const apiKeres = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
 
-    if (isApiRequest) {
+    if (apiKeres) {
         return res.status(404).json({ error: "Not found" });
     }
 
-    res.status(404).sendFile(notFoundPage);
+    res.status(404).sendFile(nemTalalhatoOldal);
 });
 
 // 500 kezelő: szerverhiba esetén API kéréseknél JSON hibaválaszt,
@@ -88,47 +88,109 @@ app.use((err, req, res, next) => {
         return next(err);
     }
 
-    const isApiRequest = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
+    const apiKeres = req.originalUrl.startsWith("/api") || req.originalUrl.startsWith("/auth");
 
-    if (isApiRequest) {
+    if (apiKeres) {
         return res.status(500).json({ error: "Internal server error" });
     }
 
-    return res.status(500).sendFile(internalErrorPage);
+    return res.status(500).sendFile(belsoHibaOldal);
 });
 // Alapértelmezett admin felhasználó létrehozása, ha még nincs admin a rendszerben.
-async function ensureDefaultAdmin() {
-    const pool = await poolPromise;
-    const adminCountResult = await pool.request().query(`
-      SELECT COUNT(*) AS admin_count
-      FROM Felhasznalok
-      WHERE szerep = N'admin'
-    `);
-
-    const adminCount = Number(adminCountResult.recordset[0]?.admin_count || 0);
-    if (adminCount > 0) {
-        return;
-    }
-
-    const hash = await bcrypt.hash("admin123", 10);
-    await pool
-        .request()
-        .input("username", sql.NVarChar(50), "admin")
-        .input("teljes_nev", sql.NVarChar(150), "Rendszer Admin")
-        .input("email", sql.NVarChar(200), "admin@palyanet.local")
-        .input("jelszo_hash", sql.NVarChar(300), hash)
-        .input("szerep", sql.NVarChar(50), "admin").query(`
-          INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, szerep)
-          VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
+async function letrehozAdmin() {
+    try {
+         const pool = await poolPromise;
+        const admindbEredmeny = await pool.request().query(`
+        SELECT COUNT(*) AS admin_darab
+        FROM Felhasznalok
+        WHERE szerep = N'admin'
         `);
-
-    console.log("Alap admin felhasználó létrehozva: username=admin");
+        const adminDB = Number(admindbEredmeny.recordset[0]?.admin_darab || 0);
+        if (adminDB > 0) {
+            return;
+        }
+        const hash = await bcrypt.hash("admin123", 10);
+        await pool
+            .request()
+            .input("username", sql.NVarChar(50), "admin")
+            .input("teljes_nev", sql.NVarChar(150), "Rendszer Admin")
+            .input("email", sql.NVarChar(200), "admin@palyanet.local")
+            .input("jelszo_hash", sql.NVarChar(300), hash)
+            .input("szerep", sql.NVarChar(50), "admin").query(`
+            INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, szerep)
+            VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
+            `);
+        console.log("Alap admin felhasználó létrehozva! (admin, admin123)");
+    } catch (error) {
+        console.error("Hiba az alap admin létrehozásakor:", error);
+        throw error;
+    }
+   
 }
-
+// Alapértelmezett pályatulajdonos felhasználó létrehozása, ha még nincs admin a rendszerben.
+async function letrehozPalyatulajdonos(){
+    try {
+        const pool = await poolPromise;
+        const palyatulajdonosdbEredmeny = await pool.request().query(`
+            SELECT COUNT(*) AS palyatulajdonos_darab
+            FROM Felhasznalok
+            WHERE szerep = N'palyatulajdonos'
+            `);
+        const palyatulajdonosDB = Number(palyatulajdonosdbEredmeny.recordset[0]?.palyatulajdonos_darab || 0);
+        if(palyatulajdonosDB > 0) return;
+        const jelszoHash = await bcrypt.hash("tulaj123", 10); 
+        await pool
+        .request()
+        .input("username", sql.NVarChar(50), "tulaj")
+        .input("teljes_nev", sql.NVarChar(150), "Alap Pályatulajdonos")
+        .input("email", sql.NVarChar(200), "palyatulaj@palyanet.local")
+        .input("jelszo_hash", sql.NVarChar(300), jelszoHash)
+        .input("szerep", sql.NVarChar(50), "palyatulajdonos").query(`
+            INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, szerep)
+                VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
+        `);
+        console.log("Alap pályatulajdonos létrehozva! (tulaj, tulaj123)")
+    } catch (error) {
+        console.error("Hiba az alap pályatulajdonos létrehozásakor:", error);
+        throw error;
+    }
+    
+}
+// Alapértelmezett bérlő felhasználó létrehozása, ha még nincs admin a rendszerben.
+async function letrehozBerlo(){
+    try {
+        const pool = await poolPromise;
+        const berlodbEredmeny = await pool.request().query(`
+            SELECT COUNT(*) AS berlo_darab
+            FROM Felhasznalok
+            WHERE szerep = N'berlo'
+            `);
+        const berloDB = Number(berlodbEredmeny.recordset[0]?.berlo_darab || 0);
+        if(berloDB > 0) return;
+        const jelszoHash = await bcrypt.hash("berlo123", 10); 
+        await pool
+        .request()
+        .input("username", sql.NVarChar(50), "berlo")
+        .input("teljes_nev", sql.NVarChar(150), "Alap Bérlő")
+        .input("email", sql.NVarChar(200), "berlo@palyanet.local")
+        .input("jelszo_hash", sql.NVarChar(300), jelszoHash)
+        .input("szerep", sql.NVarChar(50), "berlo").query(`
+            INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, szerep)
+                VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
+        `);
+        console.log("Alap bérlő létrehozva! (berlo, berlo123)")
+    } catch (error) {
+        console.error("Hiba az alap bérlő létrehozásakor:", error);
+        throw error;
+    }
+    
+}
 async function startServer() {
     try {
         await poolPromise;
-        await ensureDefaultAdmin();
+        await letrehozAdmin();
+        await letrehozPalyatulajdonos();
+        await letrehozBerlo();
 
         const PORT = process.env.PORT || 4000;
         app.listen(PORT, () => {

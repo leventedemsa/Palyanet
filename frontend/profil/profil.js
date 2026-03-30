@@ -245,6 +245,24 @@
         return;
       }
 
+      if (user.szerep === "admin") {
+        var bejelentesekValasz = await fetch(API_BASE + "/api/reports?admin_id=" + userId);
+        var bejelentesek = bejelentesekValasz.ok ? await bejelentesekValasz.json() : [];
+        var fuggoBejelentesekDarab = bejelentesek.filter(function (bejelentes) {
+          return String(bejelentes.statusz || "").toLowerCase() === "pending";
+        }).length;
+        var lezartBejelentesekDarab = bejelentesek.filter(function (bejelentes) {
+          return String(bejelentes.statusz || "").toLowerCase() !== "pending";
+        }).length;
+
+        setQuickStats([
+          { label: "Függő bejelentések", value: String(fuggoBejelentesekDarab) },
+          { label: "Lezárt bejelentések", value: String(lezartBejelentesekDarab) },
+          { label: "Összes bejelentés", value: String(bejelentesek.length) }
+        ]);
+        return;
+      }
+
       var renterBookingsRes = await fetch(API_BASE + "/api/bookings/renter/" + userId);
       var renterBookings = renterBookingsRes.ok ? await renterBookingsRes.json() : [];
       var now = new Date();
@@ -262,6 +280,15 @@
         { label: "Összes foglalás", value: String(renterBookings.length) }
       ]);
     } catch (_) {
+      if (user && user.szerep === "admin") {
+        setQuickStats([
+          { label: "Függő bejelentések", value: "-" },
+          { label: "Lezárt bejelentések", value: "-" },
+          { label: "Összes bejelentés", value: "-" }
+        ]);
+        return;
+      }
+
       setQuickStats([
         { label: "Aktív foglalások", value: "-" },
         { label: "Lejárt foglalások", value: "-" },
