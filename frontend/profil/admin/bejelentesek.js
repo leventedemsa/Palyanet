@@ -25,9 +25,9 @@
   var felhasznaloAzonosito = null;
 
   function felhasznaloOlvasasa() {
-    var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (_) { return null; }
+    var nyersFelhasznalo = localStorage.getItem("user") || sessionStorage.getItem("user");
+    if (!nyersFelhasznalo) return null;
+    try { return JSON.parse(nyersFelhasznalo); } catch (_) { return null; }
   }
 
   function felhasznaloId(felhasznalo) {
@@ -93,14 +93,14 @@
     });
   }
 
-  function jsonVagyAlap(response, alapErtek) {
-    return response.json().catch(function () { return alapErtek; });
+  function jsonVagyAlap(valasz, alapErtek) {
+    return valasz.json().catch(function () { return alapErtek; });
   }
 
-  async function jsonKeres(url, options, alapErtek, alapHiba) {
-    var response = await fetch(url, options);
-    var adat = await jsonVagyAlap(response, alapErtek);
-    if (!response.ok) throw new Error(adat.message || alapHiba);
+  async function jsonKeres(url, beallitasok, alapErtek, alapHiba) {
+    var valasz = await fetch(url, beallitasok);
+    var adat = await jsonVagyAlap(valasz, alapErtek);
+    if (!valasz.ok) throw new Error(adat.message || alapHiba);
     return adat;
   }
 
@@ -160,7 +160,7 @@
     );
   }
 
-  function akcioPayloadOlvasas(statusz) {
+  function akcioKeresTorzsOlvasas(statusz) {
     return {
       admin_id: felhasznaloAzonosito,
       statusz: statusz,
@@ -172,13 +172,13 @@
     };
   }
 
-  async function bejelentesStatuszFrissitesKeres(bejelentesAzonosito, payload) {
+  async function bejelentesStatuszFrissitesKeres(bejelentesAzonosito, keresTorzs) {
     await jsonKeres(
       API_ALAP + "/api/reports/" + bejelentesAzonosito + "/status",
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(keresTorzs)
       },
       {},
       "Bejelentés frissítése sikertelen"
@@ -268,9 +268,9 @@
 
   async function statuszAkcioKezeles(statusz, sikerUzenet, alapHibaUzenet) {
     if (!aktualisBejelentes) return;
-    var payload = akcioPayloadOlvasas(statusz);
+    var keresTorzs = akcioKeresTorzsOlvasas(statusz);
     try {
-      await bejelentesStatuszFrissitesKeres(aktualisBejelentes.bejelentes_id, payload);
+      await bejelentesStatuszFrissitesKeres(aktualisBejelentes.bejelentes_id, keresTorzs);
       reszletekModal.hide();
       await frissites();
       await sikerMutatas(sikerUzenet);

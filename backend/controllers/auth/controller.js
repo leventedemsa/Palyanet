@@ -1,6 +1,6 @@
 const { regisztracio, bejelentkezes } = require("./service");
 
-// Regisztráció kezelése
+// Regisztráció kezelése.
 const register = async (req, res) => {
   try {
     const result = await regisztracio(req.body);
@@ -16,7 +16,7 @@ const register = async (req, res) => {
   }
 };
 
-// Bejelentkezés kezelése
+// Bejelentkezés kezelése.
 const login = async (req, res) => {
   try {
     const result = await bejelentkezes(req.body);

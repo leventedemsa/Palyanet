@@ -1,6 +1,6 @@
 const { sql, poolPromise } = require("../../db");
 
-// Ellenőrzi, hogy az email vagy a felhasználónév már létezik-e
+// Ellenőrzi, hogy az email vagy a felhasználónév már létezik-e.
 const keresFelhasznaloEmailVagyUsernameAlapjan = async (email, username) => {
   const pool = await poolPromise;
   const result = await pool
@@ -16,7 +16,7 @@ const keresFelhasznaloEmailVagyUsernameAlapjan = async (email, username) => {
   return result.recordset[0] || null;
 };
 
-// Új felhasználót hoz létre az adatbázisban
+// Új felhasználót hoz létre az adatbázisban.
 const felhasznaloLetrehozasa = async ({
   username,
   teljes_nev,
@@ -48,7 +48,7 @@ const felhasznaloLetrehozasa = async ({
   return result.recordset[0];
 };
 
-// Bejelentkezéshez szükséges felhasználót keresi ki email vagy username alapján
+// Bejelentkezéshez szükséges felhasználót keresi ki email vagy username alapján.
 const keresFelhasznaloBelepeshez = async (identifier) => {
   const pool = await poolPromise;
   const result = await pool

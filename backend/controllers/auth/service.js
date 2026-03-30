@@ -6,7 +6,7 @@ const {
   keresFelhasznaloBelepeshez,
 } = require("./repository");
 
-// Engedélyezett szerepkörök
+// Engedélyezett szerepkörök.
 const engedelyezettSzerepek = ["berlo", "palyatulajdonos"];
 
 // HTTP-hiba létrehozása státuszkóddal
@@ -16,7 +16,7 @@ const httpHiba = (status, message) => {
   return error;
 };
 
-// Felhasználó regisztrációja
+// Felhasználó regisztrációja.
 // 1. kötelező mezők ellenőrzése
 // 2. szerepkör validálása
 // 3. email / username egyediség ellenőrzése
@@ -58,7 +58,7 @@ const regisztracio = async ({ email, username, teljes_nev, password, szerep }) =
   };
 };
 
-// Felhasználó bejelentkeztetése
+// Felhasználó bejelentkeztetése.
 // 1. azonosító (email vagy username) ellenőrzése
 // 2. felhasználó lekérése
 // 3. aktivitás ellenőrzése

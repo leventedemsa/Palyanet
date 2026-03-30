@@ -99,47 +99,47 @@ app.use((err, req, res, next) => {
 // Alapértelmezett admin felhasználó létrehozása, ha még nincs admin a rendszerben.
 async function letrehozAdmin() {
     try {
-         const pool = await poolPromise;
-        const admindbEredmeny = await pool.request().query(`
+        const adatbazisKapcsolat = await poolPromise;
+        const adminDbEredmeny = await adatbazisKapcsolat.request().query(`
         SELECT COUNT(*) AS admin_darab
         FROM Felhasznalok
         WHERE szerep = N'admin'
         `);
-        const adminDB = Number(admindbEredmeny.recordset[0]?.admin_darab || 0);
-        if (adminDB > 0) {
+        const adminDbDarab = Number(adminDbEredmeny.recordset[0]?.admin_darab || 0);
+        if (adminDbDarab > 0) {
             return;
         }
-        const hash = await bcrypt.hash("admin123", 10);
-        await pool
+        const jelszoHash = await bcrypt.hash("admin123", 10);
+        await adatbazisKapcsolat
             .request()
             .input("username", sql.NVarChar(50), "admin")
             .input("teljes_nev", sql.NVarChar(150), "Rendszer Admin")
             .input("email", sql.NVarChar(200), "admin@palyanet.local")
-            .input("jelszo_hash", sql.NVarChar(300), hash)
+            .input("jelszo_hash", sql.NVarChar(300), jelszoHash)
             .input("szerep", sql.NVarChar(50), "admin").query(`
             INSERT INTO Felhasznalok (username, teljes_nev, email, jelszo_hash, szerep)
             VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
             `);
         console.log("Alap admin felhasználó létrehozva! (admin, admin123)");
-    } catch (error) {
-        console.error("Hiba az alap admin létrehozásakor:", error);
-        throw error;
+    } catch (hiba) {
+        console.error("Hiba az alap admin létrehozásakor:", hiba);
+        throw hiba;
     }
    
 }
 // Alapértelmezett pályatulajdonos felhasználó létrehozása, ha még nincs admin a rendszerben.
 async function letrehozPalyatulajdonos(){
     try {
-        const pool = await poolPromise;
-        const palyatulajdonosdbEredmeny = await pool.request().query(`
+        const adatbazisKapcsolat = await poolPromise;
+        const palyatulajdonosDbEredmeny = await adatbazisKapcsolat.request().query(`
             SELECT COUNT(*) AS palyatulajdonos_darab
             FROM Felhasznalok
             WHERE szerep = N'palyatulajdonos'
             `);
-        const palyatulajdonosDB = Number(palyatulajdonosdbEredmeny.recordset[0]?.palyatulajdonos_darab || 0);
-        if(palyatulajdonosDB > 0) return;
+        const palyatulajdonosDbDarab = Number(palyatulajdonosDbEredmeny.recordset[0]?.palyatulajdonos_darab || 0);
+        if(palyatulajdonosDbDarab > 0) return;
         const jelszoHash = await bcrypt.hash("tulaj123", 10); 
-        await pool
+        await adatbazisKapcsolat
         .request()
         .input("username", sql.NVarChar(50), "tulaj")
         .input("teljes_nev", sql.NVarChar(150), "Alap Pályatulajdonos")
@@ -150,25 +150,25 @@ async function letrehozPalyatulajdonos(){
                 VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
         `);
         console.log("Alap pályatulajdonos létrehozva! (tulaj, tulaj123)")
-    } catch (error) {
-        console.error("Hiba az alap pályatulajdonos létrehozásakor:", error);
-        throw error;
+    } catch (hiba) {
+        console.error("Hiba az alap pályatulajdonos létrehozásakor:", hiba);
+        throw hiba;
     }
     
 }
 // Alapértelmezett bérlő felhasználó létrehozása, ha még nincs admin a rendszerben.
 async function letrehozBerlo(){
     try {
-        const pool = await poolPromise;
-        const berlodbEredmeny = await pool.request().query(`
+        const adatbazisKapcsolat = await poolPromise;
+        const berloDbEredmeny = await adatbazisKapcsolat.request().query(`
             SELECT COUNT(*) AS berlo_darab
             FROM Felhasznalok
             WHERE szerep = N'berlo'
             `);
-        const berloDB = Number(berlodbEredmeny.recordset[0]?.berlo_darab || 0);
-        if(berloDB > 0) return;
+        const berloDbDarab = Number(berloDbEredmeny.recordset[0]?.berlo_darab || 0);
+        if(berloDbDarab > 0) return;
         const jelszoHash = await bcrypt.hash("berlo123", 10); 
-        await pool
+        await adatbazisKapcsolat
         .request()
         .input("username", sql.NVarChar(50), "berlo")
         .input("teljes_nev", sql.NVarChar(150), "Alap Bérlő")
@@ -179,9 +179,9 @@ async function letrehozBerlo(){
                 VALUES (@username, @teljes_nev, @email, @jelszo_hash, @szerep)
         `);
         console.log("Alap bérlő létrehozva! (berlo, berlo123)")
-    } catch (error) {
-        console.error("Hiba az alap bérlő létrehozásakor:", error);
-        throw error;
+    } catch (hiba) {
+        console.error("Hiba az alap bérlő létrehozásakor:", hiba);
+        throw hiba;
     }
     
 }

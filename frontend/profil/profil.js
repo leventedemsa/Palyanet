@@ -2,7 +2,7 @@
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:4000";
+  var API_ALAP = "http://localhost:4000";
 
   function readUser() {
     var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -115,7 +115,7 @@
 
     async function refreshNotifications() {
       try {
-        var res = await fetch(API_BASE + "/api/notifications/" + userId);
+        var res = await fetch(API_ALAP + "/api/notifications/" + userId);
         if (!res.ok) return;
         var items = await res.json();
         var unread = items.filter(function (n) { return !n.olvasott; }).length;
@@ -148,7 +148,7 @@
 
   function absoluteImageUrl(url) {
     if (!url) return "";
-    return url.startsWith("http") ? url : API_BASE + url;
+    return url.startsWith("http") ? url : API_ALAP + url;
   }
 
   function wireSidebar(user) {
@@ -191,7 +191,7 @@
     });
   }
 
-  function setQuickStats(items) {
+  function gyorsStatisztikaBeallitas(items) {
     var label1 = document.getElementById("quickStat1Label");
     var label2 = document.getElementById("quickStat2Label");
     var label3 = document.getElementById("quickStat3Label");
@@ -220,33 +220,33 @@
     return year + "." + month + "." + day;
   }
 
-  async function loadQuickStats(user) {
+  async function gyorsStatisztikaBetoltes(user) {
     var hasStatsArea = document.getElementById("quickStat1Value");
     if (!hasStatsArea) return;
     var userId = getUserId(user);
     if (!userId) {
-      setQuickStats([]);
+      gyorsStatisztikaBeallitas([]);
       return;
     }
 
     try {
       if (user.szerep === "palyatulajdonos") {
-        var ownerFieldsRes = await fetch(API_BASE + "/api/palyak/owner/" + userId);
-        var ownerBookingsRes = await fetch(API_BASE + "/api/bookings/owner/" + userId);
-        var ownerFields = ownerFieldsRes.ok ? await ownerFieldsRes.json() : [];
-        var ownerBookings = ownerBookingsRes.ok ? await ownerBookingsRes.json() : [];
-        var pendingCount = ownerBookings.filter(function (b) { return b.statusz === "pending"; }).length;
-        var acceptedCount = ownerBookings.filter(function (b) { return b.statusz === "accepted"; }).length;
-        setQuickStats([
-          { label: "Saját pályák", value: String(ownerFields.length) },
-          { label: "Függő foglalások", value: String(pendingCount) },
-          { label: "Elfogadott foglalások", value: String(acceptedCount) }
+        var tulajPalyakValasz = await fetch(API_ALAP + "/api/palyak/owner/" + userId);
+        var tulajFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/owner/" + userId);
+        var tulajPalyak = tulajPalyakValasz.ok ? await tulajPalyakValasz.json() : [];
+        var tulajFoglalasok = tulajFoglalasokValasz.ok ? await tulajFoglalasokValasz.json() : [];
+        var fuggoFoglalasokDarab = tulajFoglalasok.filter(function (b) { return b.statusz === "pending"; }).length;
+        var elfogadottFoglalasokDarab = tulajFoglalasok.filter(function (b) { return b.statusz === "accepted"; }).length;
+        gyorsStatisztikaBeallitas([
+          { label: "Saját pályák", value: String(tulajPalyak.length) },
+          { label: "Függő foglalások", value: String(fuggoFoglalasokDarab) },
+          { label: "Elfogadott foglalások", value: String(elfogadottFoglalasokDarab) }
         ]);
         return;
       }
 
       if (user.szerep === "admin") {
-        var bejelentesekValasz = await fetch(API_BASE + "/api/reports?admin_id=" + userId);
+        var bejelentesekValasz = await fetch(API_ALAP + "/api/reports?admin_id=" + userId);
         var bejelentesek = bejelentesekValasz.ok ? await bejelentesekValasz.json() : [];
         var fuggoBejelentesekDarab = bejelentesek.filter(function (bejelentes) {
           return String(bejelentes.statusz || "").toLowerCase() === "pending";
@@ -255,7 +255,7 @@
           return String(bejelentes.statusz || "").toLowerCase() !== "pending";
         }).length;
 
-        setQuickStats([
+        gyorsStatisztikaBeallitas([
           { label: "Függő bejelentések", value: String(fuggoBejelentesekDarab) },
           { label: "Lezárt bejelentések", value: String(lezartBejelentesekDarab) },
           { label: "Összes bejelentés", value: String(bejelentesek.length) }
@@ -263,25 +263,25 @@
         return;
       }
 
-      var renterBookingsRes = await fetch(API_BASE + "/api/bookings/renter/" + userId);
-      var renterBookings = renterBookingsRes.ok ? await renterBookingsRes.json() : [];
+      var berloFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/renter/" + userId);
+      var berloFoglalasok = berloFoglalasokValasz.ok ? await berloFoglalasokValasz.json() : [];
       var now = new Date();
-      var activeCount = renterBookings.filter(function (b) {
+      var aktivFoglalasokDarab = berloFoglalasok.filter(function (b) {
         if (b.statusz === "rejected") return false;
         return new Date(b.vege) >= now;
       }).length;
-      var pastCount = renterBookings.filter(function (b) {
+      var lejartFoglalasokDarab = berloFoglalasok.filter(function (b) {
         if (b.statusz === "rejected") return true;
         return new Date(b.vege) < now;
       }).length;
-      setQuickStats([
-        { label: "Aktív foglalások", value: String(activeCount) },
-        { label: "Lejárt foglalások", value: String(pastCount) },
-        { label: "Összes foglalás", value: String(renterBookings.length) }
+      gyorsStatisztikaBeallitas([
+        { label: "Aktív foglalások", value: String(aktivFoglalasokDarab) },
+        { label: "Lejárt foglalások", value: String(lejartFoglalasokDarab) },
+        { label: "Összes foglalás", value: String(berloFoglalasok.length) }
       ]);
     } catch (_) {
       if (user && user.szerep === "admin") {
-        setQuickStats([
+        gyorsStatisztikaBeallitas([
           { label: "Függő bejelentések", value: "-" },
           { label: "Lezárt bejelentések", value: "-" },
           { label: "Összes bejelentés", value: "-" }
@@ -289,7 +289,7 @@
         return;
       }
 
-      setQuickStats([
+      gyorsStatisztikaBeallitas([
         { label: "Aktív foglalások", value: "-" },
         { label: "Lejárt foglalások", value: "-" },
         { label: "Összes foglalás", value: "-" }
@@ -381,7 +381,7 @@
           var endpoint = hasCurrentPicture ? "/api/profile/update" : "/api/profile/upload";
           var method = hasCurrentPicture ? "PUT" : "POST";
 
-          var response = await fetch(API_BASE + endpoint, {
+          var response = await fetch(API_ALAP + endpoint, {
             method: method,
             body: formData
           });
@@ -410,7 +410,7 @@
           var userId = getUserId(storedUser) || getUserId(currentProfile);
           if (!userId) throw new Error("Hiányzik a felhasználó azonosítója.");
 
-          var response = await fetch(API_BASE + "/api/profile/delete", {
+          var response = await fetch(API_ALAP + "/api/profile/delete", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ userId: userId })
@@ -460,7 +460,7 @@
             email: emailInput.value.trim()
           };
 
-          var response = await fetch(API_BASE + "/api/profile/update-data", {
+          var response = await fetch(API_ALAP + "/api/profile/update-data", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -528,7 +528,7 @@
         }
 
         try {
-          var response = await fetch(API_BASE + "/api/profile/change-password", {
+          var response = await fetch(API_ALAP + "/api/profile/change-password", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -560,7 +560,7 @@
     try {
       var userId = getUserId(user);
       if (!userId) throw new Error("Hiányzik a felhasználó azonosítója");
-      var res = await fetch(API_BASE + "/api/profile/profile?userId=" + encodeURIComponent(userId));
+      var res = await fetch(API_ALAP + "/api/profile/profile?userId=" + encodeURIComponent(userId));
       if (!res.ok) throw new Error("Profil lekérési hiba");
       var profile = await res.json();
       paint(profile);
@@ -575,6 +575,6 @@
 
   wireSidebar(user);
   loadProfilePage(user);
-  loadQuickStats(user);
+  gyorsStatisztikaBetoltes(user);
 })();
 
