@@ -78,7 +78,7 @@
 # Levi:
 
 ## 03.31:
-- Backend `userRouters`, `˙reportRoutes` ki kommentelése
+- Backend `userRouters`, `˙reportRoutes` ki kommentelése ✅
 - JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek)
     - `profil.js` 
     - `ertesitesek.js` 
@@ -93,9 +93,9 @@
     - SQL frissítés a log funkcióhoz (`palyanetsql.sql`). ✅
 
 ## 03.30:
-- SQL kód javítása, hogy máshol is működjön.
-- Alap felhasználók létrehozása a backend futtatásnál. (pályatulajdonos, bérlő, admin)
-- Kisebb kód tisztítás.
+- SQL kód javítása, hogy máshol is működjön. ✅
+- Alap felhasználók létrehozása a backend futtatásnál. ✅ (pályatulajdonos, bérlő, admin)
+- Kisebb kód tisztítás. ✅
 
 ## 03.29:
 - Admin jogosultságkezelés és admin panel újradolgozása: ✅

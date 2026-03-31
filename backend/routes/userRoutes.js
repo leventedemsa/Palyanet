@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { sql, poolPromise } = require("../db");
 
+// Ellenőrzi, hogy a megadott felhasználó admin szerepkörű-e.
 async function adminEllenorzes(adminId) {
   const id = parseInt(adminId, 10);
   if (!id) return false;
@@ -20,6 +21,7 @@ async function adminEllenorzes(adminId) {
   return result.recordset.length > 0;
 }
 
+// Admin felhasználók listázása, opcionális szűrési feltételekkel.
 router.get("/admin/list", async (req, res) => {
   try {
     const adminId = parseInt(req.query.admin_id, 10);
@@ -67,6 +69,7 @@ router.get("/admin/list", async (req, res) => {
   }
 });
 
+// Admin logok listázása, opcionális szűrési feltételekkel.
 router.get("/admin/logs", async (req, res) => {
   try {
     const adminId = parseInt(req.query.admin_id, 10);
@@ -118,6 +121,7 @@ router.get("/admin/logs", async (req, res) => {
   }
 });
 
+// Felhasználó tiltásának beállítása vagy feloldása admin által.
 router.patch("/admin/:id/ban", async (req, res) => {
   try {
     const adminId = parseInt(req.body && req.body.admin_id, 10);
