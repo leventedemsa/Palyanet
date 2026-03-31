@@ -9,7 +9,8 @@
 
 ## 03.31:
 - Téma kezelés egységesítése közös scriptben `theme-controller.js`
-- Backendben változó- és függvénynevek magyarosítása.
+- Backendben változó- és függvénynevek magyarosítása. 
+    - (`booking`,`profile` controllereket, `bookingRoutes.js`, `notificationRoutes.js`, `palyaRoutes.js`, `profileRoutes.js`)
 - Backend metódusok fölé kommentek.
 - HTML oldalak frontend scriptjeinek külön fájlba szervezése: 
     - `palyak.html` scriptjeinek kiszervezése 
@@ -77,6 +78,7 @@
 # Levi:
 
 ## 03.31:
+- Backend `userRouters`, `˙reportRoutes` ki kommentelése
 - JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek)
     - `profil.js` 
     - `ertesitesek.js` 
