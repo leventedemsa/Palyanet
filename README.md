@@ -79,12 +79,12 @@
 
 ## 03.31:
 - Backend `userRouters`, `˙reportRoutes` ki kommentelése ✅
-- JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek)
-    - `profil.js` 
-    - `ertesitesek.js` 
-    - `berleseim.js` 
-    - `foglalasaim.js` 
-    - `palyaim.js` 
+- JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek) ✅
+    - `profil.js` ✅
+    - `ertesitesek.js` ✅
+    - `berleseim.js` ✅ 
+    - `foglalasaim.js` ✅
+    - `palyaim.js` ✅
 - CSS egységesítés: global.css + oldalspecifikus (profil.css, berleseim.css, stb.). 
 - Foglalás UI frissítés: új mezők megjelenítése (email, leírás), amit a backend ad.
 - Log rendszer bevezetése + külön `Log` részleg az admin menüben. ✅ (`1696830`)

@@ -1,101 +1,60 @@
-﻿(function () {
+(function () {
   "use strict";
 
-  var API_BASE = "http://localhost:4000";
-  var listContainer = document.getElementById("notificationsList");
-  var countBadge = document.getElementById("notificationsCount");
-  var clearAllButton = document.getElementById("clearAllNotificationsBtn");
+  var API_ALAP = "http://localhost:4000";
+  var seged = window.ProfilSeged;
+  var ertesitesListaKontener = document.getElementById("notificationsList");
+  var darabJelveny = document.getElementById("notificationsCount");
+  var osszesTorlesGomb = document.getElementById("clearAllNotificationsBtn");
 
-  if (!listContainer || !countBadge || !clearAllButton) return;
+  if (!seged || !ertesitesListaKontener || !darabJelveny || !osszesTorlesGomb) return;
 
-  function readUser() {
-    var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (_) { return null; }
+  var felhasznaloBeolvasasa = seged.felhasznaloBeolvasasa;
+  var felhasznaloAzonosito = seged.felhasznaloAzonosito;
+  var hibaMegjelenitese = seged.hibaMegjelenitese;
+  var muveletMegerositese = seged.muveletMegerositese;
+  var htmlSzovegEscape = seged.htmlSzovegEscape;
+
+  // Relatív képútvonalból teljes URL-t készít.
+  function abszolutKepUrl(url) {
+    return seged.abszolutKepUrl(API_ALAP, url, "https://github.com/mdo.png");
   }
 
-  function getUserId(user) {
-    return user && (user.felhasznalo_id || user.id || user.userId);
+  // Kijelentkezteti a felhasználót és visszairányít a belépéshez.
+  function kijelentkezes() {
+    seged.kijelentkezes("../login.html");
   }
 
-  function showError(message) {
-    return Swal.fire({
-      icon: "error",
-      title: "Hiba",
-      text: message,
-      confirmButtonText: "Rendben"
+  // Oldalsáv menüpontjait és profiladatait állítja be.
+  function oldalsavBekotese(felhasznalo) {
+    var palyaimElemek = document.querySelectorAll('[data-sidebar-item="palyaim"]');
+    var foglalasaimElemek = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
+    var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    var adminElemek = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"], [data-sidebar-item="admin-logok"]');
+    var szerep = String(felhasznalo.szerep || "").toLowerCase();
+    var palyatulajdonosE = szerep === "palyatulajdonos";
+    var adminE = szerep === "admin";
+
+    palyaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    foglalasaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    statisztikaElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    berleseimElemek.forEach(function (elem) { elem.style.display = adminE ? "none" : ""; });
+    adminElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+
+    seged.oldalsavAlapBekotes({
+      felhasznalo: felhasznalo,
+      apiAlap: API_ALAP,
+      loginUrl: "../login.html"
     });
   }
 
-  function confirmAction(message) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Megerősítés",
-      text: message,
-      showCancelButton: true,
-      confirmButtonText: "Igen",
-      cancelButtonText: "Mégsem"
-    });
-  }
-
-  function absoluteImageUrl(url) {
-    if (!url) return "https://github.com/mdo.png";
-    return url.startsWith("http") ? url : API_BASE + url;
-  }
-
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    window.location.href = "../login.html";
-  }
-
-  function escapeHtml(value) {
-    return String(value || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-  }
-
-  function wireSidebar(user) {
-    var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
-    var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
-    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
-    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"], [data-sidebar-item="admin-logok"]');
-    var szerep = String(user.szerep || "").toLowerCase();
-    var isOwner = szerep === "palyatulajdonos";
-    var isAdmin = szerep === "admin";
-
-    palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    statisztikaItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    berleseimItems.forEach(function (item) { item.style.display = isAdmin ? "none" : ""; });
-    adminItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
-
-    var names = document.querySelectorAll(".sidebar-user-name");
-    var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasználó";
-    names.forEach(function (el) { el.textContent = displayName; });
-    avatars.forEach(function (el) { el.src = absoluteImageUrl(user.profil_kep_url); });
-
-    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn");
-    logoutBtns.forEach(function (btn) {
-      btn.addEventListener("click", function (event) {
-        event.preventDefault();
-        logout();
-      });
-    });
-  }
-
-  function formatTime(value) {
-    if (!value) return "-";
-    var date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "-";
-    return date.toLocaleString("hu-HU", {
+  // Dátumot magyar időbélyeg szöveggé alakít.
+  function idoFormazasa(ertek) {
+    if (!ertek) return "-";
+    var datum = new Date(ertek);
+    if (Number.isNaN(datum.getTime())) return "-";
+    return datum.toLocaleString("hu-HU", {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
@@ -105,30 +64,31 @@
     });
   }
 
-  function renderNotifications(items) {
-    countBadge.textContent = String(items.length);
-    clearAllButton.disabled = items.length === 0;
+  // Az értesítések listáját kirendereli a felületre.
+  function ertesitesekRenderelese(ertesitesek) {
+    darabJelveny.textContent = String(ertesitesek.length);
+    osszesTorlesGomb.disabled = ertesitesek.length === 0;
 
-    if (!items.length) {
-      listContainer.innerHTML = '<div class="alert alert-light border mb-0">Nincs értesítés.</div>';
+    if (!ertesitesek.length) {
+      ertesitesListaKontener.innerHTML = '<div class="alert alert-light border mb-0">Nincs értesítés.</div>';
       return;
     }
 
-    listContainer.innerHTML = items.map(function (item) {
-      var unreadBadge = item.olvasott
+    ertesitesListaKontener.innerHTML = ertesitesek.map(function (ertesites) {
+      var olvasottJelveny = ertesites.olvasott
         ? '<span class="badge text-bg-secondary">Olvasott</span>'
         : '<span class="badge text-bg-primary">Új</span>';
       return (
-        '<div class="card shadow-sm border-0 mb-3" data-id="' + Number(item.ertesites_id) + '">' +
+        '<div class="card shadow-sm border-0 mb-3" data-id="' + Number(ertesites.ertesites_id) + '">' +
           '<div class="card-body">' +
             '<div class="d-flex justify-content-between align-items-start gap-3 mb-2">' +
               '<div class="fw-semibold">Értesítés</div>' +
-              unreadBadge +
+              olvasottJelveny +
             '</div>' +
-            '<p class="mb-2">' + escapeHtml(item.uzenet || "") + '</p>' +
+            '<p class="mb-2">' + htmlSzovegEscape(ertesites.uzenet || "") + '</p>' +
             '<div class="d-flex justify-content-between align-items-center gap-3">' +
-              '<small class="text-muted">' + formatTime(item.letrehozva) + '</small>' +
-              '<button type="button" class="btn btn-outline-danger btn-sm" data-action="delete" data-id="' + Number(item.ertesites_id) + '">Törlés</button>' +
+              '<small class="text-muted">' + idoFormazasa(ertesites.letrehozva) + '</small>' +
+              '<button type="button" class="btn btn-outline-danger btn-sm" data-action="delete" data-id="' + Number(ertesites.ertesites_id) + '">Törlés</button>' +
             '</div>' +
           '</div>' +
         '</div>'
@@ -136,83 +96,86 @@
     }).join("");
   }
 
-  async function loadNotifications(userId) {
-    var response = await fetch(API_BASE + "/api/notifications/" + userId);
-    if (!response.ok) throw new Error("Értesítések lekérése sikertelen");
-    return response.json();
+  // A felhasználó értesítéseit lekéri az API-ból.
+  async function ertesitesekBetoltese(felhasznaloId) {
+    var valasz = await fetch(API_ALAP + "/api/notifications/" + felhasznaloId);
+    if (!valasz.ok) throw new Error("Értesítések lekérése sikertelen");
+    return valasz.json();
   }
 
-  async function deleteNotification(userId, notificationId) {
-    var response = await fetch(API_BASE + "/api/notifications/" + userId + "/" + notificationId, {
+  // Egy értesítést töröl az API-n keresztül.
+  async function ertesitesTorlese(felhasznaloId, ertesitesId) {
+    var valasz = await fetch(API_ALAP + "/api/notifications/" + felhasznaloId + "/" + ertesitesId, {
       method: "DELETE"
     });
-    if (!response.ok) throw new Error("Értesítés törlése sikertelen");
+    if (!valasz.ok) throw new Error("Értesítés törlése sikertelen");
   }
 
-  async function clearAllNotifications(userId) {
-    var response = await fetch(API_BASE + "/api/notifications/" + userId, {
+  // Az összes értesítést törli az API-n keresztül.
+  async function osszesErtesitesTorlese(felhasznaloId) {
+    var valasz = await fetch(API_ALAP + "/api/notifications/" + felhasznaloId, {
       method: "DELETE"
     });
-    if (!response.ok) throw new Error("Értesítések törlése sikertelen");
+    if (!valasz.ok) throw new Error("Értesítések törlése sikertelen");
   }
 
-  var user = readUser();
-  if (!user) {
+  var felhasznalo = felhasznaloBeolvasasa();
+  if (!felhasznalo) {
     window.location.href = "../login.html";
     return;
   }
 
-  var userId = getUserId(user);
-  if (!userId) {
+  var felhasznaloId = felhasznaloAzonosito(felhasznalo);
+  if (!felhasznaloId) {
     window.location.href = "../login.html";
     return;
   }
 
-  wireSidebar(user);
+  oldalsavBekotese(felhasznalo);
 
-  async function refresh() {
+  // Az értesítéslista teljes frissítését végzi.
+  async function frissites() {
     try {
-      var items = await loadNotifications(userId);
-      renderNotifications(items);
-    } catch (error) {
-      console.error(error);
-      listContainer.innerHTML = '<div class="alert alert-danger mb-0">Hiba az értesítések betöltésekor.</div>';
-      countBadge.textContent = "0";
-      clearAllButton.disabled = true;
+      var ertesitesek = await ertesitesekBetoltese(felhasznaloId);
+      ertesitesekRenderelese(ertesitesek);
+    } catch (hiba) {
+      console.error(hiba);
+      ertesitesListaKontener.innerHTML = '<div class="alert alert-danger mb-0">Hiba az értesítések betöltésekor.</div>';
+      darabJelveny.textContent = "0";
+      osszesTorlesGomb.disabled = true;
     }
   }
 
-  listContainer.addEventListener("click", async function (event) {
-    var button = event.target.closest("button[data-action='delete']");
-    if (!button) return;
-    var id = Number(button.getAttribute("data-id"));
-    if (!id) return;
+  ertesitesListaKontener.addEventListener("click", async function (esemeny) {
+    var gomb = esemeny.target.closest("button[data-action='delete']");
+    if (!gomb) return;
+    var ertesitesId = Number(gomb.getAttribute("data-id"));
+    if (!ertesitesId) return;
 
-    button.disabled = true;
+    gomb.disabled = true;
     try {
-      await deleteNotification(userId, id);
-      await refresh();
-    } catch (error) {
-      console.error(error);
-      showError("Nem sikerült törölni az értesítést.");
-      button.disabled = false;
+      await ertesitesTorlese(felhasznaloId, ertesitesId);
+      await frissites();
+    } catch (hiba) {
+      console.error(hiba);
+      hibaMegjelenitese("Nem sikerült törölni az értesítést.");
+      gomb.disabled = false;
     }
   });
 
-  clearAllButton.addEventListener("click", async function () {
-    var confirmResult = await confirmAction("Biztosan törölni szeretnéd az összes értesítést?");
-    if (!confirmResult.isConfirmed) return;
-    clearAllButton.disabled = true;
+  osszesTorlesGomb.addEventListener("click", async function () {
+    var megerosites = await muveletMegerositese("Biztosan törölni szeretnéd az összes értesítést?");
+    if (!megerosites.isConfirmed) return;
+    osszesTorlesGomb.disabled = true;
     try {
-      await clearAllNotifications(userId);
-      await refresh();
-    } catch (error) {
-      console.error(error);
-      showError("Nem sikerült törölni az értesítéseket.");
-      clearAllButton.disabled = false;
+      await osszesErtesitesTorlese(felhasznaloId);
+      await frissites();
+    } catch (hiba) {
+      console.error(hiba);
+      hibaMegjelenitese("Nem sikerült törölni az értesítéseket.");
+      osszesTorlesGomb.disabled = false;
     }
   });
 
-  refresh();
+  frissites();
 })();
-

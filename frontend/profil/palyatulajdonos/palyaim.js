@@ -2,206 +2,93 @@
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:4000";
+  var API_ALAP = "http://localhost:4000";
+  var seged = window.ProfilSeged;
+  if (!seged) return;
 
-  function readUser() {
-    var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch (_) {
-      return null;
-    }
-  }
+  var felhasznaloBeolvasasa = seged.felhasznaloBeolvasasa;
+  var felhasznaloAzonosito = seged.felhasznaloAzonosito;
+  var hibaMegjelenitese = seged.hibaMegjelenitese;
+  var muveletMegerositese = seged.muveletMegerositese;
+  var kepUrlokFeldolgozasa = seged.kepUrlokFeldolgozasa;
 
-  function ensureLoggedIn() {
-    var user = readUser();
-    if (!user) {
+  // Ellenőrzi a belépést, és hiány esetén a login oldalra irányít.
+  function bejelentkezesEllenorzese() {
+    var felhasznalo = felhasznaloBeolvasasa();
+    if (!felhasznalo) {
       window.location.href = "../../login.html";
       return null;
     }
-    return user;
+    return felhasznalo;
   }
 
-  function getUserId(user) {
-    return user && (user.felhasznalo_id || user.id || user.userId);
+  // Relatív képútvonalból teljes URL-t készít.
+  function abszolutKepUrl(url) {
+    return seged.abszolutKepUrl(API_ALAP, url, "");
   }
 
-  function showError(message) {
-    return Swal.fire({
-      icon: "error",
-      title: "Hiba",
-      text: message,
-      confirmButtonText: "Rendben"
+  // Oldalsáv menüpontjait és profiladatait állítja be.
+  function oldalsavBekotese(felhasznalo) {
+    var palyaimElemek = document.querySelectorAll('[data-sidebar-item="palyaim"]');
+    var foglalasaimElemek = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
+    var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    var palyatulajdonosE = felhasznalo.szerep === "palyatulajdonos";
+
+    palyaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    foglalasaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    statisztikaElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    berleseimElemek.forEach(function (elem) { elem.style.display = ""; });
+
+    seged.oldalsavAlapBekotes({
+      felhasznalo: felhasznalo,
+      apiAlap: API_ALAP,
+      loginUrl: "../../login.html"
     });
   }
 
-  function confirmAction(message) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Megerősítés",
-      text: message,
-      showCancelButton: true,
-      confirmButtonText: "Igen",
-      cancelButtonText: "Mégsem"
-    });
-  }
+  // A pályáim oldal működését inicializálja és kezeli.
+  async function palyaimOldalBetoltese(felhasznalo) {
+    var sajatPalyakLista = document.getElementById("myFieldsList");
+    var palyaModalElem = document.getElementById("ujPalyaModal");
+    var palyaModalUrlap = document.getElementById("ujPalyaForm");
+    var palyaModalMentesGomb = document.getElementById("ujPalyaKuldBtn");
+    if (!sajatPalyakLista || !palyaModalElem || !palyaModalUrlap || !palyaModalMentesGomb) return;
 
-  function absoluteImageUrl(url) {
-    if (!url) return "";
-    if (url.startsWith("http") || url.startsWith("blob:") || url.startsWith("data:")) {
-      return url;
-    }
-    return API_BASE + url;
-  }
-
-  function parseImageUrls(value) {
-    if (!value) return [];
-    if (Array.isArray(value)) {
-      return value.filter(Boolean);
-    }
-    var raw = String(value).trim();
-    if (!raw) return [];
-    if (raw[0] === "[") {
-      try {
-        var parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(Boolean);
-        }
-      } catch (_) {}
-    }
-    return [raw];
-  }
-
-  function initSidebarNotifications(user) {
-    var sidebar = document.querySelector(".profile-sidebar");
-    if (!sidebar) return;
-    if (document.getElementById("sidebarNotificationsBox")) return;
-    var userId = getUserId(user);
-    if (!userId) return;
-
-    var box = document.createElement("div");
-    box.id = "sidebarNotificationsBox";
-    box.className = "mt-3";
-    box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Értesítés <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
-      '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek értesítések</div>' +
-      "</div>";
-    sidebar.appendChild(box);
-
-    var toggle = document.getElementById("sidebarNotifToggle");
-    var badge = document.getElementById("sidebarNotifBadge");
-    var dropdown = document.getElementById("sidebarNotifDropdown");
-
-    toggle.addEventListener("click", function () {
-      dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
-    });
-
-    async function refreshNotifications() {
-      try {
-        var res = await fetch(API_BASE + "/api/notifications/" + userId);
-        if (!res.ok) return;
-        var items = await res.json();
-        var unread = items.filter(function (n) { return !n.olvasott; }).length;
-        if (unread > 0) {
-          badge.style.display = "inline-block";
-          badge.textContent = String(unread);
-        } else {
-          badge.style.display = "none";
-        }
-        if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
-          return;
-        }
-        dropdown.innerHTML = items.slice(0, 15).map(function (n) {
-          return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
-            '<div>' + (n.uzenet || "") + "</div>" +
-            '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
-            "</div>";
-        }).join("");
-      } catch (_) {}
-    }
-
-    refreshNotifications();
-    setInterval(refreshNotifications, 5000);
-  }
-
-  function wireSidebar(user) {
-    var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
-    var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
-    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
-    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var isOwner = user.szerep === "palyatulajdonos";
-
-    palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    statisztikaItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    berleseimItems.forEach(function (item) { item.style.display = ""; });
-
-    var names = document.querySelectorAll(".sidebar-user-name");
-    var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasználó";
-    names.forEach(function (el) { el.textContent = displayName; });
-    avatars.forEach(function (el) {
-      if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
-    });
-
-    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn");
-    logoutBtns.forEach(function (logoutBtn) {
-      logoutBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
-        window.location.href = "../../login.html";
-      });
-    });
-  }
-
-  async function loadPalyaimPage(user) {
-    var myFieldsList = document.getElementById("myFieldsList");
-    var modalElement = document.getElementById("ujPalyaModal");
-    var modalForm = document.getElementById("ujPalyaForm");
-    var modalSaveButton = document.getElementById("ujPalyaKuldBtn");
-    if (!myFieldsList || !modalElement || !modalForm || !modalSaveButton) return;
-
-    if (user.szerep !== "palyatulajdonos") {
+    if (felhasznalo.szerep !== "palyatulajdonos") {
       window.location.href = "../berleseim.html";
       return;
     }
 
-    var modalTitle = document.getElementById("ujPalyaModalTitle");
-    var modalPalyaIdInput = document.getElementById("modalPalyaId");
-    var modalNevInput = document.getElementById("modalNev");
-    var modalSportagInput = document.getElementById("modalSportag");
-    var modalHelyszinInput = document.getElementById("modalHelyszin");
-    var modalArInput = document.getElementById("modalAr");
-    var modalKepUrlInput = document.getElementById("modalKepUrl");
-    var modalKepekInput = document.getElementById("modalKepek");
-    var modalKepekPreview = document.getElementById("modalKepekPreview");
-    var modalLeirasInput = document.getElementById("modalLeiras");
-    var modalNyitasInput = document.getElementById("modalNyitas");
-    var modalZarasInput = document.getElementById("modalZaras");
-    var openAddFieldModalButton = document.getElementById("openAddFieldModalButton");
-    var helyszinValasztoBtn = document.getElementById("modalHelyszinValasztoBtn");
-    var helyszinModalElement = document.getElementById("helyszinValasztoModal");
-    var helyszinModal = helyszinModalElement ? bootstrap.Modal.getOrCreateInstance(helyszinModalElement) : null;
-    var palyaimHelyszinKivalasztBtn = document.getElementById("palyaimHelyszinKivalasztBtn");
-    var palyaimHelyszinTorlesBtn = document.getElementById("palyaimHelyszinTorlesBtn");
-    var kivalasztottHelyszinBox = document.getElementById("kivalasztottHelyszinekPalyaim");
-    var palyaModal = bootstrap.Modal.getOrCreateInstance(modalElement);
-    var fields = [];
-    var editingId = null;
-    var selectedLocation = "";
-    var switchingToLocationModal = false;
-    var restorePalyaModalAfterLocationModal = false;
-    var uploadedImageUrls = [];
+    var modalCim = document.getElementById("ujPalyaModalTitle");
+    var modalPalyaIdMezo = document.getElementById("modalPalyaId");
+    var modalNevMezo = document.getElementById("modalNev");
+    var modalSportagMezo = document.getElementById("modalSportag");
+    var modalHelyszinMezo = document.getElementById("modalHelyszin");
+    var modalArMezo = document.getElementById("modalAr");
+    var modalKepUrlMezo = document.getElementById("modalKepUrl");
+    var modalKepekMezo = document.getElementById("modalKepek");
+    var modalKepekEloNezet = document.getElementById("modalKepekPreview");
+    var modalLeirasMezo = document.getElementById("modalLeiras");
+    var modalNyitasMezo = document.getElementById("modalNyitas");
+    var modalZarasMezo = document.getElementById("modalZaras");
+    var ujPalyaModalNyitasGomb = document.getElementById("openAddFieldModalButton");
+    var helyszinValasztoMegnyitasGomb = document.getElementById("modalHelyszinValasztoBtn");
+    var helyszinValasztoModalElem = document.getElementById("helyszinValasztoModal");
+    var helyszinValasztoModal = helyszinValasztoModalElem ? bootstrap.Modal.getOrCreateInstance(helyszinValasztoModalElem) : null;
+    var helyszinKivalasztGomb = document.getElementById("palyaimHelyszinKivalasztBtn");
+    var helyszinTorlesGomb = document.getElementById("palyaimHelyszinTorlesBtn");
+    var kivalasztottHelyszinDoboz = document.getElementById("kivalasztottHelyszinekPalyaim");
+    var palyaModal = bootstrap.Modal.getOrCreateInstance(palyaModalElem);
+    var palyak = [];
+    var szerkesztettPalyaId = null;
+    var kivalasztottHelyszin = "";
+    var helyszinModalraValtasFolyamatban = false;
+    var palyaModalVisszanyitasHelyszinModalUtan = false;
+    var feltoltottKepUrlok = [];
 
     var budapestKeruletek = Array.from({ length: 23 }, function (_, i) {
-      return toRoman(i + 1) + ". kerület";
+      return arabSzamRolRomaira(i + 1) + ". kerület";
     });
     var megyek = [
       "Bács-Kiskun",
@@ -226,140 +113,145 @@
     ];
     var varosok = ["Budapest", "Debrecen", "Győr", "Kecskemét", "Miskolc", "Nyíregyháza", "Pécs", "Sopron", "Szeged", "Székesfehérvár", "Szentendre"];
 
-    function toRoman(num) {
-      var map = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
-      var out = "";
-      var n = num;
-      map.forEach(function (pair) {
-        var value = pair[0];
-        var numeral = pair[1];
-        while (n >= value) {
-          out += numeral;
-          n -= value;
+    // Arab számot római számmá alakít.
+    function arabSzamRolRomaira(szam) {
+      var terkep = [[10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+      var eredmeny = "";
+      var maradek = szam;
+      terkep.forEach(function (par) {
+        var ertek = par[0];
+        var jel = par[1];
+        while (maradek >= ertek) {
+          eredmeny += jel;
+          maradek -= ertek;
         }
       });
-      return out;
+      return eredmeny;
     }
 
-    function renderHelyszinOptions(containerId, items, prefix) {
-      var root = document.getElementById(containerId);
-      if (!root) return;
-      root.innerHTML = items.map(function (item, index) {
-        var id = prefix + "_" + index;
+    // Helyszín rádió opciókat renderel a megadott konténerbe.
+    function helyszinOpcioRenderelese(kontenerAzonosito, elemek, azonositoEloTag) {
+      var gyoker = document.getElementById(kontenerAzonosito);
+      if (!gyoker) return;
+      gyoker.innerHTML = elemek.map(function (elem, index) {
+        var azonosito = azonositoEloTag + "_" + index;
         return (
           '<div class="col-12 col-md-4">' +
             '<div class="form-check mb-2">' +
-              '<input class="form-check-input palyaim-helyszin-choice" type="radio" name="palyaimHelyszinChoice" id="' + id + '" value="' + item + '">' +
-              '<label class="form-check-label" for="' + id + '">' + item + "</label>" +
+              '<input class="form-check-input palyaim-helyszin-choice" type="radio" name="palyaimHelyszinChoice" id="' + azonosito + '" value="' + elem + '">' +
+              '<label class="form-check-label" for="' + azonosito + '">' + elem + "</label>" +
             "</div>" +
           "</div>"
         );
       }).join("");
     }
 
-    function updateHelyszinSummary() {
-      if (!kivalasztottHelyszinBox) return;
-      if (!selectedLocation) {
-        kivalasztottHelyszinBox.innerHTML = '<span class="text-body-secondary">Nincs kiválasztott helyszín</span>';
-        modalHelyszinInput.value = "";
+    // A kiválasztott helyszín összefoglalóját frissíti a modalban.
+    function helyszinOsszegzesFrissitese() {
+      if (!kivalasztottHelyszinDoboz) return;
+      if (!kivalasztottHelyszin) {
+        kivalasztottHelyszinDoboz.innerHTML = '<span class="text-body-secondary">Nincs kiválasztott helyszín</span>';
+        modalHelyszinMezo.value = "";
         return;
       }
 
-      kivalasztottHelyszinBox.innerHTML =
-        '<span class="badge rounded-pill text-bg-success fs-6 px-3 py-2">' + selectedLocation + "</span>";
-      modalHelyszinInput.value = selectedLocation;
+      kivalasztottHelyszinDoboz.innerHTML =
+        '<span class="badge rounded-pill text-bg-success fs-6 px-3 py-2">' + kivalasztottHelyszin + "</span>";
+      modalHelyszinMezo.value = kivalasztottHelyszin;
     }
 
-    function syncHelyszinRadios() {
+    // A helyszín rádiógombokat szinkronizálja az aktuális kiválasztással.
+    function helyszinRadioSzinkronizalasa() {
       document.querySelectorAll(".palyaim-helyszin-choice").forEach(function (radio) {
-        radio.checked = radio.value === selectedLocation;
+        radio.checked = radio.value === kivalasztottHelyszin;
       });
     }
 
-    function initHelyszinModal() {
-      renderHelyszinOptions("palyaimBudapestKeruletekContainer", budapestKeruletek, "palyaim_kerulet");
-      renderHelyszinOptions("palyaimMegyekContainer", megyek, "palyaim_megye");
-      renderHelyszinOptions("palyaimVarosokContainer", varosok, "palyaim_varos");
-      syncHelyszinRadios();
-      updateHelyszinSummary();
+    // A helyszínválasztó modal tartalmát inicializálja.
+    function helyszinValasztoModalInditasa() {
+      helyszinOpcioRenderelese("palyaimBudapestKeruletekContainer", budapestKeruletek, "palyaim_kerulet");
+      helyszinOpcioRenderelese("palyaimMegyekContainer", megyek, "palyaim_megye");
+      helyszinOpcioRenderelese("palyaimVarosokContainer", varosok, "palyaim_varos");
+      helyszinRadioSzinkronizalasa();
+      helyszinOsszegzesFrissitese();
 
       document.querySelectorAll(".palyaim-helyszin-choice").forEach(function (radio) {
-        radio.addEventListener("change", function (event) {
-          selectedLocation = event.target.value || "";
-          updateHelyszinSummary();
+        radio.addEventListener("change", function (esemeny) {
+          kivalasztottHelyszin = esemeny.target.value || "";
+          helyszinOsszegzesFrissitese();
         });
       });
     }
 
-    function formatPrice(value) {
-      return Number(value).toLocaleString("hu-HU") + " Ft/óra";
-    }
-
-    function getPrimaryImage(field) {
-      var list = parseImageUrls(field && field.kep_url);
-      if (list.length) return absoluteImageUrl(list[0]);
+    // A pálya elsődleges képét adja vissza megjelenítéshez.
+    function elsoKepLekerdezese(palya) {
+      var kepLista = kepUrlokFeldolgozasa(palya && palya.kep_url);
+      if (kepLista.length) return abszolutKepUrl(kepLista[0]);
       return "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1000&q=80&auto=format&fit=crop";
     }
 
-    function renderModalImagePreview() {
-      if (!modalKepekPreview) return;
-      var images = uploadedImageUrls.slice();
-      if (!images.length) {
-        modalKepekPreview.innerHTML = '<span class="text-muted small">Nincs kiválasztott kép.</span>';
+    // A modal kiválasztott képeinek előnézetét frissíti.
+    function modalKepEloNezetRenderelese() {
+      if (!modalKepekEloNezet) return;
+      var kepek = feltoltottKepUrlok.slice();
+      if (!kepek.length) {
+        modalKepekEloNezet.innerHTML = '<span class="text-muted small">Nincs kiválasztott kép.</span>';
         return;
       }
-      modalKepekPreview.innerHTML = images.map(function (imgUrl) {
-        var abs = absoluteImageUrl(imgUrl);
-        return '<img src="' + abs + '" alt="Pályakép" style="width:92px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e9ecef;">';
+      modalKepekEloNezet.innerHTML = kepek.map(function (kepUrl) {
+        var abszolut = abszolutKepUrl(kepUrl);
+        return '<img src="' + abszolut + '" alt="Pályakép" style="width:92px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #e9ecef;">';
       }).join("");
     }
 
-    async function uploadSelectedImages() {
-      if (!modalKepekInput || !modalKepekInput.files || !modalKepekInput.files.length) {
+    // A modalban kiválasztott képfájlokat feltölti a szerverre.
+    async function kivalasztottKepekFeltoltese() {
+      if (!modalKepekMezo || !modalKepekMezo.files || !modalKepekMezo.files.length) {
         return [];
       }
 
-      var formData = new FormData();
-      Array.from(modalKepekInput.files).forEach(function (file) {
-        formData.append("images", file);
+      var formAdat = new FormData();
+      Array.from(modalKepekMezo.files).forEach(function (fajl) {
+        formAdat.append("images", fajl);
       });
 
-      var response = await fetch(API_BASE + "/api/palyak/upload-images", {
+      var valasz = await fetch(API_ALAP + "/api/palyak/upload-images", {
         method: "POST",
-        body: formData,
+        body: formAdat,
       });
-      var data = await response.json().catch(function () { return {}; });
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Képfeltöltés sikertelen");
+      var adat = await valasz.json().catch(function () { return {}; });
+      if (!valasz.ok) {
+        throw new Error(adat.error || adat.message || "Képfeltöltés sikertelen");
       }
-      return Array.isArray(data.urls) ? data.urls : [];
+      return Array.isArray(adat.urls) ? adat.urls : [];
     }
 
-    function renderFields() {
-      if (!fields.length) {
-        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Még nincs saját pálya.</div></div>';
+    // A saját pályák kártyáit kirendereli.
+    function palyakRenderelese() {
+      if (!palyak.length) {
+        sajatPalyakLista.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Még nincs saját pálya.</div></div>';
         return;
       }
 
-      myFieldsList.innerHTML = fields.map(function (field) {
-        var kep = field.kep_url && field.kep_url.trim()
-          ? getPrimaryImage(field)
+      sajatPalyakLista.innerHTML = palyak.map(function (palya) {
+        var kep = palya.kep_url && palya.kep_url.trim()
+          ? elsoKepLekerdezese(palya)
           : "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1000&q=80&auto=format&fit=crop";
         return (
           '<div class="col-12 col-md-6 col-lg-4">' +
             '<div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">' +
               '<div class="ratio ratio-16x9">' +
-                '<img src="' + kep + '" class="w-100 h-100 object-fit-cover" alt="' + field.nev + '">' +
+                '<img src="' + kep + '" class="w-100 h-100 object-fit-cover" alt="' + palya.nev + '">' +
               "</div>" +
               '<div class="card-body p-3 p-lg-4 d-flex flex-column">' +
-                '<h3 class="h6 mb-2">' + field.nev + "</h3>" +
-                '<p class="small mb-2 lh-sm"><strong>Sportág:</strong> ' + field.sportag + "</p>" +
-                '<p class="small mb-2 lh-sm"><strong>Helyszín:</strong> ' + field.helyszin + "</p>" +
-                '<p class="small mb-2 lh-sm"><strong>Ár:</strong> ' + formatPrice(field.ar_ora) + "</p>" +
-                '<p class="small mb-0 lh-sm"><strong>Foglalások száma:</strong> ' + (field.foglalasok_szama || 0) + "</p>" +
+                '<h3 class="h6 mb-2">' + palya.nev + "</h3>" +
+                '<p class="small mb-2 lh-sm"><strong>Sportág:</strong> ' + palya.sportag + "</p>" +
+                '<p class="small mb-2 lh-sm"><strong>Helyszín:</strong> ' + palya.helyszin + "</p>" +
+                '<p class="small mb-2 lh-sm"><strong>Ár:</strong> ' + seged.arSzoveg(palya.ar_ora, " Ft/óra") + "</p>" +
+                '<p class="small mb-0 lh-sm"><strong>Foglalások száma:</strong> ' + (palya.foglalasok_szama || 0) + "</p>" +
                 '<div class="d-flex gap-2 mt-3 mt-auto">' +
-                  '<button class="btn btn-outline-primary btn-sm flex-fill mt-2" type="button" data-action="edit" data-id="' + field.palya_id + '">Módosítás</button>' +
-                  '<button class="btn btn-outline-danger btn-sm flex-fill mt-2" type="button" data-action="delete" data-id="' + field.palya_id + '">Törlés</button>' +
+                  '<button class="btn btn-outline-primary btn-sm flex-fill mt-2" type="button" data-action="edit" data-id="' + palya.palya_id + '">Módosítás</button>' +
+                  '<button class="btn btn-outline-danger btn-sm flex-fill mt-2" type="button" data-action="delete" data-id="' + palya.palya_id + '">Törlés</button>' +
                 "</div>" +
               "</div>" +
             "</div>" +
@@ -368,221 +260,227 @@
       }).join("");
     }
 
-    function resetModalForm() {
-      editingId = null;
-      if (modalPalyaIdInput) modalPalyaIdInput.value = "";
-      modalForm.reset();
-      modalNyitasInput.value = "08:00";
-      modalZarasInput.value = "20:00";
-      selectedLocation = "";
-      uploadedImageUrls = [];
-      if (modalKepekInput) modalKepekInput.value = "";
-      renderModalImagePreview();
-      syncHelyszinRadios();
-      updateHelyszinSummary();
-      if (modalTitle) modalTitle.textContent = "Új pálya hozzáadása";
-      modalSaveButton.textContent = "Hozzáadás";
+    // A pálya modal űrlapot alaphelyzetbe állítja.
+    function modalUrlapAlaphelyzetbe() {
+      szerkesztettPalyaId = null;
+      if (modalPalyaIdMezo) modalPalyaIdMezo.value = "";
+      palyaModalUrlap.reset();
+      modalNyitasMezo.value = "08:00";
+      modalZarasMezo.value = "20:00";
+      kivalasztottHelyszin = "";
+      feltoltottKepUrlok = [];
+      if (modalKepekMezo) modalKepekMezo.value = "";
+      modalKepEloNezetRenderelese();
+      helyszinRadioSzinkronizalasa();
+      helyszinOsszegzesFrissitese();
+      if (modalCim) modalCim.textContent = "Új pálya hozzáadása";
+      palyaModalMentesGomb.textContent = "Hozzáadás";
     }
 
-    function toTimeInput(value, fallback) {
-      if (!value) return fallback;
-      return String(value).slice(0, 5);
+    // Időértéket a time input mező formátumára vág.
+    function idoMezoErteke(ertek, alapertelmezett) {
+      if (!ertek) return alapertelmezett;
+      return String(ertek).slice(0, 5);
     }
 
-    function startEditing(fieldId) {
-      var field = fields.find(function (f) { return Number(f.palya_id) === Number(fieldId); });
-      if (!field) return;
+    // Kiválasztott pálya adatait betölti szerkesztéshez.
+    function szerkesztesInditasa(palyaId) {
+      var palya = palyak.find(function (elem) { return Number(elem.palya_id) === Number(palyaId); });
+      if (!palya) return;
 
-      editingId = Number(field.palya_id);
-      if (modalPalyaIdInput) modalPalyaIdInput.value = String(editingId);
-      modalNevInput.value = field.nev || "";
-      modalSportagInput.value = field.sportag || "";
-      modalHelyszinInput.value = field.helyszin || "";
-      selectedLocation = field.helyszin || "";
-      syncHelyszinRadios();
-      updateHelyszinSummary();
-      modalArInput.value = String(field.ar_ora || "");
-      modalKepUrlInput.value = field.kep_url || "";
-      uploadedImageUrls = parseImageUrls(field.kep_url);
-      if (uploadedImageUrls.length > 1 || (uploadedImageUrls[0] && uploadedImageUrls[0].startsWith("/uploads/"))) {
-        modalKepUrlInput.value = "";
+      szerkesztettPalyaId = Number(palya.palya_id);
+      if (modalPalyaIdMezo) modalPalyaIdMezo.value = String(szerkesztettPalyaId);
+      modalNevMezo.value = palya.nev || "";
+      modalSportagMezo.value = palya.sportag || "";
+      modalHelyszinMezo.value = palya.helyszin || "";
+      kivalasztottHelyszin = palya.helyszin || "";
+      helyszinRadioSzinkronizalasa();
+      helyszinOsszegzesFrissitese();
+      modalArMezo.value = String(palya.ar_ora || "");
+      modalKepUrlMezo.value = palya.kep_url || "";
+      feltoltottKepUrlok = kepUrlokFeldolgozasa(palya.kep_url);
+      if (feltoltottKepUrlok.length > 1 || (feltoltottKepUrlok[0] && feltoltottKepUrlok[0].startsWith("/uploads/"))) {
+        modalKepUrlMezo.value = "";
       }
-      if (modalKepekInput) modalKepekInput.value = "";
-      renderModalImagePreview();
-      modalLeirasInput.value = field.leiras || "";
-      modalNyitasInput.value = toTimeInput(field.nyitas, "08:00");
-      modalZarasInput.value = toTimeInput(field.zaras, "20:00");
-      if (modalTitle) modalTitle.textContent = "Pálya módosítása";
-      modalSaveButton.textContent = "Mentés";
+      if (modalKepekMezo) modalKepekMezo.value = "";
+      modalKepEloNezetRenderelese();
+      modalLeirasMezo.value = palya.leiras || "";
+      modalNyitasMezo.value = idoMezoErteke(palya.nyitas, "08:00");
+      modalZarasMezo.value = idoMezoErteke(palya.zaras, "20:00");
+      if (modalCim) modalCim.textContent = "Pálya módosítása";
+      palyaModalMentesGomb.textContent = "Mentés";
       palyaModal.show();
     }
 
-    async function deleteField(fieldId) {
-      var confirmResult = await confirmAction("Biztosan törölni szeretnéd ezt a pályát?");
-      if (!confirmResult.isConfirmed) return;
+    // Egy pályát megerősítés után töröl.
+    async function palyaTorlese(palyaId) {
+      var megerosites = await muveletMegerositese("Biztosan törölni szeretnéd ezt a pályát?");
+      if (!megerosites.isConfirmed) return;
       try {
-        var response = await fetch(API_BASE + "/api/palyak/" + fieldId, { method: "DELETE" });
-        var data = await response.json().catch(function () { return {}; });
-        if (!response.ok) throw new Error(data.error || data.message || "Tőrlési hiba");
-        await fetchFields();
-      } catch (error) {
-        console.error(error);
-        showError("Hiba a pálya törlésekor: " + error.message);
+        var valasz = await fetch(API_ALAP + "/api/palyak/" + palyaId, { method: "DELETE" });
+        var adat = await valasz.json().catch(function () { return {}; });
+        if (!valasz.ok) throw new Error(adat.error || adat.message || "Törlési hiba");
+        await palyakLekerdezese();
+      } catch (hiba) {
+        console.error(hiba);
+        hibaMegjelenitese("Hiba a pálya törlésekor: " + hiba.message);
       }
     }
 
-    async function fetchFields() {
+    // A tulajdonos pályáit lekéri és frissíti a listát.
+    async function palyakLekerdezese() {
       try {
-        var response = await fetch(API_BASE + "/api/palyak/owner/" + getUserId(user));
-        if (!response.ok) throw new Error("Pálya lekérési hiba");
-        fields = await response.json();
-        renderFields();
-      } catch (error) {
-        console.error(error);
-        myFieldsList.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a pályák betőltésekor.</div></div>';
+        var valasz = await fetch(API_ALAP + "/api/palyak/owner/" + felhasznaloAzonosito(felhasznalo));
+        if (!valasz.ok) throw new Error("Pálya lekérési hiba");
+        palyak = await valasz.json();
+        palyakRenderelese();
+      } catch (hiba) {
+        console.error(hiba);
+        sajatPalyakLista.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a pályák betöltésekor.</div></div>';
       }
     }
 
-    async function saveFromModal() {
-      if (!modalForm.checkValidity()) {
-        modalForm.reportValidity();
+    // A modal űrlap adatait validálja és menti.
+    async function modalMentes() {
+      if (!palyaModalUrlap.checkValidity()) {
+        palyaModalUrlap.reportValidity();
         return;
       }
 
-      var payload = {
-        tulaj_id: getUserId(user),
-        nev: modalNevInput.value.trim(),
-        sportag: modalSportagInput.value,
-        helyszin: modalHelyszinInput.value.trim(),
-        ar_ora: Number(modalArInput.value),
+      var kuldendoAdat = {
+        tulaj_id: felhasznaloAzonosito(felhasznalo),
+        nev: modalNevMezo.value.trim(),
+        sportag: modalSportagMezo.value,
+        helyszin: modalHelyszinMezo.value.trim(),
+        ar_ora: Number(modalArMezo.value),
         kep_url: "",
-        leiras: modalLeirasInput.value.trim(),
-        nyitas: modalNyitasInput.value,
-        zaras: modalZarasInput.value
+        leiras: modalLeirasMezo.value.trim(),
+        nyitas: modalNyitasMezo.value,
+        zaras: modalZarasMezo.value
       };
 
       try {
-        var newUploaded = await uploadSelectedImages();
-        if (newUploaded.length) {
-          uploadedImageUrls = newUploaded;
+        var ujFeltoltottKepek = await kivalasztottKepekFeltoltese();
+        if (ujFeltoltottKepek.length) {
+          feltoltottKepUrlok = ujFeltoltottKepek;
         }
 
-        var manualUrl = modalKepUrlInput.value.trim();
-        var allImages = uploadedImageUrls.slice();
-        if (manualUrl) {
-          allImages.unshift(manualUrl);
+        var manualisKepUrl = modalKepUrlMezo.value.trim();
+        var osszesKep = feltoltottKepUrlok.slice();
+        if (manualisKepUrl) {
+          osszesKep.unshift(manualisKepUrl);
         }
-        allImages = allImages.filter(function (url, index, arr) {
-          return url && arr.indexOf(url) === index;
+        osszesKep = osszesKep.filter(function (url, index, tomb) {
+          return url && tomb.indexOf(url) === index;
         });
 
-        if (allImages.length > 1) {
-          payload.kep_url = JSON.stringify(allImages);
-        } else if (allImages.length === 1) {
-          payload.kep_url = allImages[0];
+        if (osszesKep.length > 1) {
+          kuldendoAdat.kep_url = JSON.stringify(osszesKep);
+        } else if (osszesKep.length === 1) {
+          kuldendoAdat.kep_url = osszesKep[0];
         }
 
-        var endpoint = editingId ? (API_BASE + "/api/palyak/" + editingId) : (API_BASE + "/api/palyak");
-        var method = editingId ? "PUT" : "POST";
-        var response = await fetch(endpoint, {
-          method: method,
+        var vegpont = szerkesztettPalyaId ? (API_ALAP + "/api/palyak/" + szerkesztettPalyaId) : (API_ALAP + "/api/palyak");
+        var httpMetodus = szerkesztettPalyaId ? "PUT" : "POST";
+        var valasz = await fetch(vegpont, {
+          method: httpMetodus,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(kuldendoAdat)
         });
-        var data = await response.json();
-        if (!response.ok) throw new Error(data.error || data.message || "Mentési hiba");
+        var adat = await valasz.json();
+        if (!valasz.ok) throw new Error(adat.error || adat.message || "Mentési hiba");
 
-        resetModalForm();
+        modalUrlapAlaphelyzetbe();
         palyaModal.hide();
-        await fetchFields();
-      } catch (error) {
-        console.error(error);
-        showError("Hiba a pálya mentésekor: " + error.message);
+        await palyakLekerdezese();
+      } catch (hiba) {
+        console.error(hiba);
+        hibaMegjelenitese("Hiba a pálya mentésekor: " + hiba.message);
       }
     }
 
-    modalSaveButton.addEventListener("click", saveFromModal);
-    modalForm.addEventListener("submit", function (event) {
-      event.preventDefault();
-      saveFromModal();
+    palyaModalMentesGomb.addEventListener("click", modalMentes);
+    palyaModalUrlap.addEventListener("submit", function (esemeny) {
+      esemeny.preventDefault();
+      modalMentes();
     });
-    if (openAddFieldModalButton) {
-      openAddFieldModalButton.addEventListener("click", function () {
-        resetModalForm();
+    if (ujPalyaModalNyitasGomb) {
+      ujPalyaModalNyitasGomb.addEventListener("click", function () {
+        modalUrlapAlaphelyzetbe();
       });
     }
-    if (helyszinValasztoBtn && helyszinModal) {
-      helyszinValasztoBtn.addEventListener("click", function (event) {
-        event.preventDefault();
-        syncHelyszinRadios();
-        updateHelyszinSummary();
-        switchingToLocationModal = true;
-        restorePalyaModalAfterLocationModal = true;
+    if (helyszinValasztoMegnyitasGomb && helyszinValasztoModal) {
+      helyszinValasztoMegnyitasGomb.addEventListener("click", function (esemeny) {
+        esemeny.preventDefault();
+        helyszinRadioSzinkronizalasa();
+        helyszinOsszegzesFrissitese();
+        helyszinModalraValtasFolyamatban = true;
+        palyaModalVisszanyitasHelyszinModalUtan = true;
         palyaModal.hide();
       });
     }
-    if (modalKepekInput) {
-      modalKepekInput.addEventListener("change", function () {
-        var selectedFiles = Array.from(modalKepekInput.files || []);
-        if (!selectedFiles.length) {
+    if (modalKepekMezo) {
+      modalKepekMezo.addEventListener("change", function () {
+        var kivalasztottFajlok = Array.from(modalKepekMezo.files || []);
+        if (!kivalasztottFajlok.length) {
           return;
         }
-        uploadedImageUrls = selectedFiles.map(function (file) {
-          return URL.createObjectURL(file);
+        feltoltottKepUrlok = kivalasztottFajlok.map(function (fajl) {
+          return URL.createObjectURL(fajl);
         });
-        renderModalImagePreview();
+        modalKepEloNezetRenderelese();
       });
     }
-    if (palyaimHelyszinTorlesBtn) {
-      palyaimHelyszinTorlesBtn.addEventListener("click", function () {
-        selectedLocation = "";
-        syncHelyszinRadios();
-        updateHelyszinSummary();
+    if (helyszinTorlesGomb) {
+      helyszinTorlesGomb.addEventListener("click", function () {
+        kivalasztottHelyszin = "";
+        helyszinRadioSzinkronizalasa();
+        helyszinOsszegzesFrissitese();
       });
     }
-    if (palyaimHelyszinKivalasztBtn) {
-      palyaimHelyszinKivalasztBtn.addEventListener("click", function () {
-        updateHelyszinSummary();
-        if (helyszinModal) helyszinModal.hide();
+    if (helyszinKivalasztGomb) {
+      helyszinKivalasztGomb.addEventListener("click", function () {
+        helyszinOsszegzesFrissitese();
+        if (helyszinValasztoModal) helyszinValasztoModal.hide();
       });
     }
 
-    myFieldsList.addEventListener("click", function (event) {
-      var button = event.target.closest("button[data-action]");
-      if (!button) return;
-      var action = button.getAttribute("data-action");
-      var id = Number(button.getAttribute("data-id"));
-      if (!id) return;
-      if (action === "edit") startEditing(id);
-      if (action === "delete") deleteField(id);
+    sajatPalyakLista.addEventListener("click", function (esemeny) {
+      var gomb = esemeny.target.closest("button[data-action]");
+      if (!gomb) return;
+      var muvelet = gomb.getAttribute("data-action");
+      var palyaId = Number(gomb.getAttribute("data-id"));
+      if (!palyaId) return;
+      if (muvelet === "edit") szerkesztesInditasa(palyaId);
+      if (muvelet === "delete") palyaTorlese(palyaId);
     });
 
-    modalElement.addEventListener("hidden.bs.modal", function () {
-      if (switchingToLocationModal && helyszinModal) {
-        switchingToLocationModal = false;
-        helyszinModal.show();
+    palyaModalElem.addEventListener("hidden.bs.modal", function () {
+      if (helyszinModalraValtasFolyamatban && helyszinValasztoModal) {
+        helyszinModalraValtasFolyamatban = false;
+        helyszinValasztoModal.show();
         return;
       }
-      resetModalForm();
+      modalUrlapAlaphelyzetbe();
     });
-    if (helyszinModalElement) {
-      helyszinModalElement.addEventListener("hidden.bs.modal", function () {
-        if (restorePalyaModalAfterLocationModal) {
-          restorePalyaModalAfterLocationModal = false;
+    if (helyszinValasztoModalElem) {
+      helyszinValasztoModalElem.addEventListener("hidden.bs.modal", function () {
+        if (palyaModalVisszanyitasHelyszinModalUtan) {
+          palyaModalVisszanyitasHelyszinModalUtan = false;
           palyaModal.show();
         }
       });
     }
 
-    initHelyszinModal();
-    resetModalForm();
-    renderModalImagePreview();
-    fetchFields();
+    helyszinValasztoModalInditasa();
+    modalUrlapAlaphelyzetbe();
+    modalKepEloNezetRenderelese();
+    palyakLekerdezese();
   }
 
-  var user = ensureLoggedIn();
-  if (!user) return;
+  var felhasznalo = bejelentkezesEllenorzese();
+  if (!felhasznalo) return;
 
-  wireSidebar(user);
-  loadPalyaimPage(user);
+  oldalsavBekotese(felhasznalo);
+  palyaimOldalBetoltese(felhasznalo);
 })();

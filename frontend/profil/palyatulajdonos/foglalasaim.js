@@ -1,193 +1,85 @@
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:4000";
-  var pendingContainer = document.getElementById("pendingBookingsContainer");
-  var acceptedContainer = document.getElementById("acceptedBookingsContainer");
-  var rejectedContainer = document.getElementById("rejectedBookingsContainer");
-  var pendingBadge = document.getElementById("pendingBadge");
-  var acceptedBadge = document.getElementById("acceptedBadge");
-  var rejectedBadge = document.getElementById("rejectedBadge");
-  var calendarGrid = document.getElementById("calendarGrid");
-  var calendarMonthLabel = document.getElementById("calendarMonthLabel");
-  var calendarPrevMonth = document.getElementById("calendarPrevMonth");
-  var calendarNextMonth = document.getElementById("calendarNextMonth");
-  var bookingImagesModalEl = document.getElementById("bookingImagesModal");
-  var bookingImagesMain = document.getElementById("bookingImagesMain");
-  var bookingImagesThumbs = document.getElementById("bookingImagesThumbs");
-  var bookingImagesModal = bookingImagesModalEl ? bootstrap.Modal.getOrCreateInstance(bookingImagesModalEl) : null;
-  var bookingImagesById = {};
+  var API_ALAP = "http://localhost:4000";
+  var seged = window.ProfilSeged;
+  var fuggobenKontener = document.getElementById("pendingBookingsContainer");
+  var elfogadottKontener = document.getElementById("acceptedBookingsContainer");
+  var elutasitottKontener = document.getElementById("rejectedBookingsContainer");
+  var fuggobenJelveny = document.getElementById("pendingBadge");
+  var elfogadottJelveny = document.getElementById("acceptedBadge");
+  var elutasitottJelveny = document.getElementById("rejectedBadge");
+  var naptarRacs = document.getElementById("calendarGrid");
+  var naptarHonapCimke = document.getElementById("calendarMonthLabel");
+  var naptarElozoHonapGomb = document.getElementById("calendarPrevMonth");
+  var naptarKovetkezoHonapGomb = document.getElementById("calendarNextMonth");
 
-  if (!pendingContainer || !acceptedContainer || !rejectedContainer || !calendarGrid) return;
+  if (!seged || !fuggobenKontener || !elfogadottKontener || !elutasitottKontener || !naptarRacs) return;
 
-  function readUser() {
-    var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (!raw) return null;
-    try { return JSON.parse(raw); } catch (_) { return null; }
+  var felhasznaloBeolvasasa = seged.felhasznaloBeolvasasa;
+  var felhasznaloAzonosito = seged.felhasznaloAzonosito;
+  var hibaMegjelenitese = seged.hibaMegjelenitese;
+
+  // Relatív képútvonalból teljes URL-t készít.
+  function abszolutKepUrl(url) {
+    return seged.abszolutKepUrl(API_ALAP, url, "https://github.com/mdo.png");
   }
 
-  function getUserId(user) {
-    return user && (user.felhasznalo_id || user.id || user.userId);
-  }
-
-  function showError(message) {
-    return Swal.fire({
-      icon: "error",
-      title: "Hiba",
-      text: message,
-      confirmButtonText: "Rendben"
-    });
-  }
-
-  function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    window.location.href = "../../login.html";
-  }
-
-  function absoluteImageUrl(url) {
-    if (!url) return "https://github.com/mdo.png";
-    return url.startsWith("http") ? url : API_BASE + url;
-  }
-
-  function parseImageUrls(value) {
-    if (!value) return [];
-    if (Array.isArray(value)) {
-      return value.filter(Boolean);
-    }
-    var raw = String(value).trim();
-    if (!raw) return [];
-    if (raw[0] === "[") {
-      try {
-        var parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) {
-          return parsed.filter(Boolean);
-        }
-      } catch (_) {}
-    }
-    return [raw];
-  }
-
-  function initSidebarNotifications(user) {
-    var sidebar = document.querySelector(".profile-sidebar");
-    if (!sidebar) return;
-    if (document.getElementById("sidebarNotificationsBox")) return;
-    var userId = getUserId(user);
-    if (!userId) return;
-
-    var box = document.createElement("div");
-    box.id = "sidebarNotificationsBox";
-    box.className = "mt-3";
-    box.innerHTML =
-      '<button id="sidebarNotifToggle" class="btn btn-outline-light btn-sm w-100" type="button">Értesítés <span id="sidebarNotifBadge" class="badge bg-danger ms-1" style="display:none;">0</span></button>' +
-      '<div id="sidebarNotifDropdown" class="mt-2 p-2 bg-white text-dark rounded shadow-sm" style="display:none;max-height:260px;overflow:auto;">' +
-      '<div class="small text-muted">Nincsenek értesítések</div>' +
-      "</div>";
-    sidebar.appendChild(box);
-
-    var toggle = document.getElementById("sidebarNotifToggle");
-    var badge = document.getElementById("sidebarNotifBadge");
-    var dropdown = document.getElementById("sidebarNotifDropdown");
-
-    toggle.addEventListener("click", function () {
-      dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+  // Oldalsáv profiladatait, avatart és kilépés gombot köti be.
+  function oldalsavBekotese(felhasznalo) {
+    seged.oldalsavAlapBekotes({
+      felhasznalo: felhasznalo,
+      apiAlap: API_ALAP,
+      loginUrl: "../../login.html"
     });
 
-    async function refreshNotifications() {
-      try {
-        var res = await fetch(API_BASE + "/api/notifications/" + userId);
-        if (!res.ok) return;
-        var items = await res.json();
-        var unread = items.filter(function (n) { return !n.olvasott; }).length;
-        if (unread > 0) {
-          badge.style.display = "inline-block";
-          badge.textContent = String(unread);
-        } else {
-          badge.style.display = "none";
-        }
-        if (!items.length) {
-          dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
-          return;
-        }
-        dropdown.innerHTML = items.slice(0, 15).map(function (n) {
-          return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
-            '<div>' + (n.uzenet || "") + "</div>" +
-            '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
-            "</div>";
-        }).join("");
-      } catch (_) {}
-    }
-
-    refreshNotifications();
-    setInterval(refreshNotifications, 5000);
+    var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
+    berleseimElemek.forEach(function (elem) { elem.style.display = ""; });
+    statisztikaElemek.forEach(function (elem) { elem.style.display = ""; });
   }
 
-  function wireSidebar(user) {
-    var names = document.querySelectorAll(".sidebar-user-name");
-    var avatars = document.querySelectorAll(".sidebar-user-avatar");
-    var displayName = user.teljes_nev || user.username || "Felhasználó";
-    names.forEach(function (el) { el.textContent = displayName; });
-    avatars.forEach(function (el) { el.src = absoluteImageUrl(user.profil_kep_url); });
-
-    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn");
-    logoutBtns.forEach(function (btn) {
-      btn.addEventListener("click", function (e) { e.preventDefault(); logout(); });
-    });
-
-    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
-    berleseimItems.forEach(function (item) { item.style.display = ""; });
-    statisztikaItems.forEach(function (item) { item.style.display = ""; });
-  }
-
-  function statusText(status) {
-    if (status === "pending") return "Függőben";
-    if (status === "accepted") return "Elfogadva";
+  // Foglalás státuszához olvasható feliratot ad.
+  function statuszSzoveg(statusz) {
+    if (statusz === "pending") return "Függőben";
+    if (statusz === "accepted") return "Elfogadva";
     return "Elutasítva";
   }
 
-  function statusBadgeClass(status) {
-    if (status === "pending") return "text-bg-warning";
-    if (status === "accepted") return "text-bg-success";
+  // Foglalás státuszához badge osztályt ad.
+  function statuszJelvenyOsztaly(statusz) {
+    if (statusz === "pending") return "text-bg-warning";
+    if (statusz === "accepted") return "text-bg-success";
     return "text-bg-danger";
   }
 
-  function formatDate(iso) {
-    var d = new Date(iso);
-    return d.toLocaleDateString("hu-HU");
+  // ISO dátumból magyar dátumformátumot készít.
+  function datumFormazasa(iso) {
+    var datum = new Date(iso);
+    return datum.toLocaleDateString("hu-HU");
   }
 
-  function formatTime(iso) {
-    var d = new Date(iso);
-    return d.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit", hour12: false });
+  // ISO dátumból magyar időformátumot készít.
+  function idoFormazasa(iso) {
+    var datum = new Date(iso);
+    return datum.toLocaleTimeString("hu-HU", { hour: "2-digit", minute: "2-digit", hour12: false });
   }
 
-  function formatPrice(value) {
-    return Number(value || 0).toLocaleString("hu-HU") + " Ft";
-  }
-
-  function renderBookingCard(booking, withActions) {
-    var imageUrls = parseImageUrls(booking.kep_url);
-    var imagesButton = imageUrls.length
-      ? '<button class="btn btn-outline-primary btn-sm" type="button" data-action="images" data-id="' + booking.foglalas_id + '">Képek megtekintése</button>'
-      : "";
+  // Egy foglalás kártyájának HTML-jét állítja elő.
+  function foglalasKartyaRenderelese(foglalas, legyenMuveletGomb) {
     return (
       '<div class="col-12 col-md-6">' +
       '<div class="card shadow-sm h-100"><div class="card-body d-flex flex-column">' +
-      '<h3 class="h6 mb-1">' + booking.palya_nev + "</h3>" +
-      '<p class="text-muted mb-2">' + booking.sportag + " - " + booking.helyszin + "</p>" +
-      '<p class="mb-1"><strong>Foglaló:</strong> ' + (booking.teljes_nev || "-") + ' <span class="text-muted">(@' + (booking.username || "-") + ")</span></p>" +
-      '<p class="mb-1"><strong>Időpont:</strong> ' + formatDate(booking.kezdes) + ", " + formatTime(booking.kezdes) + " - " + formatTime(booking.vege) + "</p>" +
-      '<p class="mb-1"><strong>Ár:</strong> ' + formatPrice(booking.ar) + "</p>" +
-      '<p class="mb-0"><span class="badge ' + statusBadgeClass(booking.statusz) + '">' + statusText(booking.statusz) + "</span></p>" +
-      '<div class="d-flex gap-2 mt-3 flex-wrap">' + imagesButton + '</div>' +
-      (withActions
+      '<h3 class="h6 mb-1">' + foglalas.palya_nev + "</h3>" +
+      '<p class="text-muted mb-2">' + foglalas.sportag + " - " + foglalas.helyszin + "</p>" +
+      '<p class="mb-1"><strong>Foglaló:</strong> ' + (foglalas.teljes_nev || "-") + ' <span class="text-muted">(@' + (foglalas.username || "-") + ")</span></p>" +
+      '<p class="mb-1"><strong>Időpont:</strong> ' + datumFormazasa(foglalas.kezdes) + ", " + idoFormazasa(foglalas.kezdes) + " - " + idoFormazasa(foglalas.vege) + "</p>" +
+      '<p class="mb-1"><strong>Ár:</strong> ' + seged.arSzoveg(foglalas.ar, " Ft") + "</p>" +
+      '<p class="mb-0"><span class="badge ' + statuszJelvenyOsztaly(foglalas.statusz) + '">' + statuszSzoveg(foglalas.statusz) + "</span></p>" +
+      (legyenMuveletGomb
         ? '<div class="d-flex gap-2 mt-2">' +
-        '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + booking.foglalas_id + '">Elfogadás</button>' +
-        '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + booking.foglalas_id + '">Elutasítás</button>' +
+        '<button class="btn btn-success btn-sm" type="button" data-action="accept" data-id="' + foglalas.foglalas_id + '">Elfogadás</button>' +
+        '<button class="btn btn-danger btn-sm" type="button" data-action="reject" data-id="' + foglalas.foglalas_id + '">Elutasítás</button>' +
         "</div>"
         : "") +
       "</div></div>" +
@@ -195,196 +87,161 @@
     );
   }
 
-  function openImagesModal(foglalasId) {
-    if (!bookingImagesModal || !bookingImagesMain || !bookingImagesThumbs) return;
-    var urls = bookingImagesById[foglalasId] || [];
-    if (!urls.length) return;
-
-    var absoluteUrls = urls.map(function (url) { return absoluteImageUrl(url); });
-    bookingImagesMain.src = absoluteUrls[0];
-    bookingImagesThumbs.innerHTML = absoluteUrls.map(function (url, index) {
-      return '<img src="' + url + '" alt="Pályakép ' + (index + 1) + '" class="booking-image-thumb" data-action="thumb" data-src="' + url + '">';
-    }).join("");
-    bookingImagesModal.show();
-  }
-
-  function renderList(container, list, withActions) {
-    if (!list.length) {
-      container.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs foglalás ebben a kategóriában.</div></div>';
+  // Kategóriánként kirendereli a foglaláslista elemeit.
+  function listaRenderelese(kontener, lista, legyenMuveletGomb) {
+    if (!lista.length) {
+      kontener.innerHTML = '<div class="col-12"><div class="alert alert-light border mb-0">Nincs foglalás ebben a kategóriában.</div></div>';
       return;
     }
-    container.innerHTML = list.map(function (booking) { return renderBookingCard(booking, withActions); }).join("");
+    kontener.innerHTML = lista.map(function (foglalas) { return foglalasKartyaRenderelese(foglalas, legyenMuveletGomb); }).join("");
   }
 
-  var monthNames = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
-  var weekDays = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
-  var bookings = [];
-  var currentDate = new Date();
-  var currentYear = currentDate.getFullYear();
-  var currentMonth = currentDate.getMonth();
+  var honapNevek = ["Január", "Február", "Március", "Április", "Május", "Június", "Július", "Augusztus", "Szeptember", "Október", "November", "December"];
+  var hetNapok = ["H", "K", "Sze", "Cs", "P", "Szo", "V"];
+  var foglalasok = [];
+  var maiDatum = new Date();
+  var aktualisEv = maiDatum.getFullYear();
+  var aktualisHonap = maiDatum.getMonth();
 
-  function isDayBooked(dateText) {
-    return bookings.some(function (booking) {
-      var day = booking.kezdes ? booking.kezdes.slice(0, 10) : "";
-      return day === dateText && (booking.statusz === "pending" || booking.statusz === "accepted");
+  // Eldönti, hogy az adott nap foglalt-e.
+  function napFoglaltE(datumSzoveg) {
+    return foglalasok.some(function (foglalas) {
+      var nap = foglalas.kezdes ? foglalas.kezdes.slice(0, 10) : "";
+      return nap === datumSzoveg && (foglalas.statusz === "pending" || foglalas.statusz === "accepted");
     });
   }
 
-  function getDayBookingCount(dateText) {
-    return bookings.filter(function (booking) {
-      var day = booking.kezdes ? booking.kezdes.slice(0, 10) : "";
-      return day === dateText && (booking.statusz === "pending" || booking.statusz === "accepted");
+  // Megadja egy nap foglalásainak számát.
+  function napFoglalasDarab(datumSzoveg) {
+    return foglalasok.filter(function (foglalas) {
+      var nap = foglalas.kezdes ? foglalas.kezdes.slice(0, 10) : "";
+      return nap === datumSzoveg && (foglalas.statusz === "pending" || foglalas.statusz === "accepted");
     }).length;
   }
 
-  function renderCalendar() {
-    calendarMonthLabel.textContent = monthNames[currentMonth] + " " + String(currentYear);
-    var firstDay = new Date(currentYear, currentMonth, 1);
-    var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    var startWeekday = (firstDay.getDay() + 6) % 7;
+  // A havi naptár táblát kirendereli a foglalások alapján.
+  function naptarRenderelese() {
+    naptarHonapCimke.textContent = honapNevek[aktualisHonap] + " " + String(aktualisEv);
+    var honapElsoNapja = new Date(aktualisEv, aktualisHonap, 1);
+    var napokSzamaAHonapban = new Date(aktualisEv, aktualisHonap + 1, 0).getDate();
+    var kezdoHetnap = (honapElsoNapja.getDay() + 6) % 7;
     var html = '<table class="table table-bordered align-middle text-center mb-0"><thead><tr>' +
-      weekDays.map(function (name) { return '<th class="small text-muted fw-semibold">' + name + "</th>"; }).join("") +
+      hetNapok.map(function (nev) { return '<th class="small text-muted fw-semibold">' + nev + "</th>"; }).join("") +
       "</tr></thead><tbody>";
-    var dayCellCount = 0;
+    var cellaDarab = 0;
     html += "<tr>";
-    for (var i = 0; i < startWeekday; i++) {
+    for (var i = 0; i < kezdoHetnap; i++) {
       html += '<td class="bg-body-tertiary"></td>';
-      dayCellCount += 1;
+      cellaDarab += 1;
     }
-    for (var day = 1; day <= daysInMonth; day++) {
-      var monthText = String(currentMonth + 1).padStart(2, "0");
-      var dayText = String(day).padStart(2, "0");
-      var dateText = String(currentYear) + "-" + monthText + "-" + dayText;
-      var booked = isDayBooked(dateText);
-      var bookingCount = getDayBookingCount(dateText);
-      var cellClass = booked ? "table-warning" : "table-success";
-      html += '<td class="' + cellClass + '" title="' + (booked ? "Foglalt" : "Szabad") + ' - ' + String(bookingCount) + ' foglalás">' +
-        '<div class="fw-semibold">' + String(day) + "</div>" +
-        '<div class="small text-muted">' + String(bookingCount) + " foglalás</div>" +
+    for (var napSorszam = 1; napSorszam <= napokSzamaAHonapban; napSorszam++) {
+      var honapSzoveg = String(aktualisHonap + 1).padStart(2, "0");
+      var napSzoveg = String(napSorszam).padStart(2, "0");
+      var datumSzoveg = String(aktualisEv) + "-" + honapSzoveg + "-" + napSzoveg;
+      var foglalt = napFoglaltE(datumSzoveg);
+      var foglalasDarab = napFoglalasDarab(datumSzoveg);
+      var cellaOsztaly = foglalt ? "table-warning" : "table-success";
+      html += '<td class="' + cellaOsztaly + '" title="' + (foglalt ? "Foglalt" : "Szabad") + ' - ' + String(foglalasDarab) + ' foglalás">' +
+        '<div class="fw-semibold">' + String(napSorszam) + "</div>" +
+        '<div class="small text-muted">' + String(foglalasDarab) + " foglalás</div>" +
         "</td>";
-      dayCellCount += 1;
-      if (dayCellCount % 7 === 0 && day !== daysInMonth) html += "</tr><tr>";
+      cellaDarab += 1;
+      if (cellaDarab % 7 === 0 && napSorszam !== napokSzamaAHonapban) html += "</tr><tr>";
     }
-    while (dayCellCount % 7 !== 0) {
+    while (cellaDarab % 7 !== 0) {
       html += '<td class="bg-body-tertiary"></td>';
-      dayCellCount += 1;
+      cellaDarab += 1;
     }
     html += "</tr></tbody></table>";
-    calendarGrid.innerHTML = html;
+    naptarRacs.innerHTML = html;
   }
 
-  function renderAll() {
-    bookingImagesById = {};
-    bookings.forEach(function (booking) {
-      bookingImagesById[booking.foglalas_id] = parseImageUrls(booking.kep_url);
-    });
-
-    var pending = bookings.filter(function (b) { return b.statusz === "pending"; });
-    var accepted = bookings.filter(function (b) { return b.statusz === "accepted"; });
-    var rejected = bookings.filter(function (b) { return b.statusz === "rejected"; });
-    pendingBadge.textContent = String(pending.length);
-    acceptedBadge.textContent = String(accepted.length);
-    rejectedBadge.textContent = String(rejected.length);
-    renderList(pendingContainer, pending, true);
-    renderList(acceptedContainer, accepted, false);
-    renderList(rejectedContainer, rejected, false);
-    renderCalendar();
+  // A teljes oldal listáit, badge-eit és naptárát frissíti.
+  function mindenRenderelese() {
+    var fuggoben = foglalasok.filter(function (foglalas) { return foglalas.statusz === "pending"; });
+    var elfogadott = foglalasok.filter(function (foglalas) { return foglalas.statusz === "accepted"; });
+    var elutasitott = foglalasok.filter(function (foglalas) { return foglalas.statusz === "rejected"; });
+    fuggobenJelveny.textContent = String(fuggoben.length);
+    elfogadottJelveny.textContent = String(elfogadott.length);
+    elutasitottJelveny.textContent = String(elutasitott.length);
+    listaRenderelese(fuggobenKontener, fuggoben, true);
+    listaRenderelese(elfogadottKontener, elfogadott, false);
+    listaRenderelese(elutasitottKontener, elutasitott, false);
+    naptarRenderelese();
   }
 
-  async function loadBookings(userId) {
-    var response = await fetch(API_BASE + "/api/bookings/owner/" + userId);
-    if (!response.ok) throw new Error("Foglalások lekérése sikertelen");
-    bookings = await response.json();
-    renderAll();
+  // A tulajdonos foglalásait lekéri az API-ból.
+  async function foglalasokBetoltese(felhasznaloId) {
+    var valasz = await fetch(API_ALAP + "/api/bookings/owner/" + felhasznaloId);
+    if (!valasz.ok) throw new Error("Foglalások lekérése sikertelen");
+    foglalasok = await valasz.json();
+    mindenRenderelese();
   }
 
-  async function updateBookingStatus(action, foglalasId) {
-    var endpoint = action === "accept" ? "/api/bookings/accept" : "/api/bookings/reject";
-    var response = await fetch(API_BASE + endpoint, {
+  // Egy foglalás státuszát elfogadásra vagy elutasításra frissíti.
+  async function foglalasStatuszFrissitese(muvelet, foglalasId) {
+    var vegpont = muvelet === "accept" ? "/api/bookings/accept" : "/api/bookings/reject";
+    var valasz = await fetch(API_ALAP + vegpont, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ foglalas_id: foglalasId })
     });
-    if (!response.ok) throw new Error("Státusz frissítése sikertelen");
+    if (!valasz.ok) throw new Error("Státusz frissítése sikertelen");
   }
 
-  pendingContainer.addEventListener("click", async function (event) {
-    var button = event.target.closest("button[data-action]");
-    if (!button) return;
-    var action = button.getAttribute("data-action");
-    var id = Number(button.getAttribute("data-id"));
-    if (!id) return;
-
-    if (action === "images") {
-      openImagesModal(id);
-      return;
-    }
+  fuggobenKontener.addEventListener("click", async function (esemeny) {
+    var gomb = esemeny.target.closest("button[data-action]");
+    if (!gomb) return;
+    var muvelet = gomb.getAttribute("data-action");
+    var foglalasId = Number(gomb.getAttribute("data-id"));
+    if (!foglalasId) return;
 
     try {
-      await updateBookingStatus(action, id);
-      bookings = bookings.map(function (booking) {
-        if (booking.foglalas_id !== id) return booking;
-        return Object.assign({}, booking, { statusz: action === "accept" ? "accepted" : "rejected" });
+      await foglalasStatuszFrissitese(muvelet, foglalasId);
+      foglalasok = foglalasok.map(function (foglalas) {
+        if (foglalas.foglalas_id !== foglalasId) return foglalas;
+        return Object.assign({}, foglalas, { statusz: muvelet === "accept" ? "accepted" : "rejected" });
       });
-      renderAll();
-    } catch (error) {
-      console.error(error);
-      showError("Hiba a foglalás állapotának frissítésekor.");
+      mindenRenderelese();
+    } catch (hiba) {
+      console.error(hiba);
+      hibaMegjelenitese("Hiba a foglalás állapotának frissítésekor.");
     }
   });
 
-  [acceptedContainer, rejectedContainer].forEach(function (container) {
-    container.addEventListener("click", function (event) {
-      var button = event.target.closest('button[data-action="images"]');
-      if (!button) return;
-      var id = Number(button.getAttribute("data-id"));
-      if (!id) return;
-      openImagesModal(id);
-    });
+  naptarElozoHonapGomb.addEventListener("click", function () {
+    aktualisHonap -= 1;
+    if (aktualisHonap < 0) { aktualisHonap = 11; aktualisEv -= 1; }
+    naptarRenderelese();
+  });
+  naptarKovetkezoHonapGomb.addEventListener("click", function () {
+    aktualisHonap += 1;
+    if (aktualisHonap > 11) { aktualisHonap = 0; aktualisEv += 1; }
+    naptarRenderelese();
   });
 
-  if (bookingImagesThumbs) {
-    bookingImagesThumbs.addEventListener("click", function (event) {
-      var thumb = event.target.closest('img[data-action="thumb"]');
-      if (!thumb || !bookingImagesMain) return;
-      var src = thumb.getAttribute("data-src") || "";
-      if (!src) return;
-      bookingImagesMain.src = src;
-    });
-  }
-
-  calendarPrevMonth.addEventListener("click", function () {
-    currentMonth -= 1;
-    if (currentMonth < 0) { currentMonth = 11; currentYear -= 1; }
-    renderCalendar();
-  });
-  calendarNextMonth.addEventListener("click", function () {
-    currentMonth += 1;
-    if (currentMonth > 11) { currentMonth = 0; currentYear += 1; }
-    renderCalendar();
-  });
-
-  var user = readUser();
-  if (!user) {
+  var felhasznalo = felhasznaloBeolvasasa();
+  if (!felhasznalo) {
     window.location.href = "../../login.html";
     return;
   }
-  if (user.szerep !== "palyatulajdonos") {
+  if (felhasznalo.szerep !== "palyatulajdonos") {
     window.location.href = "../berleseim.html";
     return;
   }
 
-  wireSidebar(user);
+  oldalsavBekotese(felhasznalo);
 
-  function refreshOwnerBookings() {
-    return loadBookings(getUserId(user)).catch(function (err) {
-      console.error(err);
-      pendingContainer.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a foglalások betoltesekor.</div></div>';
-      acceptedContainer.innerHTML = "";
-      rejectedContainer.innerHTML = "";
+  // Tulajdonosi foglaláslista periodikus frissítését végzi.
+  function tulajdonosFoglalasokFrissitese() {
+    return foglalasokBetoltese(felhasznaloAzonosito(felhasznalo)).catch(function (hiba) {
+      console.error(hiba);
+      fuggobenKontener.innerHTML = '<div class="col-12"><div class="alert alert-danger mb-0">Hiba a foglalások betöltésekor.</div></div>';
+      elfogadottKontener.innerHTML = "";
+      elutasitottKontener.innerHTML = "";
     });
   }
 
-  refreshOwnerBookings();
-  setInterval(refreshOwnerBookings, 5000);
+  tulajdonosFoglalasokFrissitese();
+  setInterval(tulajdonosFoglalasokFrissitese, 5000);
 })();

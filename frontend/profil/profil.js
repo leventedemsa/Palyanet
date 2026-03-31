@@ -1,289 +1,238 @@
-﻿/* global bootstrap: false */
+/* global bootstrap: false */
 (function () {
   "use strict";
 
   var API_ALAP = "http://localhost:4000";
+  var seged = window.ProfilSeged;
+  if (!seged) return;
 
-  function readUser() {
-    var raw = localStorage.getItem("user") || sessionStorage.getItem("user");
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw);
-    } catch (_) {
-      return null;
-    }
-  }
+  var felhasznaloBeolvasasa = seged.felhasznaloBeolvasasa;
+  var felhasznaloMentese = seged.felhasznaloMentese;
+  var felhasznaloAzonosito = seged.felhasznaloAzonosito;
+  var sikerMegjelenitese = seged.sikerMegjelenitese;
+  var hibaMegjelenitese = seged.hibaMegjelenitese;
+  var figyelmeztetesMegjelenitese = seged.figyelmeztetesMegjelenitese;
+  var muveletMegerositese = seged.muveletMegerositese;
 
-  function writeUser(user) {
-    if (!user) return;
-    var json = JSON.stringify(user);
-    localStorage.setItem("user", json);
-    sessionStorage.setItem("user", json);
-  }
-
-  function ensureLoggedIn() {
-    var user = readUser();
-    if (!user) {
+  // Ellenőrzi a belépést, és hiány esetén a login oldalra irányít.
+  function bejelentkezesEllenorzese() {
+    var felhasznalo = felhasznaloBeolvasasa();
+    if (!felhasznalo) {
       window.location.href = "../login.html";
       return null;
     }
-    return user;
+    return felhasznalo;
   }
 
-  function getUserId(user) {
-    return user && (user.felhasznalo_id || user.id || user.userId);
-  }
-
-  function showSuccess(message) {
-    return Swal.fire({
-      icon: "success",
-      title: "Sikeres művelet",
-      text: message,
-      confirmButtonText: "Rendben"
-    });
-  }
-
-  function showError(message) {
-    return Swal.fire({
-      icon: "error",
-      title: "Hiba",
-      text: message,
-      confirmButtonText: "Rendben"
-    });
-  }
-
-  function showWarning(message) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Figyelem",
-      text: message,
-      confirmButtonText: "Rendben"
-    });
-  }
-
-  function confirmAction(message) {
-    return Swal.fire({
-      icon: "warning",
-      title: "Megerősítés",
-      text: message,
-      showCancelButton: true,
-      confirmButtonText: "Igen",
-      cancelButtonText: "Mégsem"
-    });
-  }
-
-  function roleLabel(szerep) {
+  // A szerepkódhoz olvasható magyar címkét ad.
+  function szerepCimke(szerep) {
     if (szerep === "admin") return "Admin";
     return szerep === "palyatulajdonos" ? "Pályatulajdonos" : "Bérlő";
   }
 
-  function toggleDeletePictureButton(show) {
-    var deletePictureBtn = document.getElementById("deletePictureBtn");
-    if (!deletePictureBtn) return;
-    deletePictureBtn.classList.toggle("d-none", !show);
+  // A profilkép törlés gomb láthatóságát állítja.
+  function profilKepTorlesGombAllitasa(lathato) {
+    var torlesGomb = document.getElementById("deletePictureBtn");
+    if (!torlesGomb) return;
+    torlesGomb.classList.toggle("d-none", !lathato);
   }
 
-  function initSidebarNotifications(user) {
-    var sidebars = document.querySelectorAll(".profile-sidebar");
-    if (!sidebars.length) return;
-    var userId = getUserId(user);
-    if (!userId) return;
-    var widgets = [];
+  // Oldalsáv értesítéseit felépíti és rendszeresen frissíti.
+  function oldalsavErtesitesekInditasa(felhasznalo) {
+    var oldalsavak = document.querySelectorAll(".profile-sidebar");
+    if (!oldalsavak.length) return;
+    var felhasznaloId = felhasznaloAzonosito(felhasznalo);
+    if (!felhasznaloId) return;
+    var widgetek = [];
 
-    sidebars.forEach(function (sidebar) {
-      if (sidebar.querySelector(".sidebar-notifications-box")) return;
-      var box = document.createElement("div");
-      box.className = "sidebar-notifications-box mt-3";
-      box.innerHTML =
+    oldalsavak.forEach(function (oldalsav) {
+      if (oldalsav.querySelector(".sidebar-notifications-box")) return;
+      var doboz = document.createElement("div");
+      doboz.className = "sidebar-notifications-box mt-3";
+      doboz.innerHTML =
         '<button class="btn btn-outline-secondary btn-sm w-100 sidebar-notif-toggle" type="button">Értesítés <span class="badge bg-danger ms-1 sidebar-notif-badge" style="display:none;">0</span></button>' +
         '<div class="mt-2 p-2 bg-white text-dark rounded shadow-sm sidebar-notif-dropdown" style="display:none;max-height:260px;overflow:auto;">' +
         '<div class="small text-muted">Nincsenek értesítések</div>' +
         "</div>";
-      sidebar.appendChild(box);
+      oldalsav.appendChild(doboz);
 
-      var toggle = box.querySelector(".sidebar-notif-toggle");
-      var badge = box.querySelector(".sidebar-notif-badge");
-      var dropdown = box.querySelector(".sidebar-notif-dropdown");
-      if (!toggle || !badge || !dropdown) return;
+      var kapcsolo = doboz.querySelector(".sidebar-notif-toggle");
+      var jelveny = doboz.querySelector(".sidebar-notif-badge");
+      var legordulo = doboz.querySelector(".sidebar-notif-dropdown");
+      if (!kapcsolo || !jelveny || !legordulo) return;
 
-      toggle.addEventListener("click", function () {
-        dropdown.style.display = dropdown.style.display === "none" ? "block" : "none";
+      kapcsolo.addEventListener("click", function () {
+        legordulo.style.display = legordulo.style.display === "none" ? "block" : "none";
       });
-      widgets.push({ badge: badge, dropdown: dropdown });
+      widgetek.push({ jelveny: jelveny, legordulo: legordulo });
     });
-    if (!widgets.length) return;
+    if (!widgetek.length) return;
 
-    async function refreshNotifications() {
+    // Az értesítések adatait lekéri és frissíti minden oldalsáv widgetet.
+    async function ertesitesekFrissitese() {
       try {
-        var res = await fetch(API_ALAP + "/api/notifications/" + userId);
-        if (!res.ok) return;
-        var items = await res.json();
-        var unread = items.filter(function (n) { return !n.olvasott; }).length;
-        var html = items.slice(0, 15).map(function (n) {
+        var valasz = await fetch(API_ALAP + "/api/notifications/" + felhasznaloId);
+        if (!valasz.ok) return;
+        var tetelek = await valasz.json();
+        var olvasatlanDarab = tetelek.filter(function (ertesites) { return !ertesites.olvasott; }).length;
+        var html = tetelek.slice(0, 15).map(function (ertesites) {
           return '<div class="small border-bottom pb-2 mb-2">' +
-            '<div style="font-weight:600;">' + (n.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
-            '<div>' + (n.uzenet || "") + "</div>" +
-            '<div class="text-muted">' + new Date(n.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
+            '<div style="font-weight:600;">' + (ertesites.olvasott ? "Értesítés" : "Új értesítés") + "</div>" +
+            '<div>' + (ertesites.uzenet || "") + "</div>" +
+            '<div class="text-muted">' + new Date(ertesites.letrehozva).toLocaleString("hu-HU", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }) + "</div>" +
             "</div>";
         }).join("");
-        widgets.forEach(function (widget) {
-          if (unread > 0) {
-            widget.badge.style.display = "inline-block";
-            widget.badge.textContent = String(unread);
+        widgetek.forEach(function (widget) {
+          if (olvasatlanDarab > 0) {
+            widget.jelveny.style.display = "inline-block";
+            widget.jelveny.textContent = String(olvasatlanDarab);
           } else {
-            widget.badge.style.display = "none";
+            widget.jelveny.style.display = "none";
           }
-          if (!items.length) {
-            widget.dropdown.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
+          if (!tetelek.length) {
+            widget.legordulo.innerHTML = '<div class="small text-muted">Nincsenek értesítések</div>';
             return;
           }
-          widget.dropdown.innerHTML = html;
+          widget.legordulo.innerHTML = html;
         });
       } catch (_) {}
     }
 
-    refreshNotifications();
-    setInterval(refreshNotifications, 5000);
+    ertesitesekFrissitese();
+    setInterval(ertesitesekFrissitese, 5000);
   }
 
-  function absoluteImageUrl(url) {
-    if (!url) return "";
-    return url.startsWith("http") ? url : API_ALAP + url;
+  // Relatív képútvonalból teljes URL-t készít.
+  function abszolutKepUrl(url) {
+    return seged.abszolutKepUrl(API_ALAP, url, "");
   }
 
-  function wireSidebar(user) {
-    var palyaimItems = document.querySelectorAll('[data-sidebar-item="palyaim"]');
-    var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
-    var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
-    var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var bejelentesekItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
-    var adminPalyakItems = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
-    var adminFelhasznalokItems = document.querySelectorAll('[data-sidebar-item="admin-felhasznalok"]');
-    var adminLogokItems = document.querySelectorAll('[data-sidebar-item="admin-logok"]');
-    var isOwner = user.szerep === "palyatulajdonos";
-    var isAdmin = user.szerep === "admin";
+  // Oldalsáv menüpontjait és profiladatait állítja be.
+  function oldalsavBekotese(felhasznalo) {
+    var palyaimElemek = document.querySelectorAll('[data-sidebar-item="palyaim"]');
+    var foglalasaimElemek = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
+    var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
+    var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
+    var bejelentesekElemek = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
+    var adminPalyakElemek = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
+    var adminFelhasznalokElemek = document.querySelectorAll('[data-sidebar-item="admin-felhasznalok"]');
+    var adminLogokElemek = document.querySelectorAll('[data-sidebar-item="admin-logok"]');
+    var palyatulajdonosE = felhasznalo.szerep === "palyatulajdonos";
+    var adminE = felhasznalo.szerep === "admin";
 
-    palyaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    foglalasaimItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    statisztikaItems.forEach(function (item) { item.style.display = isOwner ? "" : "none"; });
-    berleseimItems.forEach(function (item) { item.style.display = isAdmin ? "none" : ""; });
-    bejelentesekItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
-    adminPalyakItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
-    adminFelhasznalokItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
-    adminLogokItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
+    palyaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    foglalasaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    statisztikaElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
+    berleseimElemek.forEach(function (elem) { elem.style.display = adminE ? "none" : ""; });
+    bejelentesekElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+    adminPalyakElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+    adminFelhasznalokElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+    adminLogokElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
 
-    var dropdownNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
-    var dropdownAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
-    var displayName = user.teljes_nev || user.username || "Felhasználó";
-    dropdownNames.forEach(function (el) { el.textContent = displayName; });
-    dropdownAvatars.forEach(function (el) {
-      if (user.profil_kep_url) el.src = absoluteImageUrl(user.profil_kep_url);
-    });
-
-    var logoutBtns = document.querySelectorAll(".sidebar-logout-btn, #sidebarLogoutBtn");
-    logoutBtns.forEach(function (logoutBtn) {
-      logoutBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        sessionStorage.removeItem("token");
-        sessionStorage.removeItem("user");
-        window.location.href = "../login.html";
-      });
+    seged.oldalsavAlapBekotes({
+      felhasznalo: felhasznalo,
+      apiAlap: API_ALAP,
+      nevSelector: ".sidebar-user-name, #sidebarUserName",
+      avatarSelector: ".sidebar-user-avatar, #sidebarUserAvatar",
+      kijelentkezesSelector: ".sidebar-logout-btn, #sidebarLogoutBtn",
+      loginUrl: "../login.html"
     });
   }
 
-  function gyorsStatisztikaBeallitas(items) {
-    var label1 = document.getElementById("quickStat1Label");
-    var label2 = document.getElementById("quickStat2Label");
-    var label3 = document.getElementById("quickStat3Label");
-    var value1 = document.getElementById("quickStat1Value");
-    var value2 = document.getElementById("quickStat2Value");
-    var value3 = document.getElementById("quickStat3Value");
-    if (!label1 || !label2 || !label3 || !value1 || !value2 || !value3) return;
+  // A gyors statisztika mezők értékeit beállítja.
+  function gyorsStatisztikaBeallitasa(tetelek) {
+    var cimke1 = document.getElementById("quickStat1Label");
+    var cimke2 = document.getElementById("quickStat2Label");
+    var cimke3 = document.getElementById("quickStat3Label");
+    var ertek1 = document.getElementById("quickStat1Value");
+    var ertek2 = document.getElementById("quickStat2Value");
+    var ertek3 = document.getElementById("quickStat3Value");
+    if (!cimke1 || !cimke2 || !cimke3 || !ertek1 || !ertek2 || !ertek3) return;
 
-    var safe = (items || []).slice(0, 3);
-    while (safe.length < 3) safe.push({ label: "-", value: "-" });
-    label1.textContent = safe[0].label;
-    label2.textContent = safe[1].label;
-    label3.textContent = safe[2].label;
-    value1.textContent = safe[0].value;
-    value2.textContent = safe[1].value;
-    value3.textContent = safe[2].value;
+    var biztonsagosTetelek = (tetelek || []).slice(0, 3);
+    while (biztonsagosTetelek.length < 3) biztonsagosTetelek.push({ label: "-", value: "-" });
+    cimke1.textContent = biztonsagosTetelek[0].label;
+    cimke2.textContent = biztonsagosTetelek[1].label;
+    cimke3.textContent = biztonsagosTetelek[2].label;
+    ertek1.textContent = biztonsagosTetelek[0].value;
+    ertek2.textContent = biztonsagosTetelek[1].value;
+    ertek3.textContent = biztonsagosTetelek[2].value;
   }
 
-  function formatDateOnly(value) {
-    if (!value) return "-";
-    var date = new Date(value);
-    if (Number.isNaN(date.getTime())) return "-";
-    var year = String(date.getFullYear());
-    var month = String(date.getMonth() + 1).padStart(2, "0");
-    var day = String(date.getDate()).padStart(2, "0");
-    return year + "." + month + "." + day;
+  // Dátumot magyar rövid formátumra alakít.
+  function datumFormazasa(ertek) {
+    if (!ertek) return "-";
+    var datum = new Date(ertek);
+    if (Number.isNaN(datum.getTime())) return "-";
+    var ev = String(datum.getFullYear());
+    var honap = String(datum.getMonth() + 1).padStart(2, "0");
+    var nap = String(datum.getDate()).padStart(2, "0");
+    return ev + "." + honap + "." + nap;
   }
 
-  async function gyorsStatisztikaBetoltes(user) {
-    var hasStatsArea = document.getElementById("quickStat1Value");
-    if (!hasStatsArea) return;
-    var userId = getUserId(user);
-    if (!userId) {
-      gyorsStatisztikaBeallitas([]);
+  // A szerephez tartozó gyors statisztikákat lekéri és megjeleníti.
+  async function gyorsStatisztikaBetoltese(felhasznalo) {
+    var statTerulet = document.getElementById("quickStat1Value");
+    if (!statTerulet) return;
+    var felhasznaloId = felhasznaloAzonosito(felhasznalo);
+    if (!felhasznaloId) {
+      gyorsStatisztikaBeallitasa([]);
       return;
     }
 
     try {
-      if (user.szerep === "palyatulajdonos") {
-        var tulajPalyakValasz = await fetch(API_ALAP + "/api/palyak/owner/" + userId);
-        var tulajFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/owner/" + userId);
+      if (felhasznalo.szerep === "palyatulajdonos") {
+        var tulajPalyakValasz = await fetch(API_ALAP + "/api/palyak/owner/" + felhasznaloId);
+        var tulajFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/owner/" + felhasznaloId);
         var tulajPalyak = tulajPalyakValasz.ok ? await tulajPalyakValasz.json() : [];
         var tulajFoglalasok = tulajFoglalasokValasz.ok ? await tulajFoglalasokValasz.json() : [];
-        var fuggoFoglalasokDarab = tulajFoglalasok.filter(function (b) { return b.statusz === "pending"; }).length;
-        var elfogadottFoglalasokDarab = tulajFoglalasok.filter(function (b) { return b.statusz === "accepted"; }).length;
-        gyorsStatisztikaBeallitas([
+        var fuggobenFoglalasok = tulajFoglalasok.filter(function (foglalas) { return foglalas.statusz === "pending"; }).length;
+        var elfogadottFoglalasok = tulajFoglalasok.filter(function (foglalas) { return foglalas.statusz === "accepted"; }).length;
+        gyorsStatisztikaBeallitasa([
           { label: "Saját pályák", value: String(tulajPalyak.length) },
-          { label: "Függő foglalások", value: String(fuggoFoglalasokDarab) },
-          { label: "Elfogadott foglalások", value: String(elfogadottFoglalasokDarab) }
+          { label: "Függő foglalások", value: String(fuggobenFoglalasok) },
+          { label: "Elfogadott foglalások", value: String(elfogadottFoglalasok) }
         ]);
         return;
       }
 
-      if (user.szerep === "admin") {
-        var bejelentesekValasz = await fetch(API_ALAP + "/api/reports?admin_id=" + userId);
+      if (felhasznalo.szerep === "admin") {
+        var bejelentesekValasz = await fetch(API_ALAP + "/api/reports?admin_id=" + felhasznaloId);
         var bejelentesek = bejelentesekValasz.ok ? await bejelentesekValasz.json() : [];
-        var fuggoBejelentesekDarab = bejelentesek.filter(function (bejelentes) {
+        var fuggobenBejelentesek = bejelentesek.filter(function (bejelentes) {
           return String(bejelentes.statusz || "").toLowerCase() === "pending";
         }).length;
-        var lezartBejelentesekDarab = bejelentesek.filter(function (bejelentes) {
+        var lezartBejelentesek = bejelentesek.filter(function (bejelentes) {
           return String(bejelentes.statusz || "").toLowerCase() !== "pending";
         }).length;
 
-        gyorsStatisztikaBeallitas([
-          { label: "Függő bejelentések", value: String(fuggoBejelentesekDarab) },
-          { label: "Lezárt bejelentések", value: String(lezartBejelentesekDarab) },
+        gyorsStatisztikaBeallitasa([
+          { label: "Függő bejelentések", value: String(fuggobenBejelentesek) },
+          { label: "Lezárt bejelentések", value: String(lezartBejelentesek) },
           { label: "Összes bejelentés", value: String(bejelentesek.length) }
         ]);
         return;
       }
 
-      var berloFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/renter/" + userId);
+      var berloFoglalasokValasz = await fetch(API_ALAP + "/api/bookings/renter/" + felhasznaloId);
       var berloFoglalasok = berloFoglalasokValasz.ok ? await berloFoglalasokValasz.json() : [];
-      var now = new Date();
-      var aktivFoglalasokDarab = berloFoglalasok.filter(function (b) {
-        if (b.statusz === "rejected") return false;
-        return new Date(b.vege) >= now;
+      var most = new Date();
+      var aktivFoglalasok = berloFoglalasok.filter(function (foglalas) {
+        if (foglalas.statusz === "rejected") return false;
+        return new Date(foglalas.vege) >= most;
       }).length;
-      var lejartFoglalasokDarab = berloFoglalasok.filter(function (b) {
-        if (b.statusz === "rejected") return true;
-        return new Date(b.vege) < now;
+      var lejartFoglalasok = berloFoglalasok.filter(function (foglalas) {
+        if (foglalas.statusz === "rejected") return true;
+        return new Date(foglalas.vege) < most;
       }).length;
-      gyorsStatisztikaBeallitas([
-        { label: "Aktív foglalások", value: String(aktivFoglalasokDarab) },
-        { label: "Lejárt foglalások", value: String(lejartFoglalasokDarab) },
+      gyorsStatisztikaBeallitasa([
+        { label: "Aktív foglalások", value: String(aktivFoglalasok) },
+        { label: "Lejárt foglalások", value: String(lejartFoglalasok) },
         { label: "Összes foglalás", value: String(berloFoglalasok.length) }
       ]);
     } catch (_) {
-      if (user && user.szerep === "admin") {
-        gyorsStatisztikaBeallitas([
+      if (felhasznalo && felhasznalo.szerep === "admin") {
+        gyorsStatisztikaBeallitasa([
           { label: "Függő bejelentések", value: "-" },
           { label: "Lezárt bejelentések", value: "-" },
           { label: "Összes bejelentés", value: "-" }
@@ -291,7 +240,7 @@
         return;
       }
 
-      gyorsStatisztikaBeallitas([
+      gyorsStatisztikaBeallitasa([
         { label: "Aktív foglalások", value: "-" },
         { label: "Lejárt foglalások", value: "-" },
         { label: "Összes foglalás", value: "-" }
@@ -299,284 +248,290 @@
     }
   }
 
-  async function loadProfilePage(user) {
-    var usernameValue = document.getElementById("profileUsernameValue");
-    if (!usernameValue) return;
-    var currentProfile = Object.assign({}, user);
+  // A profil oldal működését inicializálja és kezeli.
+  async function profilOldalBetoltese(felhasznalo) {
+    var profilFelhasznalonevErtek = document.getElementById("profileUsernameValue");
+    if (!profilFelhasznalonevErtek) return;
+    var aktualisProfil = Object.assign({}, felhasznalo);
 
-    function paint(profileData) {
-      var displayName = profileData.teljes_nev || profileData.username || "Felhasználó";
-      var avatarUrl = profileData.profil_kep_url ? absoluteImageUrl(profileData.profil_kep_url) : "https://github.com/mdo.png";
-      var sidebarUserAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
-      var sidebarUserNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
-      currentProfile = Object.assign({}, currentProfile, profileData);
+    // A profil adatait kirajzolja a felületen.
+    function profilKirajzolasa(profilAdat) {
+      var megjelenitendoNev = profilAdat.teljes_nev || profilAdat.username || "Felhasználó";
+      var avatarUrl = profilAdat.profil_kep_url ? abszolutKepUrl(profilAdat.profil_kep_url) : "https://github.com/mdo.png";
+      var oldalsavAvatarok = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");
+      var oldalsavNevek = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
+      aktualisProfil = Object.assign({}, aktualisProfil, profilAdat);
 
-      document.getElementById("profileCardName").textContent = displayName;
-      document.getElementById("profileCardEmail").textContent = profileData.email || "-";
+      document.getElementById("profileCardName").textContent = megjelenitendoNev;
+      document.getElementById("profileCardEmail").textContent = profilAdat.email || "-";
       document.getElementById("profileAvatar").src = avatarUrl;
-      document.getElementById("profileUsernameValue").textContent = profileData.username || "-";
-      document.getElementById("profileFullNameValue").textContent = displayName;
-      document.getElementById("profileEmailValue").textContent = profileData.email || "-";
-      document.getElementById("profileRoleValue").textContent = roleLabel(profileData.szerep);
-      var roleValueSecondary = document.getElementById("profileRoleValueSecondary");
-      if (roleValueSecondary) roleValueSecondary.textContent = roleLabel(profileData.szerep);
-      document.getElementById("profilePhoneValue").textContent = profileData.telefonszam || "-";
-      var createdAt = document.getElementById("profileCreatedAtValue");
-      if (createdAt) createdAt.textContent = formatDateOnly(profileData.letrehozva);
-      toggleDeletePictureButton(!!profileData.profil_kep_url);
-      sidebarUserAvatars.forEach(function (avatar) { avatar.src = avatarUrl; });
-      sidebarUserNames.forEach(function (name) { name.textContent = displayName; });
+      document.getElementById("profileUsernameValue").textContent = profilAdat.username || "-";
+      document.getElementById("profileFullNameValue").textContent = megjelenitendoNev;
+      document.getElementById("profileEmailValue").textContent = profilAdat.email || "-";
+      document.getElementById("profileRoleValue").textContent = szerepCimke(profilAdat.szerep);
+      var masodlagosSzerep = document.getElementById("profileRoleValueSecondary");
+      if (masodlagosSzerep) masodlagosSzerep.textContent = szerepCimke(profilAdat.szerep);
+      document.getElementById("profilePhoneValue").textContent = profilAdat.telefonszam || "-";
+      var letrehozasDatum = document.getElementById("profileCreatedAtValue");
+      if (letrehozasDatum) letrehozasDatum.textContent = datumFormazasa(profilAdat.letrehozva);
+      profilKepTorlesGombAllitasa(!!profilAdat.profil_kep_url);
+      oldalsavAvatarok.forEach(function (avatar) { avatar.src = avatarUrl; });
+      oldalsavNevek.forEach(function (nev) { nev.textContent = megjelenitendoNev; });
     }
 
-    function syncStoredUser(profileData) {
-      var storedUser = readUser();
-      if (!storedUser) return;
-      var merged = Object.assign({}, storedUser, {
-        username: profileData.username || storedUser.username,
-        teljes_nev: profileData.teljes_nev || storedUser.teljes_nev,
-        email: profileData.email || storedUser.email,
-        szerep: profileData.szerep || storedUser.szerep,
-        telefonszam: profileData.telefonszam || storedUser.telefonszam,
-        profil_kep_url: profileData.profil_kep_url || null
+    // A tárolt felhasználó objektumot profil adatokkal frissíti.
+    function taroltFelhasznaloSzinkronizalasa(profilAdat) {
+      var taroltFelhasznalo = felhasznaloBeolvasasa();
+      if (!taroltFelhasznalo) return;
+      var osszefuzott = Object.assign({}, taroltFelhasznalo, {
+        username: profilAdat.username || taroltFelhasznalo.username,
+        teljes_nev: profilAdat.teljes_nev || taroltFelhasznalo.teljes_nev,
+        email: profilAdat.email || taroltFelhasznalo.email,
+        szerep: profilAdat.szerep || taroltFelhasznalo.szerep,
+        telefonszam: profilAdat.telefonszam || taroltFelhasznalo.telefonszam,
+        profil_kep_url: profilAdat.profil_kep_url || null
       });
-      writeUser(merged);
+      felhasznaloMentese(osszefuzott);
     }
 
-    function bindProfilePictureActions() {
-      var fileInput = document.getElementById("profilePictureInput");
-      var uploadBtn = document.getElementById("uploadPictureBtn");
-      var deleteBtn = document.getElementById("deletePictureBtn");
-      if (!fileInput || !uploadBtn || !deleteBtn) return;
-      if (uploadBtn.dataset.bound === "1") return;
-      uploadBtn.dataset.bound = "1";
+    // Profilkép feltöltés és törlés eseményeit köti be.
+    function profilKepMuveletekBekotese() {
+      var fajlBemenet = document.getElementById("profilePictureInput");
+      var feltoltesGomb = document.getElementById("uploadPictureBtn");
+      var torlesGomb = document.getElementById("deletePictureBtn");
+      if (!fajlBemenet || !feltoltesGomb || !torlesGomb) return;
+      if (feltoltesGomb.dataset.bound === "1") return;
+      feltoltesGomb.dataset.bound = "1";
 
-      uploadBtn.addEventListener("click", function () {
-        fileInput.click();
+      feltoltesGomb.addEventListener("click", function () {
+        fajlBemenet.click();
       });
 
-      fileInput.addEventListener("change", async function () {
-        var file = fileInput.files && fileInput.files[0];
-        if (!file) return;
+      fajlBemenet.addEventListener("change", async function () {
+        var fajl = fajlBemenet.files && fajlBemenet.files[0];
+        if (!fajl) return;
 
-        if (!file.type || !file.type.startsWith("image/")) {
-          showWarning("Csak képfájlt lehet feltölteni.");
-          fileInput.value = "";
+        if (!fajl.type || !fajl.type.startsWith("image/")) {
+          figyelmeztetesMegjelenitese("Csak képfájlt lehet feltölteni.");
+          fajlBemenet.value = "";
           return;
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-          showWarning("A kép mérete legfeljebb 5 MB lehet.");
-          fileInput.value = "";
+        if (fajl.size > 5 * 1024 * 1024) {
+          figyelmeztetesMegjelenitese("A kép mérete legfeljebb 5 MB lehet.");
+          fajlBemenet.value = "";
           return;
         }
 
         try {
-          var storedUser = readUser() || user || {};
-          var userId = getUserId(storedUser) || getUserId(currentProfile);
-          if (!userId) throw new Error("Hiányzik a felhasználó azonosítója.");
+          var taroltFelhasznalo = felhasznaloBeolvasasa() || felhasznalo || {};
+          var felhasznaloId = felhasznaloAzonosito(taroltFelhasznalo) || felhasznaloAzonosito(aktualisProfil);
+          if (!felhasznaloId) throw new Error("Hiányzik a felhasználó azonosítója.");
 
-          var formData = new FormData();
-          formData.append("profilePicture", file);
-          formData.append("userId", String(userId));
+          var formAdat = new FormData();
+          formAdat.append("profilePicture", fajl);
+          formAdat.append("userId", String(felhasznaloId));
 
-          var hasCurrentPicture = !!(currentProfile && currentProfile.profil_kep_url);
-          var endpoint = hasCurrentPicture ? "/api/profile/update" : "/api/profile/upload";
-          var method = hasCurrentPicture ? "PUT" : "POST";
+          var vanAktualisKep = !!(aktualisProfil && aktualisProfil.profil_kep_url);
+          var vegpont = vanAktualisKep ? "/api/profile/update" : "/api/profile/upload";
+          var httpMetodus = vanAktualisKep ? "PUT" : "POST";
 
-          var response = await fetch(API_ALAP + endpoint, {
-            method: method,
-            body: formData
+          var valasz = await fetch(API_ALAP + vegpont, {
+            method: httpMetodus,
+            body: formAdat
           });
-          var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || "Profilkép mentési hiba.");
+          var adat = await valasz.json().catch(function () { return {}; });
+          if (!valasz.ok) throw new Error(adat.message || "Profilkép mentési hiba.");
 
-          var nextProfile = Object.assign({}, currentProfile, {
-            profil_kep_url: data.profil_kep_url || null
+          var kovetkezoProfil = Object.assign({}, aktualisProfil, {
+            profil_kep_url: adat.profil_kep_url || null
           });
-          paint(nextProfile);
-          syncStoredUser(nextProfile);
-          fileInput.value = "";
-          showSuccess("Profilkép sikeresen frissítve.");
-        } catch (err) {
-          console.error(err);
-          showError("Hiba a profilkép frissítésekor: " + err.message);
-          fileInput.value = "";
+          profilKirajzolasa(kovetkezoProfil);
+          taroltFelhasznaloSzinkronizalasa(kovetkezoProfil);
+          fajlBemenet.value = "";
+          sikerMegjelenitese("Profilkép sikeresen frissítve.");
+        } catch (hiba) {
+          console.error(hiba);
+          hibaMegjelenitese("Hiba a profilkép frissítésekor: " + hiba.message);
+          fajlBemenet.value = "";
         }
       });
 
-      deleteBtn.addEventListener("click", async function () {
-        var confirmResult = await confirmAction("Biztosan törölni szeretnéd a profilképet?");
-        if (!confirmResult.isConfirmed) return;
+      torlesGomb.addEventListener("click", async function () {
+        var megerosites = await muveletMegerositese("Biztosan törölni szeretnéd a profilképet?");
+        if (!megerosites.isConfirmed) return;
         try {
-          var storedUser = readUser() || user || {};
-          var userId = getUserId(storedUser) || getUserId(currentProfile);
-          if (!userId) throw new Error("Hiányzik a felhasználó azonosítója.");
+          var taroltFelhasznalo = felhasznaloBeolvasasa() || felhasznalo || {};
+          var felhasznaloId = felhasznaloAzonosito(taroltFelhasznalo) || felhasznaloAzonosito(aktualisProfil);
+          if (!felhasznaloId) throw new Error("Hiányzik a felhasználó azonosítója.");
 
-          var response = await fetch(API_ALAP + "/api/profile/delete", {
+          var valasz = await fetch(API_ALAP + "/api/profile/delete", {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId: userId })
+            body: JSON.stringify({ userId: felhasznaloId })
           });
-          var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || "Profilkép törlési hiba.");
+          var adat = await valasz.json().catch(function () { return {}; });
+          if (!valasz.ok) throw new Error(adat.message || "Profilkép törlési hiba.");
 
-          var nextProfile = Object.assign({}, currentProfile, { profil_kep_url: null });
-          paint(nextProfile);
-          syncStoredUser(nextProfile);
-          showSuccess("Profilkép sikeresen törölve.");
-        } catch (err) {
-          console.error(err);
-          showError("Hiba a profilkép törlésekor: " + err.message);
+          var kovetkezoProfil = Object.assign({}, aktualisProfil, { profil_kep_url: null });
+          profilKirajzolasa(kovetkezoProfil);
+          taroltFelhasznaloSzinkronizalasa(kovetkezoProfil);
+          sikerMegjelenitese("Profilkép sikeresen törölve.");
+        } catch (hiba) {
+          console.error(hiba);
+          hibaMegjelenitese("Hiba a profilkép törlésekor: " + hiba.message);
         }
       });
     }
 
-    function bindProfileEditActions() {
-      var modalElement = document.getElementById("editProfileModal");
-      var form = document.getElementById("editProfileForm");
-      var saveBtn = document.getElementById("saveProfileChangesBtn");
-      var usernameInput = document.getElementById("editUsernameInput");
-      var fullNameInput = document.getElementById("editFullNameInput");
-      var emailInput = document.getElementById("editEmailInput");
-      if (!modalElement || !form || !saveBtn || !usernameInput || !fullNameInput || !emailInput) return;
-      if (saveBtn.dataset.bound === "1") return;
-      saveBtn.dataset.bound = "1";
+    // Profil adatszerkesztés modal eseményeit köti be.
+    function profilSzerkesztesBekotese() {
+      var modalElem = document.getElementById("editProfileModal");
+      var urlap = document.getElementById("editProfileForm");
+      var mentesGomb = document.getElementById("saveProfileChangesBtn");
+      var felhasznalonevMezo = document.getElementById("editUsernameInput");
+      var teljesNevMezo = document.getElementById("editFullNameInput");
+      var emailMezo = document.getElementById("editEmailInput");
+      if (!modalElem || !urlap || !mentesGomb || !felhasznalonevMezo || !teljesNevMezo || !emailMezo) return;
+      if (mentesGomb.dataset.bound === "1") return;
+      mentesGomb.dataset.bound = "1";
 
-      modalElement.addEventListener("show.bs.modal", function () {
-        usernameInput.value = currentProfile.username || "";
-        fullNameInput.value = currentProfile.teljes_nev || "";
-        emailInput.value = currentProfile.email || "";
+      modalElem.addEventListener("show.bs.modal", function () {
+        felhasznalonevMezo.value = aktualisProfil.username || "";
+        teljesNevMezo.value = aktualisProfil.teljes_nev || "";
+        emailMezo.value = aktualisProfil.email || "";
       });
 
-      saveBtn.addEventListener("click", async function () {
-        if (!form.checkValidity()) {
-          form.reportValidity();
+      mentesGomb.addEventListener("click", async function () {
+        if (!urlap.checkValidity()) {
+          urlap.reportValidity();
           return;
         }
 
         try {
-          var payload = {
-            userId: getUserId(currentProfile) || getUserId(user),
-            username: usernameInput.value.trim(),
-            teljes_nev: fullNameInput.value.trim(),
-            email: emailInput.value.trim()
+          var kuldendoAdat = {
+            userId: felhasznaloAzonosito(aktualisProfil) || felhasznaloAzonosito(felhasznalo),
+            username: felhasznalonevMezo.value.trim(),
+            teljes_nev: teljesNevMezo.value.trim(),
+            email: emailMezo.value.trim()
           };
 
-          var response = await fetch(API_ALAP + "/api/profile/update-data", {
+          var valasz = await fetch(API_ALAP + "/api/profile/update-data", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(kuldendoAdat)
           });
-          var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || data.error || ("Profil adat mentési hiba. HTTP " + response.status));
+          var adat = await valasz.json().catch(function () { return {}; });
+          if (!valasz.ok) throw new Error(adat.message || adat.error || ("Profil adat mentési hiba. HTTP " + valasz.status));
 
-          if (data.user) {
-            paint(data.user);
-            syncStoredUser(data.user);
+          if (adat.user) {
+            profilKirajzolasa(adat.user);
+            taroltFelhasznaloSzinkronizalasa(adat.user);
           }
 
-          var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+          var modal = bootstrap.Modal.getOrCreateInstance(modalElem);
           modal.hide();
-          showSuccess("Profil adatok sikeresen frissítve.");
-        } catch (err) {
-          console.error(err);
-          showError("Hiba a profil adatok mentésekor: " + err.message);
+          sikerMegjelenitese("Profil adatok sikeresen frissítve.");
+        } catch (hiba) {
+          console.error(hiba);
+          hibaMegjelenitese("Hiba a profil adatok mentésekor: " + hiba.message);
         }
       });
     }
 
-    function bindPasswordActions() {
-      var modalElement = document.getElementById("changePasswordModal");
-      var form = document.getElementById("changePasswordForm");
-      var currentInput = document.getElementById("currentPasswordInput");
-      var newInput = document.getElementById("newPasswordInput");
-      var confirmInput = document.getElementById("confirmPasswordInput");
-      var saveBtn = document.getElementById("changePasswordBtn");
-      if (!modalElement || !form || !currentInput || !newInput || !confirmInput || !saveBtn) return;
-      if (saveBtn.dataset.bound === "1") return;
-      saveBtn.dataset.bound = "1";
+    // Jelszócsere modal eseményeit köti be és validálja.
+    function jelszoMuveletekBekotese() {
+      var modalElem = document.getElementById("changePasswordModal");
+      var urlap = document.getElementById("changePasswordForm");
+      var aktualisJelszoMezo = document.getElementById("currentPasswordInput");
+      var ujJelszoMezo = document.getElementById("newPasswordInput");
+      var ujJelszoMegerositeseMezo = document.getElementById("confirmPasswordInput");
+      var mentesGomb = document.getElementById("changePasswordBtn");
+      if (!modalElem || !urlap || !aktualisJelszoMezo || !ujJelszoMezo || !ujJelszoMegerositeseMezo || !mentesGomb) return;
+      if (mentesGomb.dataset.bound === "1") return;
+      mentesGomb.dataset.bound = "1";
 
-      function resetForm() {
-        currentInput.value = "";
-        newInput.value = "";
-        confirmInput.value = "";
+      // A jelszó űrlap mezőit alaphelyzetbe állítja.
+      function urlapNullazasa() {
+        aktualisJelszoMezo.value = "";
+        ujJelszoMezo.value = "";
+        ujJelszoMegerositeseMezo.value = "";
       }
 
-      modalElement.addEventListener("show.bs.modal", function () {
-        resetForm();
+      modalElem.addEventListener("show.bs.modal", function () {
+        urlapNullazasa();
       });
 
-      saveBtn.addEventListener("click", async function () {
-        if (!form.checkValidity()) {
-          form.reportValidity();
+      mentesGomb.addEventListener("click", async function () {
+        if (!urlap.checkValidity()) {
+          urlap.reportValidity();
           return;
         }
 
-        var currentPassword = currentInput.value || "";
-        var newPassword = newInput.value || "";
-        var confirmPassword = confirmInput.value || "";
+        var aktualisJelszo = aktualisJelszoMezo.value || "";
+        var ujJelszo = ujJelszoMezo.value || "";
+        var ujJelszoMegerositese = ujJelszoMegerositeseMezo.value || "";
 
-        if (!currentPassword || !newPassword || !confirmPassword) {
-          showWarning("Kérlek tölts ki minden jelszó mezőt.");
+        if (!aktualisJelszo || !ujJelszo || !ujJelszoMegerositese) {
+          figyelmeztetesMegjelenitese("Kérlek tölts ki minden jelszó mezőt.");
           return;
         }
-        if (newPassword.length < 8) {
-          showWarning("Az új jelszó legalább 8 karakter legyen.");
+        if (ujJelszo.length < 8) {
+          figyelmeztetesMegjelenitese("Az új jelszó legalább 8 karakter legyen.");
           return;
         }
-        if (newPassword !== confirmPassword) {
-          showWarning("Az új jelszó és a megerősítés nem egyezik.");
+        if (ujJelszo !== ujJelszoMegerositese) {
+          figyelmeztetesMegjelenitese("Az új jelszó és a megerősítés nem egyezik.");
           return;
         }
 
         try {
-          var response = await fetch(API_ALAP + "/api/profile/change-password", {
+          var valasz = await fetch(API_ALAP + "/api/profile/change-password", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              userId: getUserId(currentProfile) || getUserId(user),
-              currentPassword: currentPassword,
-              newPassword: newPassword
+              userId: felhasznaloAzonosito(aktualisProfil) || felhasznaloAzonosito(felhasznalo),
+              currentPassword: aktualisJelszo,
+              newPassword: ujJelszo
             })
           });
-          var data = await response.json().catch(function () { return {}; });
-          if (!response.ok) throw new Error(data.message || data.error || ("Jelszó módosítási hiba. HTTP " + response.status));
+          var adat = await valasz.json().catch(function () { return {}; });
+          if (!valasz.ok) throw new Error(adat.message || adat.error || ("Jelszó módosítási hiba. HTTP " + valasz.status));
 
-          resetForm();
-          var modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+          urlapNullazasa();
+          var modal = bootstrap.Modal.getOrCreateInstance(modalElem);
           modal.hide();
-          showSuccess("Jelszó sikeresen módosítva.");
-        } catch (err) {
-          console.error(err);
-          showError("Hiba a jelszó módosításakor: " + err.message);
+          sikerMegjelenitese("Jelszó sikeresen módosítva.");
+        } catch (hiba) {
+          console.error(hiba);
+          hibaMegjelenitese("Hiba a jelszó módosításakor: " + hiba.message);
         }
       });
     }
 
-    paint(user);
-    bindProfilePictureActions();
-    bindProfileEditActions();
-    bindPasswordActions();
-    syncStoredUser(user);
+    profilKirajzolasa(felhasznalo);
+    profilKepMuveletekBekotese();
+    profilSzerkesztesBekotese();
+    jelszoMuveletekBekotese();
+    taroltFelhasznaloSzinkronizalasa(felhasznalo);
 
     try {
-      var userId = getUserId(user);
-      if (!userId) throw new Error("Hiányzik a felhasználó azonosítója");
-      var res = await fetch(API_ALAP + "/api/profile/profile?userId=" + encodeURIComponent(userId));
-      if (!res.ok) throw new Error("Profil lekérési hiba");
-      var profile = await res.json();
-      paint(profile);
-      syncStoredUser(profile);
-    } catch (err) {
-      console.error(err);
+      var felhasznaloId = felhasznaloAzonosito(felhasznalo);
+      if (!felhasznaloId) throw new Error("Hiányzik a felhasználó azonosítója");
+      var valasz = await fetch(API_ALAP + "/api/profile/profile?userId=" + encodeURIComponent(felhasznaloId));
+      if (!valasz.ok) throw new Error("Profil lekérési hiba");
+      var profil = await valasz.json();
+      profilKirajzolasa(profil);
+      taroltFelhasznaloSzinkronizalasa(profil);
+    } catch (hiba) {
+      console.error(hiba);
     }
   }
 
-  var user = ensureLoggedIn();
-  if (!user) return;
+  var felhasznalo = bejelentkezesEllenorzese();
+  if (!felhasznalo) return;
 
-  wireSidebar(user);
-  loadProfilePage(user);
-  gyorsStatisztikaBetoltes(user);
+  oldalsavBekotese(felhasznalo);
+  profilOldalBetoltese(felhasznalo);
+  gyorsStatisztikaBetoltese(felhasznalo);
 })();
-
