@@ -1,13 +1,30 @@
-﻿# TODO Határ: Due(03.29)
+﻿# TODO 
 
-- Közös:
-    - Weboldal public domain
-    - Adatbázis felhőben
+## Közös:
+- Weboldal public domain
+- Adatbázis felhőben
+
 
 # Kornél:
 
+## 03.31:
+- Téma kezelés egységesítése közös scriptben `theme-controller.js`
+- Backendben változó- és függvénynevek magyarosítása.
+- Backend metódusok fölé kommentek.
+- HTML oldalak frontend scriptjeinek külön fájlba szervezése: 
+    - `palyak.html` scriptjeinek kiszervezése 
+    - `login.html` scriptjeinek kiszervezése
+    - `register.html` scriptjeinek kiszervezése 
+    - `forgotpassword.html` scriptjeinek kiszervezése 
+- HTML oldalakban lévő JavaScript kód átdolgozása: 
+    - Változónevek magyarosítása 
+    - Kommentek elhelyezése a metódusok fölé 
+- `auth-nav.js` átdolgozása: 
+    - Változónevek magyarosítása 
+    - Metódusok kommentelése 
+
 ## 03.24:
-- BookingController átszervezése új struktúrába: ✅
+- BookingController átszervezése új struktúrába: 
     - Controller logika külön fájlba szervezése ✅
     - Service réteg kialakítása ✅
     - Repository réteg kialakítása (adatkezelés szétválasztása) ✅
@@ -59,9 +76,48 @@
   
 # Levi:
 
+## 03.31:
+- JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek)
+    - `profil.js` 
+    - `ertesitesek.js` 
+    - `berleseim.js` 
+    - `foglalasaim.js` 
+    - `palyaim.js` 
+- CSS egységesítés: global.css + oldalspecifikus (profil.css, berleseim.css, stb.). 
+- Foglalás UI frissítés: új mezők megjelenítése (email, leírás), amit a backend ad.
+- Log rendszer bevezetése + külön `Log` részleg az admin menüben. ✅ (`1696830`)
+    - Backend oldalon logolás és log lekérdezés bővítése (`booking`, `pálya`, `user` útvonalak érintve). ✅
+    - Frontenden új admin log oldal (`log.html`, `log.js`) és menüintegráció. ✅
+    - SQL frissítés a log funkcióhoz (`palyanetsql.sql`). ✅
+
+## 03.30:
+- SQL kód javítása, hogy máshol is működjön.
+- Alap felhasználók létrehozása a backend futtatásnál. (pályatulajdonos, bérlő, admin)
+- Kisebb kód tisztítás.
+
+## 03.29:
+- Admin jogosultságkezelés és admin panel újradolgozása: ✅
+    - Admin jogosultságkezelés finomítása. ✅
+    - Admin panel felépítésének átdolgozása. ✅
+- Pályatulajdonos rész különszedése a root profil részlegről. ✅
+- Moderációs felhasználókezelés: ✅
+    - Pályatulajdonos rész külön kezelése. ✅
+    - Felhasználókeresés megvalósítása. ✅
+    - Tiltás / feloldás funkció implementálása. ✅
+- Egységes admin menüsorrend kialakítása: ✅
+    - `Profilom` ✅
+    - `Bejelentések` ✅
+    - `Pályák` ✅
+    - `Felhasználók` ✅
+    - `Értesítések` ✅
+- Pénzügyi statisztikák fejlesztése a pályatulajdonos nézethez: ✅
+    - Alap pénzügyi statisztika megjelenítése. ✅
+    - Havi bevétel vonaldiagramon történő megjelenítése. ✅
+    - Egyéni pályák bevételének kördiagramon történő megjelenítése. ✅
+
 ## 03.21:
 - Új Értesítések menü a Profil részlegnél. ✅
-- Értesítések fülnél, lehessen törölni az adott értesítést ✅
+- Értesítések fülnél, lehessen törölni az adott értesítést. ✅
 - Moderációs rendszer: ✅
     - SQL: ✅
         - `Bejelentesek` tábla létrehozva (küldő ID, bejelentett ID, pálya ID, szöveg, státusz, admin mezők). ✅
