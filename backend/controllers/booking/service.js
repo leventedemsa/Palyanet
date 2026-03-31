@@ -3,6 +3,7 @@ const {
   getRenterById,
   createBookingRecord,
   createNotification,
+  logBejegyzesLetrehozasa,
   getBookingsForOwner,
   getBookingsForRenter,
   getBookingById,
@@ -109,6 +110,11 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
     kezdes,
     vege,
     ar: price,
+  });
+  const log_esemeny_tipus = "foglalas_letrehozva";
+  await logBejegyzesLetrehozasa({
+    felhasznalo_id: berloId,
+    esemeny_tipus: log_esemeny_tipus,
   });
 
   const notificationMessage = `Új foglalási kérelem: ${berlo.teljes_nev} (${berlo.username}) szeretné lefoglalni a "${palya.nev}" pályát ${new Date(kezdes).toLocaleDateString("hu-HU")} napra.`;

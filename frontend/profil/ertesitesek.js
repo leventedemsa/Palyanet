@@ -65,7 +65,7 @@
     var foglalasaimItems = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
     var statisztikaItems = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     var berleseimItems = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"]');
+    var adminItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"], [data-sidebar-item="admin-logok"]');
     var szerep = String(user.szerep || "").toLowerCase();
     var isOwner = szerep === "palyatulajdonos";
     var isAdmin = szerep === "admin";

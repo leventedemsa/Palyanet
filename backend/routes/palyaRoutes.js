@@ -253,6 +253,12 @@ router.delete("/admin/:id", async (req, res) => {
         VALUES (@admin_id, @cimzett_id, @uzenet, 0)
       `);
 
+      request.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
+      await request.query(`
+        INSERT INTO Log (felhasznalo_id, esemeny_tipus)
+        VALUES (@admin_id, @esemeny_tipus)
+      `);
+
       await transaction.commit();
       return res.json({ message: "Pálya sikeresen törölve" });
     } catch (innerError) {
@@ -304,6 +310,16 @@ router.patch("/admin/:id/suspension", async (req, res) => {
     if (!result.recordset[0] || result.recordset[0].affected === 0) {
       return res.status(404).json({ error: "Pálya nem található" });
     }
+
+    request.input(
+      "esemeny_tipus",
+      sql.NVarChar(100),
+      felfuggesztve ? "palya_felfuggesztve" : "palya_felfuggesztes_feloldva"
+    );
+    await request.query(`
+      INSERT INTO Log (felhasznalo_id, esemeny_tipus)
+      VALUES (@admin_id, @esemeny_tipus)
+    `);
 
     return res.json({
       message: felfuggesztve ? "Pálya felfüggesztve" : "Pálya felfüggesztése feloldva",
@@ -386,6 +402,15 @@ router.post("/", async (req, res) => {
         SELECT SCOPE_IDENTITY() AS palya_id;
       `);
     
+    await pool
+      .request()
+      .input("felhasznalo_id", sql.Int, tulaj_id)
+      .input("esemeny_tipus", sql.NVarChar(100), "palya_letrehozva")
+      .query(`
+        INSERT INTO Log (felhasznalo_id, esemeny_tipus)
+        VALUES (@felhasznalo_id, @esemeny_tipus)
+      `);
+
     console.log("Pálya sikeresen hozzáadva, ID:", result.recordset[0].palya_id);
     res.status(201).json({
       message: "Pálya sikeresen létrehozva",
@@ -409,15 +434,44 @@ router.delete("/:id", async (req, res) => {
       const request = new sql.Request(transaction);
       request.input("palya_id", sql.Int, id);
 
+      const palyaResult = await request.query(`
+        SELECT tulaj_id
+        FROM Palya
+        WHERE palya_id = @palya_id;
+      `);
+
+      if (!palyaResult.recordset[0]) {
+        await transaction.rollback();
+        return res.status(404).json({ error: "Pálya nem található" });
+      }
+
+      const tulajId = parseInt(palyaResult.recordset[0].tulaj_id, 10);
+
       await request.query(`
         DELETE FROM Bejelentesek WHERE palya_id = @palya_id;
         DELETE FROM Foglalas WHERE palya_id = @palya_id;
       `);
 
-      await request.query("DELETE FROM Palya WHERE palya_id = @palya_id");
+      const result = await request.query(`
+        DELETE FROM Palya WHERE palya_id = @palya_id;
+        SELECT @@ROWCOUNT AS affected;
+      `);
+
+      if (!result.recordset[0] || result.recordset[0].affected === 0) {
+        await transaction.rollback();
+        return res.status(404).json({ error: "Pálya nem található" });
+      }
+
+      request.input("felhasznalo_id", sql.Int, tulajId);
+      request.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
+      await request.query(`
+        INSERT INTO Log (felhasznalo_id, esemeny_tipus)
+        VALUES (@felhasznalo_id, @esemeny_tipus)
+      `);
+
       await transaction.commit();
 
-      res.json({ message: "Pálya sikeresen törölve" });
+      return res.json({ message: "Pálya sikeresen törölve" });
     } catch (innerError) {
       await transaction.rollback();
       throw innerError;

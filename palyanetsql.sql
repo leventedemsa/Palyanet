@@ -184,14 +184,13 @@ CREATE TABLE Ertesites (
 CREATE TABLE Log (
     log_id INT IDENTITY(1,1) PRIMARY KEY,
     felhasznalo_id INT NOT NULL,
-    esemeny_tipus NVARCHAR(100) NULL,
-    akcio NVARCHAR(200) NULL,
-    leiras NVARCHAR(MAX) NULL,
+    esemeny_tipus NVARCHAR(100) NOT NULL,
     datum DATETIME2(7) NOT NULL DEFAULT SYSDATETIME(),
 
     CONSTRAINT FK_Log_Felhasznalo FOREIGN KEY (felhasznalo_id)
         REFERENCES Felhasznalok(felhasznalo_id)
 );
+GO
 
 -- ============================
 --   INDEXEK (PERFORMANCE)

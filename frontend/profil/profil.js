@@ -159,6 +159,7 @@
     var bejelentesekItems = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
     var adminPalyakItems = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
     var adminFelhasznalokItems = document.querySelectorAll('[data-sidebar-item="admin-felhasznalok"]');
+    var adminLogokItems = document.querySelectorAll('[data-sidebar-item="admin-logok"]');
     var isOwner = user.szerep === "palyatulajdonos";
     var isAdmin = user.szerep === "admin";
 
@@ -169,6 +170,7 @@
     bejelentesekItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
     adminPalyakItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
     adminFelhasznalokItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
+    adminLogokItems.forEach(function (item) { item.style.display = isAdmin ? "" : "none"; });
 
     var dropdownNames = document.querySelectorAll(".sidebar-user-name, #sidebarUserName");
     var dropdownAvatars = document.querySelectorAll(".sidebar-user-avatar, #sidebarUserAvatar");

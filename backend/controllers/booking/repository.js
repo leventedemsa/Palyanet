@@ -68,6 +68,18 @@ const createNotification = async ({ kuldoId, cimzettId, uzenet }) => {
     `);
 };
 
+const logBejegyzesLetrehozasa = async ({ felhasznalo_id, esemeny_tipus }) => {
+  const pool = await poolPromise;
+  await pool
+    .request()
+    .input("felhasznalo_id", sql.Int, felhasznalo_id)
+    .input("esemeny_tipus", sql.NVarChar(100), esemeny_tipus)
+    .query(`
+      INSERT INTO Log (felhasznalo_id, esemeny_tipus)
+      VALUES (@felhasznalo_id, @esemeny_tipus)
+    `);
+};
+
 const getBookingsForOwner = async (tulajId) => {
   const pool = await poolPromise;
   const result = await pool
@@ -185,6 +197,7 @@ module.exports = {
   getRenterById,
   createBookingRecord,
   createNotification,
+  logBejegyzesLetrehozasa,
   getBookingsForOwner,
   getBookingsForRenter,
   getBookingById,
