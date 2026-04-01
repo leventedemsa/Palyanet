@@ -195,7 +195,7 @@ async function startServer() {
         const PORT = process.env.PORT || 4000;
         app.listen(PORT, () => {
             console.log(`Szerver fut a ${PORT} porton`);
-            console.log(`Fő oldal: http://localhost:4000/index.html`);
+            console.log(`Fő oldal: http://localhost:4000/fooldal/index.html`);
         });
     } catch (error) {
         console.error("Szerver indítási hiba:", error);

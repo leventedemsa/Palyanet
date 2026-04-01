@@ -50,7 +50,7 @@
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
   }
 
   // Oldalsáv felhasználói adatai + kijelentkezés gombok bekötése.
@@ -345,7 +345,7 @@
 
   var felhasznalo = olvasFelhasznalo();
   if (!felhasznalo) {
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
     return;
   }
   if (String(felhasznalo.szerep || "").toLowerCase() !== "palyatulajdonos") {
@@ -355,7 +355,7 @@
 
   var felhasznaloId = felhasznaloAzonosito(felhasznalo);
   if (!felhasznaloId) {
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
     return;
   }
 

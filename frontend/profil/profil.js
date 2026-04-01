@@ -18,7 +18,7 @@
   function bejelentkezesEllenorzese() {
     var felhasznalo = felhasznaloBeolvasasa();
     if (!felhasznalo) {
-      window.location.href = "../login.html";
+      window.location.href = "../fooldal/login.html";
       return null;
     }
     return felhasznalo;
@@ -135,7 +135,7 @@
       nevSelector: ".sidebar-user-name, #sidebarUserName",
       avatarSelector: ".sidebar-user-avatar, #sidebarUserAvatar",
       kijelentkezesSelector: ".sidebar-logout-btn, #sidebarLogoutBtn",
-      loginUrl: "../login.html"
+      loginUrl: "../fooldal/login.html"
     });
   }
 

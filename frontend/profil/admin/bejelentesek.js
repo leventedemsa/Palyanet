@@ -52,7 +52,7 @@
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
   }
 
   function htmlBiztonsagos(value) {
@@ -204,7 +204,7 @@
       '<p class="mb-2"><strong>Bejelentés szövege:</strong> ' + htmlBiztonsagos(bejelentes.szoveg || "") + '</p>' +
       '<div class="d-flex flex-wrap justify-content-between gap-2">' +
         '<small class="text-muted">Létrehozva: ' + datumFormaz(bejelentes.letrehozva) + '</small>' +
-        '<a class="btn btn-outline-primary btn-sm" href="../../palyak.html?id=' + Number(bejelentes.palya_id) + '" target="_blank" rel="noopener">Pálya megtekintése</a>' +
+        '<a class="btn btn-outline-primary btn-sm" href="../../fooldal/palyak.html?id=' + Number(bejelentes.palya_id) + '" target="_blank" rel="noopener">Pálya megtekintése</a>' +
       '</div>';
 
     akcioUrlapAlaphelyzet(bejelentes);
@@ -238,12 +238,12 @@
 
   var felhasznalo = felhasznaloOlvasasa();
   if (!felhasznalo) {
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
     return;
   }
   felhasznaloAzonosito = felhasznaloId(felhasznalo);
   if (!felhasznaloAzonosito) {
-    window.location.href = "../../login.html";
+    window.location.href = "../../fooldal/login.html";
     return;
   }
   if (String(felhasznalo.szerep || "").toLowerCase() !== "admin") {

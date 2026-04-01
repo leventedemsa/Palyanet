@@ -31,7 +31,7 @@
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    window.location.href = atiranyitas || "../login.html";
+    window.location.href = atiranyitas || "../fooldal/login.html";
   }
 
   // Relatív képútvonalból teljes URL-t készít.
@@ -80,7 +80,7 @@
     var nevSelector = be.nevSelector || ".sidebar-user-name";
     var avatarSelector = be.avatarSelector || ".sidebar-user-avatar";
     var kijelentkezesSelector = be.kijelentkezesSelector || ".sidebar-logout-btn";
-    var loginUrl = be.loginUrl || "../login.html";
+    var loginUrl = be.loginUrl || "../fooldal/login.html";
     var megjelenitendoNev = felhasznalo.teljes_nev || felhasznalo.username || "Felhasználó";
 
     var nevMezok = document.querySelectorAll(nevSelector);

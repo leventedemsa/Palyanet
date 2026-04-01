@@ -605,7 +605,7 @@
             <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
                 <div class="container">
                     <a class="navbar-brand fw-bold" href="./index.html">
-                        <img src="./palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
+                        <img src="../palyanetlogo.png" alt="Logó" width="30" height="24" class="me-2" />
                         Pályanet
                     </a>
 
@@ -976,7 +976,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="./auth-nav.js"></script>
+    <script src="../auth-nav.js"></script>
 
         <script>
             const htmlEl = document.documentElement;
@@ -1242,7 +1242,7 @@
             }
 
             function toAbsoluteImageUrl(url) {
-                if (!url) return "./palyanetlogo.png";
+                if (!url) return "../palyanetlogo.png";
                 if (url.startsWith("http") || url.startsWith("data:") || url.startsWith("blob:")) {
                     return url;
                 }
@@ -1413,7 +1413,7 @@
 
                 palyak.forEach((palya) => {
                     const imageUrls = parseImageUrls(palya.kep_url);
-                    const primaryImage = toAbsoluteImageUrl(imageUrls[0] || "./palyanetlogo.png");
+                    const primaryImage = toAbsoluteImageUrl(imageUrls[0] || "../palyanetlogo.png");
                     palyaImagesById[String(palya.palya_id)] = imageUrls;
 
                     let ownerImageUrl = palya.profil_kep_url;

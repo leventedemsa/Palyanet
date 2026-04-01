@@ -249,7 +249,7 @@
     const myProfileItemLi = document.createElement("li");
     const myProfileItem = document.createElement("a");
     myProfileItem.className = "dropdown-item";
-    myProfileItem.href = "./profil/profil.html";
+    myProfileItem.href = "../profil/profil.html";
     myProfileItem.textContent = "Profilom";
     myProfileItemLi.appendChild(myProfileItem);
 

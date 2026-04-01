@@ -22,7 +22,7 @@
 
   // Kijelentkezteti a felhasználót és visszairányít a belépéshez.
   function kijelentkezes() {
-    seged.kijelentkezes("../login.html");
+    seged.kijelentkezes("../fooldal/login.html");
   }
 
   // Oldalsáv menüpontjait és profiladatait állítja be.
@@ -45,7 +45,7 @@
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
       apiAlap: API_ALAP,
-      loginUrl: "../login.html"
+      loginUrl: "../fooldal/login.html"
     });
   }
 
@@ -121,13 +121,13 @@
 
   var felhasznalo = felhasznaloBeolvasasa();
   if (!felhasznalo) {
-    window.location.href = "../login.html";
+    window.location.href = "../fooldal/login.html";
     return;
   }
 
   var felhasznaloId = felhasznaloAzonosito(felhasznalo);
   if (!felhasznaloId) {
-    window.location.href = "../login.html";
+    window.location.href = "../fooldal/login.html";
     return;
   }
 

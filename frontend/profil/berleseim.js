@@ -29,7 +29,7 @@
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
       apiAlap: API_ALAP,
-      loginUrl: "../login.html"
+      loginUrl: "../fooldal/login.html"
     });
 
     var palyaimElemek = document.querySelectorAll('[data-sidebar-item="palyaim"]');
@@ -167,11 +167,11 @@
 
   var felhasznalo = felhasznaloBeolvasasa();
   if (!felhasznalo) {
-    window.location.href = "../login.html";
+    window.location.href = "../fooldal/login.html";
     return;
   }
   if (felhasznalo.szerep !== "berlo" && felhasznalo.szerep !== "palyatulajdonos") {
-    window.location.href = "../login.html";
+    window.location.href = "../fooldal/login.html";
     return;
   }
 
