@@ -82,7 +82,7 @@
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    window.location.href = "../../fooldal/login.html";
+    window.location.href = "../../fooldal/bejelentkezes.html";
   }
 
   function htmlBiztonsagos(szoveg) {
@@ -242,7 +242,7 @@
 
   var felhasznalo = felhasznaloOlvasasa();
   if (!felhasznalo) {
-    window.location.href = "../../fooldal/login.html";
+    window.location.href = "../../fooldal/bejelentkezes.html";
     return;
   }
   var bejelentkezettFelhasznaloId = felhasznaloAzonosito(felhasznalo);

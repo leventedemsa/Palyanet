@@ -44,7 +44,7 @@
   const isPalyakPage = path.endsWith("/palyak.html") || path.endsWith("\\palyak.html");
 
   if (!isLoggedIn && isPalyakPage) {
-    window.location.replace("./login.html");
+    window.location.replace("./bejelentkezes.html");
     return;
   }
 
@@ -187,9 +187,9 @@
         existingLogout.remove();
       }
 
-      const hasLogin = Boolean(findLink(menu, "login.html"));
+      const hasLogin = Boolean(findLink(menu, "bejelentkezes.html"));
       if (!hasLogin) {
-        const loginLink = createLink("login.html", "Bejelentkezés");
+        const loginLink = createLink("bejelentkezes.html", "Bejelentkezés");
         if (themeItem) {
           menu.insertBefore(loginLink, themeItem);
         } else {
@@ -199,12 +199,12 @@
       return;
     }
 
-    const loginLink = findLink(menu, "login.html");
+    const loginLink = findLink(menu, "bejelentkezes.html");
     if (loginLink) {
       loginLink.remove();
     }
 
-    const registerLink = findLink(menu, "register.html");
+    const registerLink = findLink(menu, "regisztracio.html");
     if (registerLink) {
       registerLink.remove();
     }
@@ -219,7 +219,7 @@
     }
 
     const palyakLink = findLink(menu, "palyak.html") || createLink("palyak.html", "Pályák");
-    const contactLink = findLink(menu, "contact.html");
+    const contactLink = findLink(menu, "kapcsolat.html");
     const existingBookingsLink = findLink(menu, "bookings.html");
     if (existingBookingsLink) {
       existingBookingsLink.remove();
@@ -270,7 +270,7 @@
     profileToggle.classList.toggle("active", isCurrentPage("profil.html"));
     myProfileItem.classList.toggle("active", isCurrentPage("profil.html"));
     if (contactLink) {
-      contactLink.classList.toggle("active", isCurrentPage("contact.html"));
+      contactLink.classList.toggle("active", isCurrentPage("kapcsolat.html"));
     }
 
     if (themeItem) {

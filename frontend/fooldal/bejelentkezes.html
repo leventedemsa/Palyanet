@@ -3,12 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pályanet - Kapcsolat</title>
-
+    <title>Pályanet - Bejelentkezés</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-<style>
-
+    <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root{
@@ -123,14 +121,14 @@ body {
   transform: translateY(-1px);
 }
 
-.page-card{
+.hero{
   border-radius:1.5rem;
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
 }
 
-.page-card::before {
+.hero::before {
   content: '';
   position: absolute;
   top: 0;
@@ -143,7 +141,7 @@ body {
   transition: opacity 0.6s ease;
 }
 
-.page-card:hover::before {
+.hero:hover::before {
   opacity: 1;
 }
 
@@ -152,9 +150,10 @@ body {
   color:#e8e8e8;
 }
 
-[data-bs-theme="dark"] .page-card{
+[data-bs-theme="dark"] .hero{
   background:
-  radial-gradient(circle at 20% 20%, rgba(255,122,24,.20), transparent 40%),
+  radial-gradient(circle at 20% 20%, rgba(255,122,24,.25), transparent 40%),
+  radial-gradient(circle at 80% 60%, rgba(255,122,24,.15), transparent 40%),
   #11151d;
 
   border:1px solid rgba(255,255,255,.06);
@@ -170,9 +169,9 @@ body {
   background:#f4f6fa;
 }
 
-[data-bs-theme="light"] .page-card{
+[data-bs-theme="light"] .hero{
   background:
-  radial-gradient(circle at 20% 20%, rgba(255,122,24,.12), transparent 40%),
+  radial-gradient(circle at 20% 20%, rgba(255,122,24,.15), transparent 40%),
   white;
 
   border:1px solid #e6e6e6;
@@ -183,31 +182,6 @@ body {
   background:white !important;
   border-bottom:1px solid rgba(255, 122, 24, 0.15) !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-}
-
-.form-control{
-  border-radius: 0.8rem;
-  border: 1px solid rgba(255,122,24,0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255,122,24,0.02);
-}
-
-.form-control:focus{
-  border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.25), inset 0 1px 1px rgba(0,0,0,.075);
-  background: rgba(255,255,255,0.5);
-}
-
-[data-bs-theme="dark"] .form-control {
-  background: rgba(255,122,24,0.05);
-  border-color: rgba(255,122,24,0.3);
-  color: #e8e8e8;
-}
-
-[data-bs-theme="dark"] .form-control:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.35);
-  background: rgba(255,122,24,0.1);
 }
 
 .btn-accent{
@@ -260,6 +234,33 @@ body {
   box-shadow:0 15px 45px rgba(255,122,24,.6), 0 0 30px rgba(255,122,24,.5);
 }
 
+.form-control, .form-select {
+  border-radius: 0.8rem;
+  border: 1px solid rgba(255,122,24,0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255,122,24,0.02);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.25), inset 0 1px 1px rgba(0,0,0,.075);
+  background: rgba(255,255,255,0.5);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background: rgba(255,122,24,0.05);
+  border-color: rgba(255,122,24,0.3);
+  color: #e8e8e8;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.35);
+  background: rgba(255,122,24,0.1);
+}
+
 footer {
   border-top: 1px solid rgba(255,122,24,0.1);
   transition: all 0.3s ease;
@@ -294,12 +295,10 @@ footer {
   background: linear-gradient(180deg, var(--accent-soft), var(--accent));
 }
 
-</style>
-
+    </style>
   </head>
 
   <body class="d-flex flex-column min-vh-100" style="background:linear-gradient(135deg, rgba(255,122,24,0.08) 0%, transparent 50%);">
-
     <header>
       <nav class="navbar navbar-expand-lg bg-light-subtle sticky-top shadow-sm">
         <div class="container">
@@ -314,11 +313,11 @@ footer {
 
           <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav ms-auto align-items-lg-center gap-2">
-              <a class="nav-link active" href="./contact.html">Kapcsolat</a>
-              <a class="nav-link" href="./login.html">Bejelentkezés</a>
+              <a class="nav-link" href="./kapcsolat.html">Kapcsolat</a>
+              <a class="nav-link" href="./regisztracio.html">Regisztráció</a>
 
               <div class="nav-item ms-lg-2">
-                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button">🌙 Dark</button>
+                <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
               </div>
             </div>
           </div>
@@ -327,49 +326,59 @@ footer {
     </header>
 
     <main class="container py-5 flex-fill">
-
       <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-md-8 col-lg-5">
+          <section class="hero rounded-4 p-4 p-md-5 shadow-sm">
+            <h1 class="h4 fw-bold mb-4 text-center">Bejelentkezés</h1>
 
-          <section class="page-card p-4 p-md-5">
-
-            <h1 class="h4 fw-bold mb-4 text-center">Kapcsolat</h1>
-
-            <p class="text-center text-body-secondary mb-4">
-              Kérdésed van a Pályanettel kapcsolatban? Írj nekünk üzenetet!
-            </p>
-
-            <form class="needs-validation" novalidate>
-
+            <form id="loginForm" class="needs-validation" novalidate>
               <div class="mb-3">
-                <label for="name" class="form-label">Neved</label>
-                <input type="text" class="form-control" id="name" required />
-                <div class="invalid-feedback">Kérlek add meg a neved.</div>
+                <label for="identifier" class="form-label">Email cím vagy felhasználónév</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="identifier"
+                  name="identifier"
+                  placeholder="example@gmail.com vagy johndoe"
+                  autocomplete="username"
+                  required
+                />
+                <div class="invalid-feedback">Kérlek add meg az email címedet vagy a felhasználónevedet.</div>
               </div>
 
               <div class="mb-3">
-                <label for="email" class="form-label">Email cím</label>
-                <input type="email" class="form-control" id="email" required />
-                <div class="invalid-feedback">Kérlek adj meg egy érvényes email címet.</div>
+                <label for="password" class="form-label">Jelszó</label>
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  required
+                />
+                <div class="invalid-feedback">Kérlek add meg a jelszavad.</div>
               </div>
 
-              <div class="mb-3">
-                <label for="message" class="form-label">Üzenet</label>
-                <textarea class="form-control" id="message" rows="4" required></textarea>
-                <div class="invalid-feedback">Kérlek írd meg az üzeneted.</div>
+              <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" />
+                  <label class="form-check-label" for="rememberMe">Emlékezz rám</label>
+                </div>
+
+                <a href="./elfelejtett-jelszo.html" class="link-opacity-75 text-decoration-none"> Elfelejtetted a jelszavad? </a>
               </div>
 
-              <button type="submit" class="btn btn-accent w-100">
-                Üzenet küldése
-              </button>
-
+              <button type="submit" class="btn btn-accent w-100">Bejelentkezés</button>
             </form>
 
+            <div class="text-center mt-3 small">
+              Nincs még fiókod?
+              <a href="./regisztracio.html" class="link-opacity-75">Regisztrálj</a>
+            </div>
           </section>
-
         </div>
       </div>
-
     </main>
 
     <footer class="bg-light-subtle text-center py-4 mt-5">
@@ -377,62 +386,14 @@ footer {
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../auth-nav.js"></script>
+    <script src="../scripts/fooldal/bejelentkezes.js"></script>
 
-<script>
+    
 
-const htmlEl = document.documentElement;
-const btn = document.getElementById("themeToggle");
-
-function setTheme(theme){
-  htmlEl.setAttribute("data-bs-theme",theme);
-  localStorage.setItem("theme",theme);
-
-  if(theme==="dark"){
-    btn.textContent="☀️ Light";
-    btn.classList.remove("btn-outline-secondary");
-    btn.classList.add("btn-outline-light");
-  }else{
-    btn.textContent="🌙 Dark";
-    btn.classList.remove("btn-outline-light");
-    btn.classList.add("btn-outline-secondary");
-  }
-}
-
-const saved = localStorage.getItem("theme");
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-setTheme(saved ?? (prefersDark ? "dark":"light"));
-
-btn.addEventListener("click",()=>{
-  const current = htmlEl.getAttribute("data-bs-theme");
-  setTheme(current==="dark"?"light":"dark");
-});
-
-</script>
-
-<!-- Bootstrap validáció -->
-
-<script>
-(() => {
-"use strict";
-const forms = document.querySelectorAll(".needs-validation");
-Array.from(forms).forEach((form) => {
-form.addEventListener(
-"submit",
-(event) => {
-if (!form.checkValidity()) {
-event.preventDefault();
-event.stopPropagation();
-}
-form.classList.add("was-validated");
-},
-false
-);
-});
-})();
-</script>
-
+    
   </body>
 </html>
+
 

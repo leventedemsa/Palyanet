@@ -8,21 +8,24 @@
 # Kornél:
 
 ## 03.31:
-- Téma kezelés egységesítése közös scriptben `theme-controller.js`
 - Backendben változó- és függvénynevek magyarosítása. 
     - (`booking`,`profile` controllereket, `bookingRoutes.js`, `notificationRoutes.js`, `palyaRoutes.js`, `profileRoutes.js`)
 - Backend metódusok fölé kommentek.
-- HTML oldalak frontend scriptjeinek külön fájlba szervezése: 
-    - `palyak.html` scriptjeinek kiszervezése 
-    - `login.html` scriptjeinek kiszervezése
-    - `register.html` scriptjeinek kiszervezése 
-    - `forgotpassword.html` scriptjeinek kiszervezése 
 - HTML oldalakban lévő JavaScript kód átdolgozása: 
     - Változónevek magyarosítása 
     - Kommentek elhelyezése a metódusok fölé 
 - `auth-nav.js` átdolgozása: 
     - Változónevek magyarosítása 
     - Metódusok kommentelése 
+- CSS újrastruktúrálása:
+    - ui/
+        - global.css
+        - fooldal/osszes.css
+        - profil/osszes.css
+        - profil/admin/osszes.css
+        - profil/palyatulajdonos/osszes.css
+        - hibakezelo/osszes.css
+- Foglalás UI frissítés: új mezők megjelenítése (email, leírás), amit a backend ad.
 
 ## 03.24:
 - BookingController átszervezése új struktúrába: 
@@ -79,15 +82,22 @@
 
 ## 03.31:
 - Backend `userRouters`, `˙reportRoutes` ki kommentelése ✅
-- JavaScript fájlok átdolgozása: (Kommentelés, és magyar váltózó nevek) ✅
-    - `profil.js` ✅
-    - `ertesitesek.js` ✅
-    - `berleseim.js` ✅ 
-    - `foglalasaim.js` ✅
-    - `palyaim.js` ✅
-- CSS egységesítés: global.css + oldalspecifikus (profil.css, berleseim.css, stb.). 
-- Foglalás UI frissítés: új mezők megjelenítése (email, leírás), amit a backend ad.
-- Log rendszer bevezetése + külön `Log` részleg az admin menüben. ✅ (`1696830`)
+- Javascript újrastruktúrálása: ✅
+    - scripts/ ✅
+        - temaValto.js
+        - fooldal/osszes.js ✅
+        - profil/osszes.js ✅
+        - profil/admin/osszes.js ✅
+        - profil/palyatulajdonos/osszes.js ✅
+        - hibakezelo/osszes.js ✅
+- HTML oldalak frontend scriptjeinek külön fájlba szervezése: ✅
+    - `index.html` scriptjeinek kiszervezése ✅
+    - `palyak.html` scriptjeinek kiszervezése ✅
+    - `login.html` scriptjeinek kiszervezése ✅
+    - `register.html` scriptjeinek kiszervezése ✅
+    - `forgotpassword.html` scriptjeinek kiszervezése ✅
+- Téma kezelés egységesítése közös scriptben `theme-controller.js`
+- Log rendszer bevezetése + külön `Log` részleg az admin menüben. ✅
     - Backend oldalon logolás és log lekérdezés bővítése (`booking`, `pálya`, `user` útvonalak érintve). ✅
     - Frontenden új admin log oldal (`log.html`, `log.js`) és menüintegráció. ✅
     - SQL frissítés a log funkcióhoz (`palyanetsql.sql`). ✅

@@ -16,7 +16,7 @@
   function bejelentkezesEllenorzese() {
     var felhasznalo = felhasznaloBeolvasasa();
     if (!felhasznalo) {
-      window.location.href = "../../fooldal/login.html";
+      window.location.href = "../../fooldal/bejelentkezes.html";
       return null;
     }
     return felhasznalo;
@@ -43,7 +43,7 @@
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
       apiAlap: API_ALAP,
-      loginUrl: "../../fooldal/login.html"
+      loginUrl: "../../fooldal/bejelentkezes.html"
     });
   }
 

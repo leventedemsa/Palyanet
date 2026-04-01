@@ -13,12 +13,13 @@
   var hibaMegjelenitese = seged.hibaMegjelenitese;
   var figyelmeztetesMegjelenitese = seged.figyelmeztetesMegjelenitese;
   var muveletMegerositese = seged.muveletMegerositese;
+  var adminMenupontokMegjeleniteseHaAdmin = seged.adminMenupontokMegjeleniteseHaAdmin;
 
   // Ellenőrzi a belépést, és hiány esetén a login oldalra irányít.
   function bejelentkezesEllenorzese() {
     var felhasznalo = felhasznaloBeolvasasa();
     if (!felhasznalo) {
-      window.location.href = "../fooldal/login.html";
+      window.location.href = "../fooldal/bejelentkezes.html";
       return null;
     }
     return felhasznalo;
@@ -113,10 +114,6 @@
     var foglalasaimElemek = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
     var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var bejelentesekElemek = document.querySelectorAll('[data-sidebar-item="bejelentesek"]');
-    var adminPalyakElemek = document.querySelectorAll('[data-sidebar-item="admin-palyak"]');
-    var adminFelhasznalokElemek = document.querySelectorAll('[data-sidebar-item="admin-felhasznalok"]');
-    var adminLogokElemek = document.querySelectorAll('[data-sidebar-item="admin-logok"]');
     var palyatulajdonosE = felhasznalo.szerep === "palyatulajdonos";
     var adminE = felhasznalo.szerep === "admin";
 
@@ -124,10 +121,9 @@
     foglalasaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
     statisztikaElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
     berleseimElemek.forEach(function (elem) { elem.style.display = adminE ? "none" : ""; });
-    bejelentesekElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
-    adminPalyakElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
-    adminFelhasznalokElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
-    adminLogokElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+    if (typeof adminMenupontokMegjeleniteseHaAdmin === "function") {
+      adminMenupontokMegjeleniteseHaAdmin(felhasznalo);
+    }
 
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
@@ -135,7 +131,7 @@
       nevSelector: ".sidebar-user-name, #sidebarUserName",
       avatarSelector: ".sidebar-user-avatar, #sidebarUserAvatar",
       kijelentkezesSelector: ".sidebar-logout-btn, #sidebarLogoutBtn",
-      loginUrl: "../fooldal/login.html"
+      loginUrl: "../fooldal/bejelentkezes.html"
     });
   }
 

@@ -313,8 +313,8 @@ footer {
 
           <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav ms-auto align-items-lg-center gap-2">
-              <a class="nav-link" href="./contact.html">Kapcsolat</a>
-              <a class="nav-link" href="./login.html">Bejelentkezés</a>
+              <a class="nav-link" href="./kapcsolat.html">Kapcsolat</a>
+              <a class="nav-link" href="./bejelentkezes.html">Bejelentkezés</a>
 
               <div class="nav-item ms-lg-2">
                 <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
@@ -399,7 +399,7 @@ footer {
 
             <div class="text-center mt-3 small">
               Van már fiókod?
-              <a href="./login.html">Jelentkezz be</a>
+              <a href="./bejelentkezes.html">Jelentkezz be</a>
             </div>
           </section>
         </div>
@@ -413,113 +413,12 @@ footer {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="../auth-nav.js"></script>
+    <script src="../scripts/fooldal/regisztracio.js"></script>
 
-    <script>
-      const htmlEl = document.documentElement;
-      const btn = document.getElementById("themeToggle");
+    
 
-      function setTheme(theme) {
-        htmlEl.setAttribute("data-bs-theme", theme);
-        localStorage.setItem("theme", theme);
-
-        if (theme === "dark") {
-          btn.textContent = "☀️ Light";
-          btn.classList.remove("btn-outline-secondary");
-          btn.classList.add("btn-outline-light");
-        } else {
-          btn.textContent = "🌙 Dark";
-          btn.classList.remove("btn-outline-light");
-          btn.classList.add("btn-outline-secondary");
-        }
-      }
-
-      const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(saved ?? (prefersDark ? "dark" : "light"));
-
-      btn.addEventListener("click", () => {
-        const current = htmlEl.getAttribute("data-bs-theme") || "light";
-        setTheme(current === "dark" ? "light" : "dark");
-      });
-    </script>
-
-   <script>
-  const registerForm = document.getElementById("registerForm");
-
-  registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const email = document.getElementById("email").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const teljes_nev = document.getElementById("fullname").value.trim();
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-    const szerep = document.getElementById("role").value;
-
-    if (!registerForm.checkValidity()) {
-      registerForm.classList.add("was-validated");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      await Swal.fire({
-        icon: "warning",
-        title: "Eltérő jelszavak",
-        text: "A két jelszó nem egyezik.",
-        confirmButtonColor: "#ff7a18"
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:4000/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          email,
-          username,
-          teljes_nev,
-          password,
-          szerep
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        await Swal.fire({
-          icon: "error",
-          title: "Regisztrációs hiba",
-          text: data.message || "Hiba történt regisztráció közben.",
-          confirmButtonColor: "#ff7a18"
-        });
-        return;
-      }
-
-
-      localStorage.setItem("user", JSON.stringify(data.user));
-      
-      await Swal.fire({
-        icon: "success",
-        title: "Sikeres regisztráció",
-        text: "Most már be tudsz jelentkezni.",
-        confirmButtonColor: "#ff7a18"
-      });
-      window.location.href = "./login.html";
-    } catch (error) {
-      console.error(error);
-      await Swal.fire({
-        icon: "error",
-        title: "Kapcsolódási hiba",
-        text: "Nem sikerült kapcsolódni a szerverhez.",
-        confirmButtonColor: "#ff7a18"
-      });
-    }
-  });
-</script>
+   
   </body>
 </html>
+
 

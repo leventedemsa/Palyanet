@@ -30,7 +30,7 @@
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
       apiAlap: API_ALAP,
-      loginUrl: "../../fooldal/login.html"
+      loginUrl: "../../fooldal/bejelentkezes.html"
     });
 
     var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
@@ -222,7 +222,7 @@
 
   var felhasznalo = felhasznaloBeolvasasa();
   if (!felhasznalo) {
-    window.location.href = "../../fooldal/login.html";
+    window.location.href = "../../fooldal/bejelentkezes.html";
     return;
   }
   if (felhasznalo.szerep !== "palyatulajdonos") {

@@ -31,7 +31,7 @@
     localStorage.removeItem("user");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
-    window.location.href = atiranyitas || "../fooldal/login.html";
+    window.location.href = atiranyitas || "../fooldal/bejelentkezes.html";
   }
 
   // Relatív képútvonalból teljes URL-t készít.
@@ -80,7 +80,7 @@
     var nevSelector = be.nevSelector || ".sidebar-user-name";
     var avatarSelector = be.avatarSelector || ".sidebar-user-avatar";
     var kijelentkezesSelector = be.kijelentkezesSelector || ".sidebar-logout-btn";
-    var loginUrl = be.loginUrl || "../fooldal/login.html";
+    var loginUrl = be.loginUrl || "../fooldal/bejelentkezes.html";
     var megjelenitendoNev = felhasznalo.teljes_nev || felhasznalo.username || "Felhasználó";
 
     var nevMezok = document.querySelectorAll(nevSelector);
@@ -96,6 +96,16 @@
         esemeny.preventDefault();
         kijelentkezes(loginUrl);
       });
+    });
+  }
+
+  // Admin menupontokat csak admin szerepnel jeleniti meg.
+  function adminMenupontokMegjeleniteseHaAdmin(felhasznalo, selector) {
+    var szerep = String((felhasznalo && felhasznalo.szerep) || "").toLowerCase();
+    if (szerep !== "admin") return;
+    var celSelector = selector || '[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"], [data-sidebar-item="admin-logok"]';
+    document.querySelectorAll(celSelector).forEach(function (elem) {
+      elem.style.display = "";
     });
   }
 
@@ -211,6 +221,7 @@
     htmlSzovegEscape: htmlSzovegEscape,
     arSzoveg: arSzoveg,
     oldalsavAlapBekotes: oldalsavAlapBekotes,
+    adminMenupontokMegjeleniteseHaAdmin: adminMenupontokMegjeleniteseHaAdmin,
     oldalsavErtesitesekInditasaEgyszeru: oldalsavErtesitesekInditasaEgyszeru,
     sikerMegjelenitese: sikerMegjelenitese,
     hibaMegjelenitese: hibaMegjelenitese,

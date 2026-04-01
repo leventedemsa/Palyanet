@@ -321,8 +321,8 @@ footer {
 
           <div class="collapse navbar-collapse" id="navbarNav">
             <div class="navbar-nav ms-auto align-items-lg-center gap-2">
-              <a class="nav-link" href="./contact.html">Kapcsolat</a>
-              <a class="nav-link" href="./login.html">Bejelentkezés</a>
+              <a class="nav-link" href="./kapcsolat.html">Kapcsolat</a>
+              <a class="nav-link" href="./bejelentkezes.html">Bejelentkezés</a>
 
               <div class="nav-item ms-lg-2">
                 <button id="themeToggle" class="btn btn-outline-secondary btn-sm" type="button" aria-label="Téma váltása">🌙 Dark</button>
@@ -360,7 +360,7 @@ footer {
             </form>
 
             <div class="text-center mt-3 small">
-              <a href="./login.html" class="link-opacity-75">← Vissza a bejelentkezéshez</a>
+              <a href="./bejelentkezes.html" class="link-opacity-75">← Vissza a bejelentkezéshez</a>
             </div>
           </section>
         </div>
@@ -374,55 +374,13 @@ footer {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../auth-nav.js"></script>
 
-    <script>
-      const htmlEl = document.documentElement;
-      const btn = document.getElementById("themeToggle");
-
-      function setTheme(theme) {
-        htmlEl.setAttribute("data-bs-theme", theme);
-        localStorage.setItem("theme", theme);
-
-        if (theme === "dark") {
-          btn.textContent = "☀️ Light";
-          btn.classList.remove("btn-outline-secondary");
-          btn.classList.add("btn-outline-light");
-        } else {
-          btn.textContent = "🌙 Dark";
-          btn.classList.remove("btn-outline-light");
-          btn.classList.add("btn-outline-secondary");
-        }
-      }
-
-      const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(saved ?? (prefersDark ? "dark" : "light"));
-
-      btn.addEventListener("click", () => {
-        const current = htmlEl.getAttribute("data-bs-theme") || "light";
-        setTheme(current === "dark" ? "light" : "dark");
-      });
-    </script>
+    
 
     <!-- Bootstrap form validáció -->
-    <script>
-      (() => {
-        "use strict";
-        const forms = document.querySelectorAll(".needs-validation");
-        Array.from(forms).forEach((form) => {
-          form.addEventListener(
-            "submit",
-            (event) => {
-              if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
-              }
-              form.classList.add("was-validated");
-            },
-            false,
-          );
-        });
-      })();
-    </script>
+    <script src="../scripts/fooldal/elfelejtett-jelszo.js"></script>
+
+    
   </body>
 </html>
+
 

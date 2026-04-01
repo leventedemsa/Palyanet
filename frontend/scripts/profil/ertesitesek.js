@@ -14,6 +14,7 @@
   var hibaMegjelenitese = seged.hibaMegjelenitese;
   var muveletMegerositese = seged.muveletMegerositese;
   var htmlSzovegEscape = seged.htmlSzovegEscape;
+  var adminMenupontokMegjeleniteseHaAdmin = seged.adminMenupontokMegjeleniteseHaAdmin;
 
   // Relatív képútvonalból teljes URL-t készít.
   function abszolutKepUrl(url) {
@@ -22,7 +23,7 @@
 
   // Kijelentkezteti a felhasználót és visszairányít a belépéshez.
   function kijelentkezes() {
-    seged.kijelentkezes("../fooldal/login.html");
+    seged.kijelentkezes("../fooldal/bejelentkezes.html");
   }
 
   // Oldalsáv menüpontjait és profiladatait állítja be.
@@ -31,7 +32,6 @@
     var foglalasaimElemek = document.querySelectorAll('[data-sidebar-item="foglalasaim"]');
     var statisztikaElemek = document.querySelectorAll('[data-sidebar-item="statisztika"]');
     var berleseimElemek = document.querySelectorAll('[data-sidebar-item="berleseim"]');
-    var adminElemek = document.querySelectorAll('[data-sidebar-item="bejelentesek"], [data-sidebar-item="admin-palyak"], [data-sidebar-item="admin-felhasznalok"], [data-sidebar-item="admin-logok"]');
     var szerep = String(felhasznalo.szerep || "").toLowerCase();
     var palyatulajdonosE = szerep === "palyatulajdonos";
     var adminE = szerep === "admin";
@@ -40,12 +40,14 @@
     foglalasaimElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
     statisztikaElemek.forEach(function (elem) { elem.style.display = palyatulajdonosE ? "" : "none"; });
     berleseimElemek.forEach(function (elem) { elem.style.display = adminE ? "none" : ""; });
-    adminElemek.forEach(function (elem) { elem.style.display = adminE ? "" : "none"; });
+    if (typeof adminMenupontokMegjeleniteseHaAdmin === "function") {
+      adminMenupontokMegjeleniteseHaAdmin(felhasznalo);
+    }
 
     seged.oldalsavAlapBekotes({
       felhasznalo: felhasznalo,
       apiAlap: API_ALAP,
-      loginUrl: "../fooldal/login.html"
+      loginUrl: "../fooldal/bejelentkezes.html"
     });
   }
 
@@ -121,13 +123,13 @@
 
   var felhasznalo = felhasznaloBeolvasasa();
   if (!felhasznalo) {
-    window.location.href = "../fooldal/login.html";
+    window.location.href = "../fooldal/bejelentkezes.html";
     return;
   }
 
   var felhasznaloId = felhasznaloAzonosito(felhasznalo);
   if (!felhasznaloId) {
-    window.location.href = "../fooldal/login.html";
+    window.location.href = "../fooldal/bejelentkezes.html";
     return;
   }
 
