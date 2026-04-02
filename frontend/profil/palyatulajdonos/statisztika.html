@@ -428,18 +428,9 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-  <script>
-    (function(){
-      const saved = localStorage.getItem("theme");
-      if (saved) document.documentElement.setAttribute("data-bs-theme", saved);
-      else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        document.documentElement.setAttribute("data-bs-theme", "dark");
-      }
-    })();
-  </script>
+
+  <script src="../../scripts/tema-controller.js"></script>
   <script src="../../scripts/profil/palyatulajdonos/statisztika.js"></script>
 </body>
 </html>
-
-
 

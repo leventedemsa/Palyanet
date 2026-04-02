@@ -1,27 +1,4 @@
-﻿      const htmlEl = document.documentElement;
-      const btn = document.getElementById("themeToggle");
-
-      function setTheme(theme) {
-        htmlEl.setAttribute("data-bs-theme", theme);
-        localStorage.setItem("theme", theme);
-
-        if (theme === "dark") {
-          btn.textContent = "☀️ Light";
-        } else {
-          btn.textContent = "🌙 Dark";
-        }
-      }
-
-      const saved = localStorage.getItem("theme");
-      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(saved ?? (prefersDark ? "dark" : "light"));
-
-      btn.addEventListener("click", () => {
-        const current = htmlEl.getAttribute("data-bs-theme") || "light";
-        setTheme(current === "dark" ? "light" : "dark");
-      });
-
-      const observer = new IntersectionObserver(
+﻿const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {

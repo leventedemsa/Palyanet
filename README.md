@@ -93,10 +93,10 @@
 - HTML oldalak frontend scriptjeinek külön fájlba szervezése: ✅
     - `index.html` scriptjeinek kiszervezése ✅
     - `palyak.html` scriptjeinek kiszervezése ✅
-    - `login.html` scriptjeinek kiszervezése ✅
-    - `register.html` scriptjeinek kiszervezése ✅
-    - `forgotpassword.html` scriptjeinek kiszervezése ✅
-- Téma kezelés egységesítése közös scriptben `theme-controller.js`
+    - `bejelentkezes.html` scriptjeinek kiszervezése ✅
+    - `regisztracio.html` scriptjeinek kiszervezése ✅
+    - `elfelejtett-jelszo.html` scriptjeinek kiszervezése ✅
+- Téma kezelés egységesítése közös scriptben `tema-controller.js` ✅
 - Log rendszer bevezetése + külön `Log` részleg az admin menüben. ✅
     - Backend oldalon logolás és log lekérdezés bővítése (`booking`, `pálya`, `user` útvonalak érintve). ✅
     - Frontenden új admin log oldal (`log.html`, `log.js`) és menüintegráció. ✅
