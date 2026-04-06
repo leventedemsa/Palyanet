@@ -1,120 +1,126 @@
-const profileService = require("./service");
+const profilSzolgaltatas = require("./service");
 
-const uploadProfilePicture = async (req, res) => {
+// Profilkép feltöltése.
+const profilkepFeltoltese = async (req, res) => {
   try {
-    const result = await profileService.uploadProfilePicture({
+    const valasz = await profilSzolgaltatas.uploadProfilePicture({
       reqFile: req.file,
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Profilkép feltöltési hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Profilkép feltöltési hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a profilkép feltöltésekor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a profilkép feltöltésekor.",
     });
   }
 };
 
-const updateProfilePicture = async (req, res) => {
+// Profilkép frissítése.
+const profilkepFrissitese = async (req, res) => {
   try {
-    const result = await profileService.updateProfilePicture({
+    const valasz = await profilSzolgaltatas.updateProfilePicture({
       reqFile: req.file,
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Profilkép frissítési hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Profilkép frissítési hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a profilkép frissítésekor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a profilkép frissítésekor.",
     });
   }
 };
 
-const deleteProfilePicture = async (req, res) => {
+// Profilkép törlése.
+const profilkepTorlese = async (req, res) => {
   try {
-    const result = await profileService.deleteProfilePicture({
+    const valasz = await profilSzolgaltatas.deleteProfilePicture({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Profilkép törlési hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Profilkép törlési hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a profilkép törlésekor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a profilkép törlésekor.",
     });
   }
 };
 
-const getUserProfile = async (req, res) => {
+// Felhasználói profil lekérése.
+const felhasznaloiProfilLekerese = async (req, res) => {
   try {
-    const result = await profileService.getUserProfile({
+    const valasz = await profilSzolgaltatas.getUserProfile({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Profil lekérési hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Profil lekérési hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a profil lekérésekor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a profil lekérésekor.",
     });
   }
 };
 
-const updateUserProfile = async (req, res) => {
+// Felhasználói profil frissítése.
+const felhasznaloiProfilFrissitese = async (req, res) => {
   try {
-    const result = await profileService.updateUserProfile({
+    const valasz = await profilSzolgaltatas.updateUserProfile({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Profil adatfrissitesi hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Profil adatfrissitesi hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a profil adatok frissitesekor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a profil adatok frissitesekor.",
     });
   }
 };
 
-const changePassword = async (req, res) => {
+// Jelszó módosítása.
+const jelszoModositasa = async (req, res) => {
   try {
-    const result = await profileService.changePassword({
+    const valasz = await profilSzolgaltatas.changePassword({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
     });
-    return res.status(200).json(result);
-  } catch (error) {
-    if (!error.status || error.status === 500) {
-      console.error("Jelszocsere hiba:", error);
+    return res.status(200).json(valasz);
+  } catch (hiba) {
+    if (!hiba.status || hiba.status === 500) {
+      console.error("Jelszocsere hiba:", hiba);
     }
-    return res.status(error.status || 500).json({
-      message: error.message || "Hiba a jelszo modositasakor.",
+    return res.status(hiba.status || 500).json({
+      message: hiba.message || "Hiba a jelszo modositasakor.",
     });
   }
 };
 
 module.exports = {
-  uploadProfilePicture,
-  updateProfilePicture,
-  deleteProfilePicture,
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
+  profilkepFeltoltese,
+  profilkepFrissitese,
+  profilkepTorlese,
+  felhasznaloiProfilLekerese,
+  felhasznaloiProfilFrissitese,
+  jelszoModositasa,
 };

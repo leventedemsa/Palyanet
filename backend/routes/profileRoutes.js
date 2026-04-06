@@ -4,21 +4,21 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const {
-  uploadProfilePicture,
-  updateProfilePicture,
-  deleteProfilePicture,
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
+  profilkepFeltoltese,
+  profilkepFrissitese,
+  profilkepTorlese,
+  felhasznaloiProfilLekerese,
+  felhasznaloiProfilFrissitese,
+  jelszoModositasa,
 } = require("../controllers/profile");
 
-// Create temp directory if it doesn't exist
+// Átmeneti könyvtár létrehozása, ha még nem létezik.
 const tempDir = path.join(__dirname, "../temp");
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true });
 }
 
-// Configure multer for file uploads
+// Multer konfiguráció a fájlfeltöltéshez.
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, tempDir);
@@ -30,9 +30,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    // Only allow image files
+    // Csak képfájl feltöltésének engedélyezése.
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
@@ -41,12 +41,22 @@ const upload = multer({
   },
 });
 
-// Routes
-router.post("/upload", upload.single("profilePicture"), uploadProfilePicture);
-router.put("/update", upload.single("profilePicture"), updateProfilePicture);
-router.delete("/delete", deleteProfilePicture);
-router.get("/profile", getUserProfile);
-router.put("/update-data", updateUserProfile);
-router.put("/change-password", changePassword);
+// Profilkép feltöltése.
+router.post("/upload", upload.single("profilePicture"), profilkepFeltoltese);
+
+// Profilkép frissítése.
+router.put("/update", upload.single("profilePicture"), profilkepFrissitese);
+
+// Profilkép törlése.
+router.delete("/delete", profilkepTorlese);
+
+// Felhasználói profil lekérése.
+router.get("/profile", felhasznaloiProfilLekerese);
+
+// Felhasználói profiladatok frissítése.
+router.put("/update-data", felhasznaloiProfilFrissitese);
+
+// Jelszó módosítása.
+router.put("/change-password", jelszoModositasa);
 
 module.exports = router;

@@ -5,24 +5,27 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
-const palyaUploadsDir = path.join(__dirname, "..", "uploads", "palya");
-if (!fs.existsSync(palyaUploadsDir)) {
-  fs.mkdirSync(palyaUploadsDir, { recursive: true });
+const palyaFeltoltesiKonyvtar = path.join(__dirname, "..", "uploads", "palya");
+if (!fs.existsSync(palyaFeltoltesiKonyvtar)) {
+  fs.mkdirSync(palyaFeltoltesiKonyvtar, { recursive: true });
 }
 
-const storage = multer.diskStorage({
+const tarolo = multer.diskStorage({
   destination: function (_req, _file, cb) {
-    cb(null, palyaUploadsDir);
+    cb(null, palyaFeltoltesiKonyvtar);
   },
   filename: function (_req, file, cb) {
-    const ext = path.extname(file.originalname || "").toLowerCase();
-    const safeExt = ext && [".jpg", ".jpeg", ".png", ".webp"].includes(ext) ? ext : ".jpg";
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "palya-" + unique + safeExt);
+    const kiterjesztes = path.extname(file.originalname || "").toLowerCase();
+    const biztonsagosKiterjesztes =
+      kiterjesztes && [".jpg", ".jpeg", ".png", ".webp"].includes(kiterjesztes)
+        ? kiterjesztes
+        : ".jpg";
+    const egyediAzonosito = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, "palya-" + egyediAzonosito + biztonsagosKiterjesztes);
   },
 });
 
-const imageFileFilter = (_req, file, cb) => {
+const kepFajlSzuro = (_req, file, cb) => {
   if (!file || !file.mimetype) {
     return cb(new Error("Érvénytelen fájl"));
   }
@@ -32,35 +35,37 @@ const imageFileFilter = (_req, file, cb) => {
   return cb(new Error("Csak kep fajlok tolthetők fel"));
 };
 
-const upload = multer({
-  storage,
-  fileFilter: imageFileFilter,
+const feltolto = multer({
+  storage: tarolo,
+  fileFilter: kepFajlSzuro,
   limits: { fileSize: 5 * 1024 * 1024, files: 8 },
 });
 
-router.post("/upload-images", upload.array("images", 8), async (req, res) => {
+// Pályaképek feltöltése.
+router.post("/upload-images", feltolto.array("images", 8), async (req, res) => {
   try {
-    const files = Array.isArray(req.files) ? req.files : [];
-    if (!files.length) {
+    const fajlok = Array.isArray(req.files) ? req.files : [];
+    if (!fajlok.length) {
       return res.status(400).json({ error: "Nincs feltöltött kép" });
     }
 
-    const urls = files.map((file) => "/uploads/palya/" + file.filename);
-    return res.status(201).json({ message: "Képek sikeresen feltöltve", urls });
-  } catch (error) {
-    console.error("Pályakép-feltöltési hiba:", error);
+    const urlLista = fajlok.map((fajl) => "/uploads/palya/" + fajl.filename);
+    return res.status(201).json({ message: "Képek sikeresen feltöltve", urls: urlLista });
+  } catch (hiba) {
+    console.error("Pályakép-feltöltési hiba:", hiba);
     return res.status(500).json({ error: "Képfeltöltés sikertelen" });
   }
 });
 
-async function adminE(adminId) {
-  const id = parseInt(adminId, 10);
-  if (!id) return false;
+// Ellenőrzi, hogy az adott felhasználó admin jogosultságú-e.
+async function adminJogosultsagEllenorzes(adminAzonosito) {
+  const feldolgozottAdminAzonosito = parseInt(adminAzonosito, 10);
+  if (!feldolgozottAdminAzonosito) return false;
 
-  const pool = await poolPromise;
-  const result = await pool
+  const kapcsolat = await poolPromise;
+  const lekerdezesEredmenye = await kapcsolat
     .request()
-    .input("admin_id", sql.Int, id)
+    .input("admin_id", sql.Int, feldolgozottAdminAzonosito)
     .query(`
       SELECT felhasznalo_id
       FROM Felhasznalok
@@ -68,16 +73,16 @@ async function adminE(adminId) {
         AND szerep = N'admin'
     `);
 
-  return result.recordset.length > 0;
+  return lekerdezesEredmenye.recordset.length > 0;
 }
 
 // ===== ÖSSZES PÁLYA LEKÉRÉSE SZŰRÉSEKKEL =====
 router.get("/", async (req, res) => {
   try {
-    const { sportag, helyszin, maxar, datum } = req.query;
+    const { sportag, helyszin, maxar } = req.query;
     
-    const pool = await poolPromise;
-    let query = `
+    const kapcsolat = await poolPromise;
+    let lekerdezes = `
       SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
              p.kep_url, p.nyitas, p.zaras, p.letrehozva,
              ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
@@ -88,26 +93,26 @@ router.get("/", async (req, res) => {
     `;
     
     if (sportag) {
-      query += ` AND p.sportag = @sportag`;
+      lekerdezes += ` AND p.sportag = @sportag`;
     }
     if (helyszin) {
-      query += ` AND p.helyszin LIKE @helyszin`;
+      lekerdezes += ` AND p.helyszin LIKE @helyszin`;
     }
     if (maxar) {
-      query += ` AND p.ar_ora <= @maxar`;
+      lekerdezes += ` AND p.ar_ora <= @maxar`;
     }
     
-    query += ` ORDER BY p.letrehozva DESC`;
+    lekerdezes += ` ORDER BY p.letrehozva DESC`;
     
-    const request = pool.request();
-    if (sportag) request.input("sportag", sql.NVarChar, sportag);
-    if (helyszin) request.input("helyszin", sql.NVarChar, `%${helyszin}%`);
-    if (maxar) request.input("maxar", sql.Int, parseInt(maxar));
+    const lekeres = kapcsolat.request();
+    if (sportag) lekeres.input("sportag", sql.NVarChar, sportag);
+    if (helyszin) lekeres.input("helyszin", sql.NVarChar, `%${helyszin}%`);
+    if (maxar) lekeres.input("maxar", sql.Int, parseInt(maxar, 10));
     
-    const result = await request.query(query);
-    res.json(result.recordset);
-  } catch (error) {
-    console.error("Pálya lekérési hiba:", error);
+    const lekerdezesEredmenye = await lekeres.query(lekerdezes);
+    res.json(lekerdezesEredmenye.recordset);
+  } catch (hiba) {
+    console.error("Pálya lekérési hiba:", hiba);
     res.status(500).json({ error: "Pálya lekérése sikertelen" });
   }
 });
@@ -115,15 +120,15 @@ router.get("/", async (req, res) => {
 // ===== TULAJ SAJÁT PÁLYÁI =====
 router.get("/owner/:tulaj_id", async (req, res) => {
   try {
-    const tulajId = parseInt(req.params.tulaj_id, 10);
-    if (!tulajId) {
+    const tulajdonosAzonosito = parseInt(req.params.tulaj_id, 10);
+    if (!tulajdonosAzonosito) {
       return res.status(400).json({ error: "Érvénytelen tulajdonos ID" });
     }
 
-    const pool = await poolPromise;
-    const result = await pool
+    const kapcsolat = await poolPromise;
+    const lekerdezesEredmenye = await kapcsolat
       .request()
-      .input("tulaj_id", sql.Int, tulajId)
+      .input("tulaj_id", sql.Int, tulajdonosAzonosito)
       .query(`
         SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras,
                p.kep_url, p.nyitas, p.zaras, p.letrehozva,
@@ -135,9 +140,9 @@ router.get("/owner/:tulaj_id", async (req, res) => {
         ORDER BY p.letrehozva DESC
       `);
 
-    return res.json(result.recordset);
-  } catch (error) {
-    console.error("Tulaj pályáinak lekérési hiba:", error);
+    return res.json(lekerdezesEredmenye.recordset);
+  } catch (hiba) {
+    console.error("Tulaj pályáinak lekérési hiba:", hiba);
     return res.status(500).json({ error: "Tulaj pályáinak lekérése sikertelen" });
   }
 });
@@ -146,20 +151,20 @@ router.get("/owner/:tulaj_id", async (req, res) => {
 // ===== ADMIN PÁLYÁK LISTÁJA (PÁLYA ID/FELHASZNÁLÓNÉV SZŰRÉS) =====
 router.get("/admin/list", async (req, res) => {
   try {
-    const adminId = parseInt(req.query.admin_id, 10);
-    const palyaId = parseInt(req.query.palya_id, 10);
-    const username = String(req.query.username || "").trim();
+    const adminAzonosito = parseInt(req.query.admin_id, 10);
+    const palyaAzonosito = parseInt(req.query.palya_id, 10);
+    const felhasznalonev = String(req.query.username || "").trim();
 
-    if (!adminId) {
+    if (!adminAzonosito) {
       return res.status(400).json({ error: "Hiányzó admin_id" });
     }
-    if (!(await adminE(adminId))) {
+    if (!(await adminJogosultsagEllenorzes(adminAzonosito))) {
       return res.status(403).json({ error: "Nincs jogosultság" });
     }
 
-    const pool = await poolPromise;
-    const request = pool.request();
-    let query = `
+    const kapcsolat = await poolPromise;
+    const lekeres = kapcsolat.request();
+    let lekerdezes = `
       SELECT
         p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.letrehozva,
         ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
@@ -170,20 +175,20 @@ router.get("/admin/list", async (req, res) => {
       WHERE 1=1
     `;
 
-    if (palyaId) {
-      query += " AND p.palya_id = @palya_id";
-      request.input("palya_id", sql.Int, palyaId);
+    if (palyaAzonosito) {
+      lekerdezes += " AND p.palya_id = @palya_id";
+      lekeres.input("palya_id", sql.Int, palyaAzonosito);
     }
-    if (username) {
-      query += " AND f.username LIKE @username";
-      request.input("username", sql.NVarChar(50), `%${username}%`);
+    if (felhasznalonev) {
+      lekerdezes += " AND f.username LIKE @username";
+      lekeres.input("username", sql.NVarChar(50), `%${felhasznalonev}%`);
     }
-    query += " ORDER BY p.letrehozva DESC";
+    lekerdezes += " ORDER BY p.letrehozva DESC";
 
-    const result = await request.query(query);
-    return res.json(result.recordset);
-  } catch (error) {
-    console.error("Admin pályalista hiba:", error);
+    const lekerdezesEredmenye = await lekeres.query(lekerdezes);
+    return res.json(lekerdezesEredmenye.recordset);
+  } catch (hiba) {
+    console.error("Admin pályalista hiba:", hiba);
     return res.status(500).json({ error: "Admin pályalista lekérése sikertelen" });
   }
 });
@@ -191,31 +196,31 @@ router.get("/admin/list", async (req, res) => {
 // ===== ADMIN PALYA TORLES =====
 router.delete("/admin/:id", async (req, res) => {
   try {
-    const adminId = parseInt(req.query.admin_id, 10);
-    const palyaId = parseInt(req.params.id, 10);
-    const torlesIndok = String(req.body.torles_indok || "").trim();
+    const adminAzonosito = parseInt(req.query.admin_id, 10);
+    const palyaAzonosito = parseInt(req.params.id, 10);
+    const torlesIndoklas = String(req.body.torles_indok || "").trim();
 
-    if (!adminId || !palyaId) {
+    if (!adminAzonosito || !palyaAzonosito) {
       return res.status(400).json({ error: "Hiányzó admin_id vagy palya_id" });
     }
-    if (!torlesIndok) {
+    if (!torlesIndoklas) {
       return res.status(400).json({ error: "A törlés indoka kötelező" });
     }
-    if (!(await adminE(adminId))) {
+    if (!(await adminJogosultsagEllenorzes(adminAzonosito))) {
       return res.status(403).json({ error: "Nincs jogosultság" });
     }
 
-    const pool = await poolPromise;
-    const transaction = new sql.Transaction(pool);
-    await transaction.begin();
+    const kapcsolat = await poolPromise;
+    const tranzakcio = new sql.Transaction(kapcsolat);
+    await tranzakcio.begin();
 
     try {
-      const request = new sql.Request(transaction);
-      request.input("palya_id", sql.Int, palyaId);
-      request.input("admin_id", sql.Int, adminId);
-      request.input("indok", sql.NVarChar(1500), torlesIndok);
+      const lekeres = new sql.Request(tranzakcio);
+      lekeres.input("palya_id", sql.Int, palyaAzonosito);
+      lekeres.input("admin_id", sql.Int, adminAzonosito);
+      lekeres.input("indok", sql.NVarChar(1500), torlesIndoklas);
 
-      const palyaEredmeny = await request.query(`
+      const palyaEredmeny = await lekeres.query(`
         SELECT p.palya_id, p.nev, p.tulaj_id, f.username
         FROM Palya p
         JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
@@ -223,50 +228,50 @@ router.delete("/admin/:id", async (req, res) => {
       `);
 
       if (!palyaEredmeny.recordset[0]) {
-        await transaction.rollback();
+        await tranzakcio.rollback();
         return res.status(404).json({ error: "Pálya nem található" });
       }
 
-      const palya = palyaEredmeny.recordset[0];
-      const tulajId = parseInt(palya.tulaj_id, 10);
-      const ertesitesSzoveg = `A(z) "${palya.nev}" pályád admin által törölve lett. Indok: ${torlesIndok}`;
+      const talaltPalya = palyaEredmeny.recordset[0];
+      const tulajdonosAzonosito = parseInt(talaltPalya.tulaj_id, 10);
+      const ertesitesSzoveg = `A(z) "${talaltPalya.nev}" pályád admin által törölve lett. Indok: ${torlesIndoklas}`;
 
-      await request.query(`
+      await lekeres.query(`
         DELETE FROM Bejelentesek WHERE palya_id = @palya_id;
         DELETE FROM Foglalas WHERE palya_id = @palya_id;
       `);
 
-      const result = await request.query(`
+      const torlesEredmenye = await lekeres.query(`
         DELETE FROM Palya WHERE palya_id = @palya_id;
         SELECT @@ROWCOUNT AS affected;
       `);
 
-      if (!result.recordset[0] || result.recordset[0].affected === 0) {
-        await transaction.rollback();
+      if (!torlesEredmenye.recordset[0] || torlesEredmenye.recordset[0].affected === 0) {
+        await tranzakcio.rollback();
         return res.status(404).json({ error: "Pálya nem található" });
       }
 
-      request.input("cimzett_id", sql.Int, tulajId);
-      request.input("uzenet", sql.NVarChar(sql.MAX), ertesitesSzoveg);
-      await request.query(`
+      lekeres.input("cimzett_id", sql.Int, tulajdonosAzonosito);
+      lekeres.input("uzenet", sql.NVarChar(sql.MAX), ertesitesSzoveg);
+      await lekeres.query(`
         INSERT INTO Ertesites (kuldo_id, cimzett_id, uzenet, olvasott)
         VALUES (@admin_id, @cimzett_id, @uzenet, 0)
       `);
 
-      request.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
-      await request.query(`
+      lekeres.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
+      await lekeres.query(`
         INSERT INTO Log (felhasznalo_id, esemeny_tipus)
         VALUES (@admin_id, @esemeny_tipus)
       `);
 
-      await transaction.commit();
+      await tranzakcio.commit();
       return res.json({ message: "Pálya sikeresen törölve" });
-    } catch (innerError) {
-      await transaction.rollback();
-      throw innerError;
+    } catch (belsoHiba) {
+      await tranzakcio.rollback();
+      throw belsoHiba;
     }
-  } catch (error) {
-    console.error("Admin pálya törlési hiba:", error);
+  } catch (hiba) {
+    console.error("Admin pálya törlési hiba:", hiba);
     return res.status(500).json({ error: "Admin pálya törlése sikertelen" });
   }
 });
@@ -274,29 +279,29 @@ router.delete("/admin/:id", async (req, res) => {
 // Admin pálya felfüggesztés/feldolgozás.
 router.patch("/admin/:id/suspension", async (req, res) => {
   try {
-    const adminId = parseInt(req.body && req.body.admin_id, 10);
-    const palyaId = parseInt(req.params.id, 10);
+    const adminAzonosito = parseInt(req.body && req.body.admin_id, 10);
+    const palyaAzonosito = parseInt(req.params.id, 10);
     const felfuggesztve = Boolean(req.body && req.body.felfuggesztve);
-    const indok = String((req.body && req.body.indok) || "").trim();
+    const indoklas = String((req.body && req.body.indok) || "").trim();
 
-    if (!adminId || !palyaId) {
+    if (!adminAzonosito || !palyaAzonosito) {
       return res.status(400).json({ error: "Hiányzó admin_id vagy palya_id" });
     }
-    if (!(await adminE(adminId))) {
+    if (!(await adminJogosultsagEllenorzes(adminAzonosito))) {
       return res.status(403).json({ error: "Nincs jogosultság" });
     }
-    if (felfuggesztve && !indok) {
+    if (felfuggesztve && !indoklas) {
       return res.status(400).json({ error: "A felfüggesztés indoka kötelező" });
     }
 
-    const pool = await poolPromise;
-    const request = pool.request();
-    request.input("palya_id", sql.Int, palyaId);
-    request.input("admin_id", sql.Int, adminId);
-    request.input("indok", sql.NVarChar(1500), indok || null);
-    request.input("felfuggesztve", sql.Bit, felfuggesztve ? 1 : 0);
+    const kapcsolat = await poolPromise;
+    const lekeres = kapcsolat.request();
+    lekeres.input("palya_id", sql.Int, palyaAzonosito);
+    lekeres.input("admin_id", sql.Int, adminAzonosito);
+    lekeres.input("indok", sql.NVarChar(1500), indoklas || null);
+    lekeres.input("felfuggesztve", sql.Bit, felfuggesztve ? 1 : 0);
 
-    const result = await request.query(`
+    const frissitesEredmenye = await lekeres.query(`
       UPDATE Palya
       SET
         felfuggesztve = @felfuggesztve,
@@ -307,16 +312,16 @@ router.patch("/admin/:id/suspension", async (req, res) => {
       SELECT @@ROWCOUNT AS affected;
     `);
 
-    if (!result.recordset[0] || result.recordset[0].affected === 0) {
+    if (!frissitesEredmenye.recordset[0] || frissitesEredmenye.recordset[0].affected === 0) {
       return res.status(404).json({ error: "Pálya nem található" });
     }
 
-    request.input(
+    lekeres.input(
       "esemeny_tipus",
       sql.NVarChar(100),
       felfuggesztve ? "palya_felfuggesztve" : "palya_felfuggesztes_feloldva"
     );
-    await request.query(`
+    await lekeres.query(`
       INSERT INTO Log (felhasznalo_id, esemeny_tipus)
       VALUES (@admin_id, @esemeny_tipus)
     `);
@@ -324,20 +329,21 @@ router.patch("/admin/:id/suspension", async (req, res) => {
     return res.json({
       message: felfuggesztve ? "Pálya felfüggesztve" : "Pálya felfüggesztése feloldva",
     });
-  } catch (error) {
-    console.error("Admin pálya felfüggesztési hiba:", error);
+  } catch (hiba) {
+    console.error("Admin pálya felfüggesztési hiba:", hiba);
     return res.status(500).json({ error: "Pálya felfüggesztés frissítése sikertelen" });
   }
 });
 
+// Egy adott pálya részletes lekérése.
 router.get("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const pool = await poolPromise;
+    const palyaAzonosito = req.params.id;
+    const kapcsolat = await poolPromise;
     
-    const result = await pool
+    const lekerdezesEredmenye = await kapcsolat
       .request()
-      .input("palya_id", sql.Int, id)
+      .input("palya_id", sql.Int, palyaAzonosito)
       .query(`
         SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
                p.kep_url, p.nyitas, p.zaras, p.letrehozva,
@@ -347,13 +353,13 @@ router.get("/:id", async (req, res) => {
         WHERE p.palya_id = @palya_id
       `);
     
-    if (result.recordset.length === 0) {
+    if (lekerdezesEredmenye.recordset.length === 0) {
       return res.status(404).json({ error: "Pálya nem található" });
     }
     
-    res.json(result.recordset[0]);
-  } catch (error) {
-    console.error("Pálya lekérési hiba:", error);
+    res.json(lekerdezesEredmenye.recordset[0]);
+  } catch (hiba) {
+    console.error("Pálya lekérési hiba:", hiba);
     res.status(500).json({ error: "Pálya lekérése sikertelen" });
   }
 });
@@ -377,14 +383,14 @@ router.post("/", async (req, res) => {
     }
 
     // Time formátum konverzió: HH:MM -> HH:MM:SS
-    let nyitas_formatted = (nyitas && nyitas.trim()) ? nyitas + ":00" : "";
-    let zaras_formatted = (zaras && zaras.trim()) ? zaras + ":00" : "";
+    let nyitasFormazott = (nyitas && nyitas.trim()) ? nyitas + ":00" : "";
+    let zarasFormazott = (zaras && zaras.trim()) ? zaras + ":00" : "";
     
-    console.log("Időmezők konverzió - nyitas:", nyitas_formatted, "zaras:", zaras_formatted);
+    console.log("Időmezők konverzió - nyitas:", nyitasFormazott, "zaras:", zarasFormazott);
     
-    const pool = await poolPromise;
+    const kapcsolat = await poolPromise;
     
-    const result = await pool
+    const lekerdezesEredmenye = await kapcsolat
       .request()
       .input("tulaj_id", sql.Int, tulaj_id)
       .input("nev", sql.NVarChar, nev)
@@ -393,8 +399,8 @@ router.post("/", async (req, res) => {
       .input("ar_ora", sql.Float, parseFloat(ar_ora) || 0)
       .input("leiras", sql.NVarChar, leiras || "")
       .input("kep_url", sql.NVarChar, kep_url || "")
-      .input("nyitas", sql.NVarChar, nyitas_formatted || "")
-      .input("zaras", sql.NVarChar, zaras_formatted || "")
+      .input("nyitas", sql.NVarChar, nyitasFormazott || "")
+      .input("zaras", sql.NVarChar, zarasFormazott || "")
       .query(`
         INSERT INTO Palya (tulaj_id, nev, sportag, helyszin, ar_ora, leiras, kep_url, nyitas, zaras, letrehozva)
         VALUES (@tulaj_id, @nev, @sportag, @helyszin, @ar_ora, @leiras, @kep_url, 
@@ -402,7 +408,7 @@ router.post("/", async (req, res) => {
         SELECT SCOPE_IDENTITY() AS palya_id;
       `);
     
-    await pool
+    await kapcsolat
       .request()
       .input("felhasznalo_id", sql.Int, tulaj_id)
       .input("esemeny_tipus", sql.NVarChar(100), "palya_letrehozva")
@@ -411,73 +417,73 @@ router.post("/", async (req, res) => {
         VALUES (@felhasznalo_id, @esemeny_tipus)
       `);
 
-    console.log("Pálya sikeresen hozzáadva, ID:", result.recordset[0].palya_id);
+    console.log("Pálya sikeresen hozzáadva, ID:", lekerdezesEredmenye.recordset[0].palya_id);
     res.status(201).json({
       message: "Pálya sikeresen létrehozva",
-      palya_id: result.recordset[0].palya_id
+      palya_id: lekerdezesEredmenye.recordset[0].palya_id
     });
-  } catch (error) {
-    console.error("Pálya létrehozási hiba:", error);
-    res.status(500).json({ error: "Pálya létrehozása sikertelen: " + error.message });
+  } catch (hiba) {
+    console.error("Pálya létrehozási hiba:", hiba);
+    res.status(500).json({ error: "Pálya létrehozása sikertelen: " + hiba.message });
   }
 });
 
 // ===== PÁLYA TÖRLÉSE =====
 router.delete("/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    const pool = await poolPromise;
-    const transaction = new sql.Transaction(pool);
-    await transaction.begin();
+    const palyaAzonosito = req.params.id;
+    const kapcsolat = await poolPromise;
+    const tranzakcio = new sql.Transaction(kapcsolat);
+    await tranzakcio.begin();
 
     try {
-      const request = new sql.Request(transaction);
-      request.input("palya_id", sql.Int, id);
+      const lekeres = new sql.Request(tranzakcio);
+      lekeres.input("palya_id", sql.Int, palyaAzonosito);
 
-      const palyaResult = await request.query(`
+      const palyaEredmenye = await lekeres.query(`
         SELECT tulaj_id
         FROM Palya
         WHERE palya_id = @palya_id;
       `);
 
-      if (!palyaResult.recordset[0]) {
-        await transaction.rollback();
+      if (!palyaEredmenye.recordset[0]) {
+        await tranzakcio.rollback();
         return res.status(404).json({ error: "Pálya nem található" });
       }
 
-      const tulajId = parseInt(palyaResult.recordset[0].tulaj_id, 10);
+      const tulajdonosAzonosito = parseInt(palyaEredmenye.recordset[0].tulaj_id, 10);
 
-      await request.query(`
+      await lekeres.query(`
         DELETE FROM Bejelentesek WHERE palya_id = @palya_id;
         DELETE FROM Foglalas WHERE palya_id = @palya_id;
       `);
 
-      const result = await request.query(`
+      const torlesEredmenye = await lekeres.query(`
         DELETE FROM Palya WHERE palya_id = @palya_id;
         SELECT @@ROWCOUNT AS affected;
       `);
 
-      if (!result.recordset[0] || result.recordset[0].affected === 0) {
-        await transaction.rollback();
+      if (!torlesEredmenye.recordset[0] || torlesEredmenye.recordset[0].affected === 0) {
+        await tranzakcio.rollback();
         return res.status(404).json({ error: "Pálya nem található" });
       }
 
-      request.input("felhasznalo_id", sql.Int, tulajId);
-      request.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
-      await request.query(`
+      lekeres.input("felhasznalo_id", sql.Int, tulajdonosAzonosito);
+      lekeres.input("esemeny_tipus", sql.NVarChar(100), "palya_torolve");
+      await lekeres.query(`
         INSERT INTO Log (felhasznalo_id, esemeny_tipus)
         VALUES (@felhasznalo_id, @esemeny_tipus)
       `);
 
-      await transaction.commit();
+      await tranzakcio.commit();
 
       return res.json({ message: "Pálya sikeresen törölve" });
-    } catch (innerError) {
-      await transaction.rollback();
-      throw innerError;
+    } catch (belsoHiba) {
+      await tranzakcio.rollback();
+      throw belsoHiba;
     }
-  } catch (error) {
-    console.error("Pálya törlési hiba:", error);
+  } catch (hiba) {
+    console.error("Pálya törlési hiba:", hiba);
     res.status(500).json({ error: "Pálya törlése sikertelen" });
   }
 });
@@ -485,31 +491,31 @@ router.delete("/:id", async (req, res) => {
 // ===== PÁLYA MÓDOSÍTÁSA =====
 router.put("/:id", async (req, res) => {
   try {
-    const palyaId = parseInt(req.params.id, 10);
+    const palyaAzonosito = parseInt(req.params.id, 10);
     const { nev, sportag, helyszin, ar_ora, leiras, kep_url, nyitas, zaras } = req.body;
 
-    if (!palyaId) {
+    if (!palyaAzonosito) {
       return res.status(400).json({ error: "Érvénytelen pálya ID" });
     }
     if (!nev || !sportag || !helyszin || !ar_ora) {
       return res.status(400).json({ error: "Hiányzó kötelező mezők: nev, sportag, helyszin, ar_ora" });
     }
 
-    const nyitasFormatted = (nyitas && String(nyitas).trim()) ? String(nyitas).slice(0, 5) + ":00" : "08:00:00";
-    const zarasFormatted = (zaras && String(zaras).trim()) ? String(zaras).slice(0, 5) + ":00" : "20:00:00";
+    const nyitasFormazott = (nyitas && String(nyitas).trim()) ? String(nyitas).slice(0, 5) + ":00" : "08:00:00";
+    const zarasFormazott = (zaras && String(zaras).trim()) ? String(zaras).slice(0, 5) + ":00" : "20:00:00";
 
-    const pool = await poolPromise;
-    const result = await pool
+    const kapcsolat = await poolPromise;
+    const frissitesEredmenye = await kapcsolat
       .request()
-      .input("palya_id", sql.Int, palyaId)
+      .input("palya_id", sql.Int, palyaAzonosito)
       .input("nev", sql.NVarChar, nev)
       .input("sportag", sql.NVarChar, sportag)
       .input("helyszin", sql.NVarChar, helyszin)
       .input("ar_ora", sql.Float, parseFloat(ar_ora) || 0)
       .input("leiras", sql.NVarChar, leiras || "")
       .input("kep_url", sql.NVarChar, kep_url || "")
-      .input("nyitas", sql.NVarChar, nyitasFormatted)
-      .input("zaras", sql.NVarChar, zarasFormatted)
+      .input("nyitas", sql.NVarChar, nyitasFormazott)
+      .input("zaras", sql.NVarChar, zarasFormazott)
       .query(`
         UPDATE Palya
         SET nev = @nev,
@@ -525,13 +531,13 @@ router.put("/:id", async (req, res) => {
         SELECT @@ROWCOUNT AS affected;
       `);
 
-    if (!result.recordset[0] || result.recordset[0].affected === 0) {
+    if (!frissitesEredmenye.recordset[0] || frissitesEredmenye.recordset[0].affected === 0) {
       return res.status(404).json({ error: "Pálya nem található" });
     }
 
     return res.json({ message: "Pálya sikeresen módosítva" });
-  } catch (error) {
-    console.error("Pálya módosítási hiba:", error);
+  } catch (hiba) {
+    console.error("Pálya módosítási hiba:", hiba);
     return res.status(500).json({ error: "Pálya módosítása sikertelen" });
   }
 });

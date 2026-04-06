@@ -2,41 +2,43 @@ const express = require("express");
 const router = express.Router();
 const { sql, poolPromise } = require("../db");
 
+// Olvasatlan értesítések számának lekérése.
 router.get("/unread-count/:user_id", async (req, res) => {
   try {
-    const userId = parseInt(req.params.user_id, 10);
-    if (!userId) {
+    const felhasznaloAzonosito = parseInt(req.params.user_id, 10);
+    if (!felhasznaloAzonosito) {
       return res.status(400).json({ message: "Ervenytelen felhasznalo ID" });
     }
 
-    const pool = await poolPromise;
-    const result = await pool
+    const kapcsolat = await poolPromise;
+    const lekerdezesEredmenye = await kapcsolat
       .request()
-      .input("user_id", sql.Int, userId)
+      .input("user_id", sql.Int, felhasznaloAzonosito)
       .query(`
         SELECT COUNT(*) AS count
         FROM Ertesites
         WHERE cimzett_id = @user_id AND olvasott = 0
       `);
 
-    return res.json({ count: result.recordset[0]?.count || 0 });
-  } catch (error) {
-    console.error("Unread notifications count hiba:", error);
+    return res.json({ count: lekerdezesEredmenye.recordset[0]?.count || 0 });
+  } catch (hiba) {
+    console.error("Unread notifications count hiba:", hiba);
     return res.status(500).json({ message: "Ertesites szam lekerese sikertelen" });
   }
 });
 
+// Felhasználó értesítéseinek listázása.
 router.get("/:user_id", async (req, res) => {
   try {
-    const userId = parseInt(req.params.user_id, 10);
-    if (!userId) {
+    const felhasznaloAzonosito = parseInt(req.params.user_id, 10);
+    if (!felhasznaloAzonosito) {
       return res.status(400).json({ message: "Ervenytelen felhasznalo ID" });
     }
 
-    const pool = await poolPromise;
-    const result = await pool
+    const kapcsolat = await poolPromise;
+    const lekerdezesEredmenye = await kapcsolat
       .request()
-      .input("user_id", sql.Int, userId)
+      .input("user_id", sql.Int, felhasznaloAzonosito)
       .query(`
         SELECT TOP 30
           ertesites_id,
@@ -50,62 +52,64 @@ router.get("/:user_id", async (req, res) => {
         ORDER BY letrehozva DESC
       `);
 
-    return res.json(result.recordset);
-  } catch (error) {
-    console.error("Notifications list hiba:", error);
+    return res.json(lekerdezesEredmenye.recordset);
+  } catch (hiba) {
+    console.error("Notifications list hiba:", hiba);
     return res.status(500).json({ message: "Ertesitesek lekerese sikertelen" });
   }
 });
 
+// Egy adott értesítés törlése.
 router.delete("/:user_id/:notification_id", async (req, res) => {
   try {
-    const userId = parseInt(req.params.user_id, 10);
-    const notificationId = parseInt(req.params.notification_id, 10);
-    if (!userId || !notificationId) {
+    const felhasznaloAzonosito = parseInt(req.params.user_id, 10);
+    const ertesitesAzonosito = parseInt(req.params.notification_id, 10);
+    if (!felhasznaloAzonosito || !ertesitesAzonosito) {
       return res.status(400).json({ message: "Ervenytelen azonosito" });
     }
 
-    const pool = await poolPromise;
-    const result = await pool
+    const kapcsolat = await poolPromise;
+    const torlesEredmenye = await kapcsolat
       .request()
-      .input("user_id", sql.Int, userId)
-      .input("notification_id", sql.Int, notificationId)
+      .input("user_id", sql.Int, felhasznaloAzonosito)
+      .input("notification_id", sql.Int, ertesitesAzonosito)
       .query(`
         DELETE FROM Ertesites
         WHERE ertesites_id = @notification_id
           AND cimzett_id = @user_id
       `);
 
-    if (!result.rowsAffected || !result.rowsAffected[0]) {
+    if (!torlesEredmenye.rowsAffected || !torlesEredmenye.rowsAffected[0]) {
       return res.status(404).json({ message: "Ertesites nem talalhato" });
     }
 
     return res.json({ message: "Ertesites torolve" });
-  } catch (error) {
-    console.error("Notification delete hiba:", error);
+  } catch (hiba) {
+    console.error("Notification delete hiba:", hiba);
     return res.status(500).json({ message: "Ertesites torlese sikertelen" });
   }
 });
 
+// Felhasználó összes értesítésének törlése.
 router.delete("/:user_id", async (req, res) => {
   try {
-    const userId = parseInt(req.params.user_id, 10);
-    if (!userId) {
+    const felhasznaloAzonosito = parseInt(req.params.user_id, 10);
+    if (!felhasznaloAzonosito) {
       return res.status(400).json({ message: "Ervenytelen felhasznalo ID" });
     }
 
-    const pool = await poolPromise;
-    await pool
+    const kapcsolat = await poolPromise;
+    await kapcsolat
       .request()
-      .input("user_id", sql.Int, userId)
+      .input("user_id", sql.Int, felhasznaloAzonosito)
       .query(`
         DELETE FROM Ertesites
         WHERE cimzett_id = @user_id
       `);
 
     return res.json({ message: "Ertesitesek torolve" });
-  } catch (error) {
-    console.error("All notifications delete hiba:", error);
+  } catch (hiba) {
+    console.error("All notifications delete hiba:", hiba);
     return res.status(500).json({ message: "Ertesitesek torlese sikertelen" });
   }
 });

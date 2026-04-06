@@ -1,30 +1,30 @@
 const express = require("express");
 const router = express.Router();
 const {
-  createBooking,
-  getBookingsForOwner,
-  getBookingsForRenter,
-  acceptBooking,
-  rejectBooking,
-  getPendingBookingCount,
+  foglalasLetrehozasa,
+  tulajFoglalasainakLekerese,
+  berloFoglalasainakLekerese,
+  foglalasElfogadasa,
+  foglalasElutasitasa,
+  fuggobenLevoFoglalasokSzama,
 } = require("../controllers/booking");
 
-// Create new booking
-router.post("/create", createBooking);
+// Új foglalás létrehozása.
+router.post("/create", foglalasLetrehozasa);
 
-// Get bookings for owner
-router.get("/owner/:tulaj_id", getBookingsForOwner);
+// Tulajdonos foglalásainak lekérése.
+router.get("/owner/:tulaj_id", tulajFoglalasainakLekerese);
 
-// Get bookings for renter
-router.get("/renter/:berlo_id", getBookingsForRenter);
+// Bérlő foglalásainak lekérése.
+router.get("/renter/:berlo_id", berloFoglalasainakLekerese);
 
-// Accept booking
-router.post("/accept", acceptBooking);
+// Foglalás elfogadása.
+router.post("/accept", foglalasElfogadasa);
 
-// Reject booking
-router.post("/reject", rejectBooking);
+// Foglalás elutasítása.
+router.post("/reject", foglalasElutasitasa);
 
-// Get pending booking count for owner
-router.get("/pending-count/:tulaj_id", getPendingBookingCount);
+// Függőben lévő foglalások számának lekérése tulajdonoshoz.
+router.get("/pending-count/:tulaj_id", fuggobenLevoFoglalasokSzama);
 
 module.exports = router;

@@ -1,17 +1,17 @@
 const {
-  createBooking,
-  getBookingsForOwner,
-  getBookingsForRenter,
-  acceptBooking,
-  rejectBooking,
-  getPendingBookingCount,
+  foglalasLetrehozasa,
+  tulajFoglalasainakLekerese,
+  berloFoglalasainakLekerese,
+  foglalasElfogadasa,
+  foglalasElutasitasa,
+  fuggobenLevoFoglalasokSzama,
 } = require("./controller");
 
 module.exports = {
-  createBooking,
-  getBookingsForOwner,
-  getBookingsForRenter,
-  acceptBooking,
-  rejectBooking,
-  getPendingBookingCount,
+  foglalasLetrehozasa,
+  tulajFoglalasainakLekerese,
+  berloFoglalasainakLekerese,
+  foglalasElfogadasa,
+  foglalasElutasitasa,
+  fuggobenLevoFoglalasokSzama,
 };

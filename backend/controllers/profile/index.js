@@ -1,17 +1,17 @@
 const {
-  uploadProfilePicture,
-  updateProfilePicture,
-  deleteProfilePicture,
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
+  profilkepFeltoltese,
+  profilkepFrissitese,
+  profilkepTorlese,
+  felhasznaloiProfilLekerese,
+  felhasznaloiProfilFrissitese,
+  jelszoModositasa,
 } = require("./controller");
 
 module.exports = {
-  uploadProfilePicture,
-  updateProfilePicture,
-  deleteProfilePicture,
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
+  profilkepFeltoltese,
+  profilkepFrissitese,
+  profilkepTorlese,
+  felhasznaloiProfilLekerese,
+  felhasznaloiProfilFrissitese,
+  jelszoModositasa,
 };
