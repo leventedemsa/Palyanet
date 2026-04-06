@@ -1,26 +1,28 @@
 const {
-  getPalyaById,
-  getRenterById,
-  createBookingRecord,
-  createNotification,
+  palyaLekereseIdAlapjan,
+  berloLekereseIdAlapjan,
+  foglalasiRekordLetrehozasa,
+  ertesitesLetrehozasa,
   logBejegyzesLetrehozasa,
-  getBookingsForOwner,
-  getBookingsForRenter,
-  getBookingById,
-  updateBookingStatus,
-  getPendingBookingCount,
+  tulajFoglalasainakLekerese,
+  berloFoglalasainakLekerese,
+  foglalasLekereseIdAlapjan,
+  foglalasStatuszFrissitese,
+  fuggobenLevoFoglalasokSzama,
 } = require("./repository");
 
-const httpError = (status, message, extra) => {
-  const error = new Error(message);
-  error.status = status;
+// HTTP hibaobjektum létrehozása opcionális extra mezővel.
+const httpHiba = (status, message, extra) => {
+  const hiba = new Error(message);
+  hiba.status = status;
   if (extra) {
-    error.extra = extra;
+    hiba.extra = extra;
   }
-  return error;
+  return hiba;
 };
 
-const timeToMinutes = (timeValue) => {
+// Időérték átalakítása percekre.
+const idoPercreValtasa = (timeValue) => {
   if (!timeValue) return null;
   const raw = String(timeValue);
   const match = raw.match(/(\d{1,2}):(\d{2})/);
@@ -31,19 +33,21 @@ const timeToMinutes = (timeValue) => {
   return hours * 60 + minutes;
 };
 
-const dateToMinutes = (dateValue) => {
+// Dátumérték aktuális napi percekre alakítása.
+const datumPercreValtasa = (dateValue) => {
   const d = new Date(dateValue);
   if (Number.isNaN(d.getTime())) return null;
   return d.getHours() * 60 + d.getMinutes();
 };
 
-const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
+// Foglalás létrehozása üzleti validációkkal.
+const foglalasLetrehozasa = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
   const palyaId = parseInt(palya_id, 10);
   const berloId = parseInt(berlo_id, 10);
   const price = parseInt(ar, 10);
 
   if (!palyaId || !berloId || !kezdes || !vege || price === undefined || price === null || Number.isNaN(palyaId) || Number.isNaN(berloId) || Number.isNaN(price)) {
-    throw httpError(400, "Hiányzó vagy érvénytelen kötelező mezők", {
+    throw httpHiba(400, "Hiányzó vagy érvénytelen kötelező mezők", {
       palya_id: palyaId,
       berlo_id: berloId,
       kezdes,
@@ -52,15 +56,15 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
     });
   }
 
-  const palya = await getPalyaById(palyaId);
+  const palya = await palyaLekereseIdAlapjan(palyaId);
   if (!palya) {
-    throw httpError(404, "Pálya nem található");
+    throw httpHiba(404, "Pálya nem található");
   }
 
-  const nyitasMinutes = timeToMinutes(palya.nyitas_str || palya.nyitas);
-  const zarasMinutes = timeToMinutes(palya.zaras_str || palya.zaras);
-  const kezdesMinutes = dateToMinutes(kezdes);
-  const vegeMinutes = dateToMinutes(vege);
+  const nyitasMinutes = idoPercreValtasa(palya.nyitas_str || palya.nyitas);
+  const zarasMinutes = idoPercreValtasa(palya.zaras_str || palya.zaras);
+  const kezdesMinutes = datumPercreValtasa(kezdes);
+  const vegeMinutes = datumPercreValtasa(vege);
   const kezdesDate = new Date(kezdes);
   const vegeDate = new Date(vege);
 
@@ -72,7 +76,7 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
     Number.isNaN(kezdesDate.getTime()) ||
     Number.isNaN(vegeDate.getTime())
   ) {
-    throw httpError(400, "Ervenytelen idoformátum");
+    throw httpHiba(400, "Ervenytelen idoformátum");
   }
 
   const sameDay =
@@ -81,30 +85,30 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
     kezdesDate.getDate() === vegeDate.getDate();
 
   if (!sameDay) {
-    throw httpError(400, "A foglalás csak egy napon belül lehet.");
+    throw httpHiba(400, "A foglalás csak egy napon belül lehet.");
   }
 
   if (kezdesMinutes < nyitasMinutes || vegeMinutes > zarasMinutes) {
-    throw httpError(
+    throw httpHiba(
       400,
       `Csak a pálya nyitvatartásán belül lehet foglalni (${palya.nyitas_str || palya.nyitas} - ${palya.zaras_str || palya.zaras}).`
     );
   }
 
-  const berlo = await getRenterById(berloId);
+  const berlo = await berloLekereseIdAlapjan(berloId);
   if (!berlo) {
-    throw httpError(404, "Bérlő nem található");
+    throw httpHiba(404, "Bérlő nem található");
   }
 
   if (berlo.tiltva) {
-    throw httpError(403, "A felhasználó tiltva van, nem tud foglalni.");
+    throw httpHiba(403, "A felhasználó tiltva van, nem tud foglalni.");
   }
 
   if (String(berlo.szerep || "").toLowerCase() === "admin") {
-    throw httpError(403, "Admin felhasználó nem foglalhat pályát.");
+    throw httpHiba(403, "Admin felhasználó nem foglalhat pályát.");
   }
 
-  const booking = await createBookingRecord({
+  const foglalas = await foglalasiRekordLetrehozasa({
     palyaId,
     berloId,
     kezdes,
@@ -121,10 +125,10 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
 
   const tulajId = parseInt(palya.tulaj_id, 10);
   if (Number.isNaN(tulajId)) {
-    throw httpError(500, "Hiba a pályatulajdonos azonosítás során");
+    throw httpHiba(500, "Hiba a pályatulajdonos azonosítás során");
   }
 
-  await createNotification({
+  await ertesitesLetrehozasa({
     kuldoId: berloId,
     cimzettId: tulajId,
     uzenet: notificationMessage,
@@ -133,96 +137,101 @@ const createBooking = async ({ palya_id, berlo_id, kezdes, vege, ar }) => {
   return {
     message: "Foglalási kérelem sikeresen létrehozva",
     booking: {
-      ...booking,
+      ...foglalas,
       palya_nev: palya.nev,
       berlo_nev: berlo.teljes_nev,
     },
   };
 };
 
-const listOwnerBookings = async (tulajId) => {
+// Tulajdonos foglalásainak listázása.
+const tulajFoglalasainakListazasa = async (tulajId) => {
   if (!tulajId) {
-    throw httpError(400, "Pályatulajdonos ID szükséges");
+    throw httpHiba(400, "Pályatulajdonos ID szükséges");
   }
 
-  return getBookingsForOwner(parseInt(tulajId, 10));
+  return tulajFoglalasainakLekerese(parseInt(tulajId, 10));
 };
 
-const listRenterBookings = async (berloId) => {
+// Bérlő foglalásainak listázása.
+const berloFoglalasainakListazasa = async (berloId) => {
   if (!berloId) {
-    throw httpError(400, "Bérlő ID szükséges");
+    throw httpHiba(400, "Bérlő ID szükséges");
   }
 
-  return getBookingsForRenter(parseInt(berloId, 10));
+  return berloFoglalasainakLekerese(parseInt(berloId, 10));
 };
 
-const acceptBooking = async (foglalasId) => {
+// Foglalás elfogadása és értesítés küldése.
+const foglalasElfogadasa = async (foglalasId) => {
   const bookingId = parseInt(foglalasId, 10);
   if (!bookingId) {
-    throw httpError(400, "Foglalás ID szükséges");
+    throw httpHiba(400, "Foglalás ID szükséges");
   }
 
-  const booking = await getBookingById(bookingId);
-  if (!booking) {
-    throw httpError(404, "Foglalás nem található");
+  const foglalas = await foglalasLekereseIdAlapjan(bookingId);
+  if (!foglalas) {
+    throw httpHiba(404, "Foglalás nem található");
   }
 
-  await updateBookingStatus(bookingId, "accepted");
+  await foglalasStatuszFrissitese(bookingId, "accepted");
 
-  const notificationMessage = `Jó hír! A "${booking.palya_nev}" pályabérlést elfogadták ${new Date(booking.kezdes).toLocaleDateString("hu-HU")} napra.`;
+  const notificationMessage = `Jó hír! A "${foglalas.palya_nev}" pályabérlést elfogadták ${new Date(foglalas.kezdes).toLocaleDateString("hu-HU")} napra.`;
 
-  await createNotification({
-    kuldoId: booking.tulaj_id,
-    cimzettId: booking.berlo_id,
+  await ertesitesLetrehozasa({
+    kuldoId: foglalas.tulaj_id,
+    cimzettId: foglalas.berlo_id,
     uzenet: notificationMessage,
   });
 
   return {
     message: "Foglalás elfogadva",
-    booking,
+    booking: foglalas,
   };
 };
 
-const rejectBooking = async (foglalasId) => {
+// Foglalás elutasítása és értesítés küldése.
+const foglalasElutasitasa = async (foglalasId) => {
   const bookingId = parseInt(foglalasId, 10);
   if (!bookingId) {
-    throw httpError(400, "Foglalás ID szükséges");
+    throw httpHiba(400, "Foglalás ID szükséges");
   }
 
-  const booking = await getBookingById(bookingId);
-  if (!booking) {
-    throw httpError(404, "Foglalás nem található");
+  const foglalas = await foglalasLekereseIdAlapjan(bookingId);
+  if (!foglalas) {
+    throw httpHiba(404, "Foglalás nem található");
   }
 
-  await updateBookingStatus(bookingId, "rejected");
+  await foglalasStatuszFrissitese(bookingId, "rejected");
 
-  const notificationMessage = `Sajnos a "${booking.palya_nev}" pályabérlési kérelmet elutasították ${new Date(booking.kezdes).toLocaleDateString("hu-HU")} napra.`;
+  const notificationMessage = `Sajnos a "${foglalas.palya_nev}" pályabérlési kérelmet elutasították ${new Date(foglalas.kezdes).toLocaleDateString("hu-HU")} napra.`;
 
-  await createNotification({
-    kuldoId: booking.tulaj_id,
-    cimzettId: booking.berlo_id,
+  await ertesitesLetrehozasa({
+    kuldoId: foglalas.tulaj_id,
+    cimzettId: foglalas.berlo_id,
     uzenet: notificationMessage,
   });
 
   return {
     message: "Foglalás elutasítva",
-    booking,
+    booking: foglalas,
   };
 };
 
-const getPendingCount = async (tulajId) => {
+// Függőben lévő foglalások számának lekérése.
+const fuggobenLevoFoglalasokSzamanakLekerese = async (tulajId) => {
   if (!tulajId) {
-    throw httpError(400, "Pályatulajdonos ID szükséges");
+    throw httpHiba(400, "Pályatulajdonos ID szükséges");
   }
 
-  return getPendingBookingCount(parseInt(tulajId, 10));
+  return fuggobenLevoFoglalasokSzama(parseInt(tulajId, 10));
 };
 
 module.exports = {
-  createBooking,
-  listOwnerBookings,
-  listRenterBookings,
-  acceptBooking,
-  rejectBooking,
-  getPendingCount,
+  foglalasLetrehozasa,
+  tulajFoglalasainakListazasa,
+  berloFoglalasainakListazasa,
+  foglalasElfogadasa,
+  foglalasElutasitasa,
+  fuggobenLevoFoglalasokSzamanakLekerese,
 };

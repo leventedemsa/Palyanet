@@ -3,7 +3,7 @@ const foglalasSzolgaltatas = require("./service");
 // Új foglalás létrehozása.
 const foglalasLetrehozasa = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.createBooking(req.body || {});
+    const valasz = await foglalasSzolgaltatas.foglalasLetrehozasa(req.body || {});
     return res.status(201).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {
@@ -19,7 +19,7 @@ const foglalasLetrehozasa = async (req, res) => {
 // Tulajdonos foglalásainak lekérése.
 const tulajFoglalasainakLekerese = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.listOwnerBookings(req.params.tulaj_id);
+    const valasz = await foglalasSzolgaltatas.tulajFoglalasainakListazasa(req.params.tulaj_id);
     return res.status(200).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {
@@ -34,7 +34,7 @@ const tulajFoglalasainakLekerese = async (req, res) => {
 // Bérlő foglalásainak lekérése.
 const berloFoglalasainakLekerese = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.listRenterBookings(req.params.berlo_id);
+    const valasz = await foglalasSzolgaltatas.berloFoglalasainakListazasa(req.params.berlo_id);
     return res.status(200).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {
@@ -49,7 +49,7 @@ const berloFoglalasainakLekerese = async (req, res) => {
 // Foglalás elfogadása.
 const foglalasElfogadasa = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.acceptBooking(req.body && req.body.foglalas_id);
+    const valasz = await foglalasSzolgaltatas.foglalasElfogadasa(req.body && req.body.foglalas_id);
     return res.status(200).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {
@@ -64,7 +64,7 @@ const foglalasElfogadasa = async (req, res) => {
 // Foglalás elutasítása.
 const foglalasElutasitasa = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.rejectBooking(req.body && req.body.foglalas_id);
+    const valasz = await foglalasSzolgaltatas.foglalasElutasitasa(req.body && req.body.foglalas_id);
     return res.status(200).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {
@@ -79,7 +79,7 @@ const foglalasElutasitasa = async (req, res) => {
 // Függőben lévő foglalások számának lekérése.
 const fuggobenLevoFoglalasokSzama = async (req, res) => {
   try {
-    const valasz = await foglalasSzolgaltatas.getPendingCount(req.params.tulaj_id);
+    const valasz = await foglalasSzolgaltatas.fuggobenLevoFoglalasokSzamanakLekerese(req.params.tulaj_id);
     return res.status(200).json(valasz);
   } catch (hiba) {
     if (!hiba.status || hiba.status === 500) {

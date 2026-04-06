@@ -3,7 +3,7 @@ const profilSzolgaltatas = require("./service");
 // Profilkép feltöltése.
 const profilkepFeltoltese = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.uploadProfilePicture({
+    const valasz = await profilSzolgaltatas.profilkepFeltolteseSzolgaltatas({
       reqFile: req.file,
       reqBody: req.body,
       reqQuery: req.query,
@@ -23,7 +23,7 @@ const profilkepFeltoltese = async (req, res) => {
 // Profilkép frissítése.
 const profilkepFrissitese = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.updateProfilePicture({
+    const valasz = await profilSzolgaltatas.profilkepFrissiteseSzolgaltatas({
       reqFile: req.file,
       reqBody: req.body,
       reqQuery: req.query,
@@ -43,7 +43,7 @@ const profilkepFrissitese = async (req, res) => {
 // Profilkép törlése.
 const profilkepTorlese = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.deleteProfilePicture({
+    const valasz = await profilSzolgaltatas.profilkepTorleseSzolgaltatas({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
@@ -62,7 +62,7 @@ const profilkepTorlese = async (req, res) => {
 // Felhasználói profil lekérése.
 const felhasznaloiProfilLekerese = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.getUserProfile({
+    const valasz = await profilSzolgaltatas.felhasznaloiProfilLekerese({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
@@ -81,7 +81,7 @@ const felhasznaloiProfilLekerese = async (req, res) => {
 // Felhasználói profil frissítése.
 const felhasznaloiProfilFrissitese = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.updateUserProfile({
+    const valasz = await profilSzolgaltatas.felhasznaloiProfilFrissitese({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,
@@ -100,7 +100,7 @@ const felhasznaloiProfilFrissitese = async (req, res) => {
 // Jelszó módosítása.
 const jelszoModositasa = async (req, res) => {
   try {
-    const valasz = await profilSzolgaltatas.changePassword({
+    const valasz = await profilSzolgaltatas.jelszoModositasa({
       reqBody: req.body,
       reqQuery: req.query,
       reqUser: req.user,

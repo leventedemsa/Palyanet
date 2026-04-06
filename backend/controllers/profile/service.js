@@ -2,29 +2,32 @@ const path = require("path");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const {
-  getProfilePictureByUserId,
-  setProfilePictureByUserId,
-  clearProfilePictureByUserId,
-  getUserProfileById,
-  findConflictingUser,
-  updateUserProfileData,
-  getUserPasswordHash,
-  updateUserPasswordHash,
+  profilkepLekereseFelhasznaloAlapjan,
+  profilkepBeallitasaFelhasznalohoz,
+  profilkepTorleseFelhasznalotol,
+  felhasznaloiProfilLekereseIdAlapjan,
+  utkozoFelhasznaloKeresese,
+  felhasznaloiProfilAdatainakFrissitese,
+  felhasznaloJelszoHashLekerese,
+  felhasznaloJelszoHashFrissitese,
 } = require("./repository");
 
-const httpError = (status, message) => {
-  const error = new Error(message);
-  error.status = status;
-  return error;
+// HTTP hibaobjektum létrehozása.
+const httpHiba = (status, message) => {
+  const hiba = new Error(message);
+  hiba.status = status;
+  return hiba;
 };
 
-const parseUserId = (payload) => {
+// Felhasználó azonosítójának kinyerése request payloadból.
+const felhasznaloAzonositoFeldolgozasa = (payload) => {
   const raw = payload?.body?.userId || payload?.query?.userId || payload?.user?.id;
   const userId = parseInt(raw, 10);
   return Number.isNaN(userId) ? null : userId;
 };
 
-const ensureUploadsDirectory = () => {
+// Feltöltési könyvtár létrehozása és visszaadása.
+const feltoltesiKonyvtarBiztositasa = () => {
   const uploadDir = path.join(__dirname, "../../uploads");
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -32,7 +35,8 @@ const ensureUploadsDirectory = () => {
   return uploadDir;
 };
 
-const removeFileIfExists = (targetPath) => {
+// Fájl törlése, ha létezik.
+const fajlTorleseHaLetezik = (targetPath) => {
   try {
     if (targetPath && fs.existsSync(targetPath)) {
       fs.unlinkSync(targetPath);
@@ -42,8 +46,9 @@ const removeFileIfExists = (targetPath) => {
   }
 };
 
-const moveUploadedFile = (file, userId) => {
-  const uploadDir = ensureUploadsDirectory();
+// Feltöltött fájl áthelyezése végleges helyre.
+const feltoltottFajlAthelyezese = (file, userId) => {
+  const uploadDir = feltoltesiKonyvtarBiztositasa();
   const fileName = `profile_${userId}_${Date.now()}${path.extname(file.originalname)}`;
   const filePath = path.join(uploadDir, fileName);
 
@@ -57,24 +62,26 @@ const moveUploadedFile = (file, userId) => {
   return `/uploads/${fileName}`;
 };
 
-const toStoredPath = (picUrl) => {
+// Publikus URL-ből fájlrendszer útvonal képzése.
+const taroltUtvonalKepzese = (picUrl) => {
   if (!picUrl || !picUrl.startsWith("/uploads/")) return null;
   const relative = picUrl.replace(/^\/+/, "");
   return path.join(__dirname, "../../", relative);
 };
 
-const uploadProfilePicture = async ({ reqFile, reqBody, reqQuery, reqUser }) => {
+// Profilkép feltöltése.
+const profilkepFeltolteseSzolgaltatas = async ({ reqFile, reqBody, reqQuery, reqUser }) => {
   if (!reqFile) {
-    throw httpError(400, "Nincs kép kiválasztva.");
+    throw httpHiba(400, "Nincs kép kiválasztva.");
   }
 
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   if (!userId) {
-    throw httpError(401, "Bejelentkezés szükséges.");
+    throw httpHiba(401, "Bejelentkezés szükséges.");
   }
 
-  const picUrl = moveUploadedFile(reqFile, userId);
-  await setProfilePictureByUserId(userId, picUrl);
+  const picUrl = feltoltottFajlAthelyezese(reqFile, userId);
+  await profilkepBeallitasaFelhasznalohoz(userId, picUrl);
 
   const fullPicUrl = `http://localhost:${process.env.PORT || 4000}${picUrl}`;
   return {
@@ -83,21 +90,22 @@ const uploadProfilePicture = async ({ reqFile, reqBody, reqQuery, reqUser }) => 
   };
 };
 
-const updateProfilePicture = async ({ reqFile, reqBody, reqQuery, reqUser }) => {
+// Profilkép frissítése.
+const profilkepFrissiteseSzolgaltatas = async ({ reqFile, reqBody, reqQuery, reqUser }) => {
   if (!reqFile) {
-    throw httpError(400, "Nincs kép kiválasztva.");
+    throw httpHiba(400, "Nincs kép kiválasztva.");
   }
 
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   if (!userId) {
-    throw httpError(401, "Bejelentkezés szükséges.");
+    throw httpHiba(401, "Bejelentkezés szükséges.");
   }
 
-  const oldPicUrl = await getProfilePictureByUserId(userId);
-  removeFileIfExists(toStoredPath(oldPicUrl));
+  const oldPicUrl = await profilkepLekereseFelhasznaloAlapjan(userId);
+  fajlTorleseHaLetezik(taroltUtvonalKepzese(oldPicUrl));
 
-  const picUrl = moveUploadedFile(reqFile, userId);
-  await setProfilePictureByUserId(userId, picUrl);
+  const picUrl = feltoltottFajlAthelyezese(reqFile, userId);
+  await profilkepBeallitasaFelhasznalohoz(userId, picUrl);
 
   return {
     message: "Profilkép sikeresen frissítve.",
@@ -105,55 +113,58 @@ const updateProfilePicture = async ({ reqFile, reqBody, reqQuery, reqUser }) => 
   };
 };
 
-const deleteProfilePicture = async ({ reqBody, reqQuery, reqUser }) => {
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+// Profilkép törlése.
+const profilkepTorleseSzolgaltatas = async ({ reqBody, reqQuery, reqUser }) => {
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   if (!userId) {
-    throw httpError(401, "Bejelentkezés szükséges.");
+    throw httpHiba(401, "Bejelentkezés szükséges.");
   }
 
-  const picUrl = await getProfilePictureByUserId(userId);
-  removeFileIfExists(toStoredPath(picUrl));
-  await clearProfilePictureByUserId(userId);
+  const picUrl = await profilkepLekereseFelhasznaloAlapjan(userId);
+  fajlTorleseHaLetezik(taroltUtvonalKepzese(picUrl));
+  await profilkepTorleseFelhasznalotol(userId);
 
   return {
     message: "Profilkép sikeresen törölve.",
   };
 };
 
-const getUserProfile = async ({ reqBody, reqQuery, reqUser }) => {
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+// Felhasználói profil lekérése.
+const felhasznaloiProfilLekerese = async ({ reqBody, reqQuery, reqUser }) => {
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   if (!userId) {
-    throw httpError(401, "Bejelentkezés szükséges.");
+    throw httpHiba(401, "Bejelentkezés szükséges.");
   }
 
-  const profile = await getUserProfileById(userId);
+  const profile = await felhasznaloiProfilLekereseIdAlapjan(userId);
   if (!profile) {
-    throw httpError(404, "Felhasználó nem található.");
+    throw httpHiba(404, "Felhasználó nem található.");
   }
 
   return profile;
 };
 
-const updateUserProfile = async ({ reqBody, reqQuery, reqUser }) => {
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+// Felhasználói profil adatok frissítése.
+const felhasznaloiProfilFrissitese = async ({ reqBody, reqQuery, reqUser }) => {
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   const username = String(reqBody?.username || "").trim();
   const teljesNev = String(reqBody?.teljes_nev || "").trim();
   const email = String(reqBody?.email || "").trim();
 
   if (!userId) {
-    throw httpError(401, "Bejelentkezes szukseges.");
+    throw httpHiba(401, "Bejelentkezes szukseges.");
   }
 
   if (!username || !teljesNev || !email) {
-    throw httpError(400, "Minden mezo kitoltese kotelezo.");
+    throw httpHiba(400, "Minden mezo kitoltese kotelezo.");
   }
 
-  const existing = await findConflictingUser(userId, username, email);
+  const existing = await utkozoFelhasznaloKeresese(userId, username, email);
   if (existing) {
-    throw httpError(409, "A felhasznalonev vagy email mar foglalt.");
+    throw httpHiba(409, "A felhasznalonev vagy email mar foglalt.");
   }
 
-  const updatedUser = await updateUserProfileData(userId, username, teljesNev, email);
+  const updatedUser = await felhasznaloiProfilAdatainakFrissitese(userId, username, teljesNev, email);
 
   return {
     message: "Profil adatok sikeresen frissitve.",
@@ -161,35 +172,36 @@ const updateUserProfile = async ({ reqBody, reqQuery, reqUser }) => {
   };
 };
 
-const changePassword = async ({ reqBody, reqQuery, reqUser }) => {
-  const userId = parseUserId({ body: reqBody, query: reqQuery, user: reqUser });
+// Jelszó módosítása.
+const jelszoModositasa = async ({ reqBody, reqQuery, reqUser }) => {
+  const userId = felhasznaloAzonositoFeldolgozasa({ body: reqBody, query: reqQuery, user: reqUser });
   const currentPassword = String(reqBody?.currentPassword || "");
   const newPassword = String(reqBody?.newPassword || "");
 
   if (!userId) {
-    throw httpError(401, "Bejelentkezes szukseges.");
+    throw httpHiba(401, "Bejelentkezes szukseges.");
   }
 
   if (!currentPassword || !newPassword) {
-    throw httpError(400, "Minden mezo kitoltese kotelezo.");
+    throw httpHiba(400, "Minden mezo kitoltese kotelezo.");
   }
 
   if (newPassword.length < 8) {
-    throw httpError(400, "Az uj jelszo legalabb 8 karakter legyen.");
+    throw httpHiba(400, "Az uj jelszo legalabb 8 karakter legyen.");
   }
 
-  const user = await getUserPasswordHash(userId);
+  const user = await felhasznaloJelszoHashLekerese(userId);
   if (!user) {
-    throw httpError(404, "Felhasznalo nem talalhato.");
+    throw httpHiba(404, "Felhasznalo nem talalhato.");
   }
 
   const validCurrent = await bcrypt.compare(currentPassword, user.jelszo_hash);
   if (!validCurrent) {
-    throw httpError(400, "A jelenlegi jelszo hibas.");
+    throw httpHiba(400, "A jelenlegi jelszo hibas.");
   }
 
   const newHash = await bcrypt.hash(newPassword, 10);
-  await updateUserPasswordHash(userId, newHash);
+  await felhasznaloJelszoHashFrissitese(userId, newHash);
 
   return {
     message: "Jelszo sikeresen frissitve.",
@@ -197,10 +209,10 @@ const changePassword = async ({ reqBody, reqQuery, reqUser }) => {
 };
 
 module.exports = {
-  uploadProfilePicture,
-  updateProfilePicture,
-  deleteProfilePicture,
-  getUserProfile,
-  updateUserProfile,
-  changePassword,
+  profilkepFeltolteseSzolgaltatas,
+  profilkepFrissiteseSzolgaltatas,
+  profilkepTorleseSzolgaltatas,
+  felhasznaloiProfilLekerese,
+  felhasznaloiProfilFrissitese,
+  jelszoModositasa,
 };

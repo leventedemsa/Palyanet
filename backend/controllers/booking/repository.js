@@ -1,6 +1,7 @@
 const { sql, poolPromise } = require("../../db");
 
-const getPalyaById = async (palyaId) => {
+// Pálya lekérése azonosító alapján.
+const palyaLekereseIdAlapjan = async (palyaId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -18,7 +19,8 @@ const getPalyaById = async (palyaId) => {
   return result.recordset[0] || null;
 };
 
-const getRenterById = async (berloId) => {
+// Bérlő lekérése azonosító alapján.
+const berloLekereseIdAlapjan = async (berloId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -32,7 +34,8 @@ const getRenterById = async (berloId) => {
   return result.recordset[0] || null;
 };
 
-const createBookingRecord = async ({ palyaId, berloId, kezdes, vege, ar }) => {
+// Foglalási rekord létrehozása az adatbázisban.
+const foglalasiRekordLetrehozasa = async ({ palyaId, berloId, kezdes, vege, ar }) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -55,7 +58,8 @@ const createBookingRecord = async ({ palyaId, berloId, kezdes, vege, ar }) => {
   return result.recordset[0] || null;
 };
 
-const createNotification = async ({ kuldoId, cimzettId, uzenet }) => {
+// Értesítés létrehozása.
+const ertesitesLetrehozasa = async ({ kuldoId, cimzettId, uzenet }) => {
   const pool = await poolPromise;
   await pool
     .request()
@@ -68,6 +72,7 @@ const createNotification = async ({ kuldoId, cimzettId, uzenet }) => {
     `);
 };
 
+// Log bejegyzés létrehozása.
 const logBejegyzesLetrehozasa = async ({ felhasznalo_id, esemeny_tipus }) => {
   const pool = await poolPromise;
   await pool
@@ -80,7 +85,8 @@ const logBejegyzesLetrehozasa = async ({ felhasznalo_id, esemeny_tipus }) => {
     `);
 };
 
-const getBookingsForOwner = async (tulajId) => {
+// Tulajdonos foglalásainak lekérése.
+const tulajFoglalasainakLekerese = async (tulajId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -114,7 +120,8 @@ const getBookingsForOwner = async (tulajId) => {
   return result.recordset;
 };
 
-const getBookingsForRenter = async (berloId) => {
+// Bérlő foglalásainak lekérése.
+const berloFoglalasainakLekerese = async (berloId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -148,7 +155,8 @@ const getBookingsForRenter = async (berloId) => {
   return result.recordset;
 };
 
-const getBookingById = async (foglalasId) => {
+// Egy foglalás lekérése azonosító alapján.
+const foglalasLekereseIdAlapjan = async (foglalasId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -164,7 +172,8 @@ const getBookingById = async (foglalasId) => {
   return result.recordset[0] || null;
 };
 
-const updateBookingStatus = async (foglalasId, statusz) => {
+// Foglalás státuszának frissítése.
+const foglalasStatuszFrissitese = async (foglalasId, statusz) => {
   const pool = await poolPromise;
   await pool
     .request()
@@ -177,7 +186,8 @@ const updateBookingStatus = async (foglalasId, statusz) => {
     `);
 };
 
-const getPendingBookingCount = async (tulajId) => {
+// Függőben lévő foglalások számának lekérése.
+const fuggobenLevoFoglalasokSzama = async (tulajId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -193,14 +203,14 @@ const getPendingBookingCount = async (tulajId) => {
 };
 
 module.exports = {
-  getPalyaById,
-  getRenterById,
-  createBookingRecord,
-  createNotification,
+  palyaLekereseIdAlapjan,
+  berloLekereseIdAlapjan,
+  foglalasiRekordLetrehozasa,
+  ertesitesLetrehozasa,
   logBejegyzesLetrehozasa,
-  getBookingsForOwner,
-  getBookingsForRenter,
-  getBookingById,
-  updateBookingStatus,
-  getPendingBookingCount,
+  tulajFoglalasainakLekerese,
+  berloFoglalasainakLekerese,
+  foglalasLekereseIdAlapjan,
+  foglalasStatuszFrissitese,
+  fuggobenLevoFoglalasokSzama,
 };

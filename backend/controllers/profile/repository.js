@@ -1,6 +1,7 @@
 const { sql, poolPromise } = require("../../db");
 
-const getProfilePictureByUserId = async (userId) => {
+// Profilkép URL lekérése felhasználó alapján.
+const profilkepLekereseFelhasznaloAlapjan = async (userId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -12,7 +13,8 @@ const getProfilePictureByUserId = async (userId) => {
   return result.recordset[0]?.profil_kep_url || null;
 };
 
-const setProfilePictureByUserId = async (userId, picUrl) => {
+// Profilkép URL beállítása felhasználóhoz.
+const profilkepBeallitasaFelhasznalohoz = async (userId, picUrl) => {
   const pool = await poolPromise;
   await pool
     .request()
@@ -25,7 +27,8 @@ const setProfilePictureByUserId = async (userId, picUrl) => {
     `);
 };
 
-const clearProfilePictureByUserId = async (userId) => {
+// Profilkép URL törlése felhasználótól.
+const profilkepTorleseFelhasznalotol = async (userId) => {
   const pool = await poolPromise;
   await pool
     .request()
@@ -37,7 +40,8 @@ const clearProfilePictureByUserId = async (userId) => {
     `);
 };
 
-const getUserProfileById = async (userId) => {
+// Felhasználói profil lekérése azonosító alapján.
+const felhasznaloiProfilLekereseIdAlapjan = async (userId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -58,7 +62,8 @@ const getUserProfileById = async (userId) => {
   return result.recordset[0] || null;
 };
 
-const findConflictingUser = async (userId, username, email) => {
+// Ütköző felhasználó keresése azonos név/email alapján.
+const utkozoFelhasznaloKeresese = async (userId, username, email) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -75,7 +80,8 @@ const findConflictingUser = async (userId, username, email) => {
   return result.recordset[0] || null;
 };
 
-const updateUserProfileData = async (userId, username, teljesNev, email) => {
+// Felhasználói profil adatok frissítése.
+const felhasznaloiProfilAdatainakFrissitese = async (userId, username, teljesNev, email) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -106,7 +112,8 @@ const updateUserProfileData = async (userId, username, teljesNev, email) => {
   return result.recordset[0] || null;
 };
 
-const getUserPasswordHash = async (userId) => {
+// Felhasználó jelszó hash lekérése.
+const felhasznaloJelszoHashLekerese = async (userId) => {
   const pool = await poolPromise;
   const result = await pool
     .request()
@@ -120,7 +127,8 @@ const getUserPasswordHash = async (userId) => {
   return result.recordset[0] || null;
 };
 
-const updateUserPasswordHash = async (userId, newHash) => {
+// Felhasználó jelszó hash frissítése.
+const felhasznaloJelszoHashFrissitese = async (userId, newHash) => {
   const pool = await poolPromise;
   await pool
     .request()
@@ -134,12 +142,12 @@ const updateUserPasswordHash = async (userId, newHash) => {
 };
 
 module.exports = {
-  getProfilePictureByUserId,
-  setProfilePictureByUserId,
-  clearProfilePictureByUserId,
-  getUserProfileById,
-  findConflictingUser,
-  updateUserProfileData,
-  getUserPasswordHash,
-  updateUserPasswordHash,
+  profilkepLekereseFelhasznaloAlapjan,
+  profilkepBeallitasaFelhasznalohoz,
+  profilkepTorleseFelhasznalotol,
+  felhasznaloiProfilLekereseIdAlapjan,
+  utkozoFelhasznaloKeresese,
+  felhasznaloiProfilAdatainakFrissitese,
+  felhasznaloJelszoHashLekerese,
+  felhasznaloJelszoHashFrissitese,
 };
