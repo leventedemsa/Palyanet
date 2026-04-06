@@ -8,15 +8,15 @@
 # Kornél:
 
 ## 03.31:
-- Backendben változó- és függvénynevek magyarosítása. 
-    - (`booking`,`profile` controllereket, `bookingRoutes.js`, `notificationRoutes.js`, `palyaRoutes.js`, `profileRoutes.js`)
-- Backend metódusok fölé kommentek.
-- HTML oldalakban lévő JavaScript kód átdolgozása: 
-    - Változónevek magyarosítása 
-    - Kommentek elhelyezése a metódusok fölé 
-- `auth-nav.js` átdolgozása: 
-    - Változónevek magyarosítása 
-    - Metódusok kommentelése 
+- Backendben változó- és függvénynevek magyarosítása. ✅
+    - (`booking`,`profile` controllereket, `bookingRoutes.js`, `notificationRoutes.js`, `palyaRoutes.js`, `profileRoutes.js`)✅
+- Backend metódusok fölé kommentek.✅
+- HTML oldalakban lévő JavaScript kód átdolgozása: ✅
+    - Változónevek magyarosítása ✅
+    - Kommentek elhelyezése a metódusok fölé ✅
+- `auth-nav.js` átdolgozása: ✅
+    - Változónevek magyarosítása ✅
+    - Metódusok kommentelése ✅
 - CSS újrastruktúrálása:
     - ui/
         - global.css
