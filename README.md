@@ -1,8 +1,6 @@
-﻿# Pályanet - README (2026.04.13)
+﻿# Pályanet
 
-## Pályanet
-
-A Pályanet egy webes pályafoglaló és pályakezelő rendszer, ahol a felhasználók sportpályákat kereshetnek, foglalhatnak, valamint szerepkörtől függően pályát kezelhetnek és adminisztrációs feladatokat láthatnak el.
+A Pályanet egy webalapú pályafoglaló és pályakezelő rendszer, amely lehetőséget biztosít a felhasználók számára sportpályák keresésére és foglalására sportág, illetve település alapján. A pályatulajdonosok saját pályáikat hirdethetik a rendszeren belül, valamint havi pénzügyi statisztikákat is megtekinthetnek.
 
 ## Csapattagok
 
