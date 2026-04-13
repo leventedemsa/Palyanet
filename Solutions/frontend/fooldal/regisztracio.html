@@ -239,13 +239,11 @@ body {
   border: 1px solid rgba(255,122,24,0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: rgba(255,122,24,0.02);
-    color: #212529;
-  }
+}
 
-  .form-control option,
-  .form-select option {
-    color: #212529;
-    background: white;
+.form-control:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 0.2rem rgba(255,122,24,.25), inset 0 1px 1px rgba(0,0,0,.075);
   background: rgba(255,255,255,0.5);
 }
 
@@ -254,12 +252,6 @@ body {
   background: rgba(255,122,24,0.05);
   border-color: rgba(255,122,24,0.3);
   color: #e8e8e8;
-}
-
-[data-bs-theme="dark"] .form-control option,
-[data-bs-theme="dark"] .form-select option {
-  color: #e8e8e8;
-  background: #11151d;
 }
 
 [data-bs-theme="dark"] .form-control:focus,
