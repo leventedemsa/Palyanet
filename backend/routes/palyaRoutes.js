@@ -86,7 +86,7 @@ router.get("/", async (req, res) => {
       SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
              p.kep_url, p.nyitas, p.zaras, p.letrehozva,
              ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
-             f.username, f.teljes_nev, f.profil_kep_url
+             f.username, f.teljes_nev, f.profil_kep_url, f.email
       FROM Palya p
       JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
       WHERE ISNULL(p.felfuggesztve, 0) = 0
@@ -169,7 +169,7 @@ router.get("/admin/list", async (req, res) => {
         p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.letrehozva,
         ISNULL(p.felfuggesztve, 0) AS felfuggesztve,
         p.felfuggesztes_indok,
-        f.felhasznalo_id AS tulaj_id, f.username, f.teljes_nev
+        f.felhasznalo_id AS tulaj_id, f.username, f.teljes_nev, f.email
       FROM Palya p
       JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
       WHERE 1=1
@@ -347,7 +347,7 @@ router.get("/:id", async (req, res) => {
       .query(`
         SELECT p.palya_id, p.nev, p.sportag, p.helyszin, p.ar_ora, p.leiras, 
                p.kep_url, p.nyitas, p.zaras, p.letrehozva,
-               f.username, f.teljes_nev, f.profil_kep_url
+               f.username, f.teljes_nev, f.profil_kep_url, f.email
         FROM Palya p
         JOIN Felhasznalok f ON p.tulaj_id = f.felhasznalo_id
         WHERE p.palya_id = @palya_id

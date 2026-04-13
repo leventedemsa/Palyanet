@@ -42,6 +42,7 @@
             const galleryCounter = document.getElementById("galleryCounter");
             const galleryFullscreenBtn = document.getElementById("galleryFullscreenBtn");
             const palyaImagesById = {};
+            const palyakById = {};
             let activeGalleryImages = [];
             let activeGalleryIndex = 0;
             let touchStartX = null;
@@ -404,6 +405,8 @@
                 }
 
                 palyak.forEach((palya) => {
+                    // store full object for later use when opening modal
+                    palyakById[String(palya.palya_id)] = palya;
                     const imageUrls = parseImageUrls(palya.kep_url);
                     const primaryImage = toAbsoluteImageUrl(imageUrls[0] || "../palyanetlogo.png");
                     palyaImagesById[String(palya.palya_id)] = imageUrls;
@@ -434,18 +437,57 @@
                   <div style="display: flex; align-items: center;">
                     ${ownerAvatarUrl}
                     <div>
-                      <p class="mb-0 small text-muted" style="font-size: 0.8rem;">Tulajdonos</p>
                       <p class="mb-0 fw-semibold">${palya.teljes_nev || palya.username}</p>
                     </div>
                   </div>
                 </div>
-                <button class="btn btn-accent w-100 mt-3" onclick="openBookingModal('${palya.palya_id}', '${palya.nev}', '${palya.ar_ora}', '${palya.helyszin}', '${palya.sportag}', '${formatTimeOnly(palya.nyitas)}', '${formatTimeOnly(palya.zaras)}')">📅 Foglalás</button>
+                <button class="btn btn-accent w-100 mt-3 open-booking-btn" data-palya-id="${palya.palya_id}">📅 Foglalás</button>
                                 <button class="btn btn-outline-primary w-100 mt-2" onclick="openImagesModal('${palya.palya_id}')">🖼️ Képek megtekintése</button>
               </div>
             </div>
           `;
                     container.appendChild(card);
-                });
+
+                    // If the owner provided a description, show a short excerpt on the card (safe textContent) with label
+                    try {
+                        if (palya.leiras) {
+                            const bookingBtnForInsert = card.querySelector('.open-booking-btn');
+                            if (bookingBtnForInsert && bookingBtnForInsert.parentNode) {
+                                const pDesc = document.createElement('p');
+                                pDesc.className = 'palya-meta text-muted small mt-2';
+                                pDesc.style.whiteSpace = 'normal';
+                                pDesc.style.marginBottom = '0.5rem';
+
+                                const strongLabel = document.createElement('strong');
+                                strongLabel.textContent = '📋 Leírás: ';
+                                strongLabel.style.fontWeight = '600';
+                                strongLabel.style.marginRight = '4px';
+
+                                const raw = String(palya.leiras || '').trim();
+                                const excerpt = raw.length > 120 ? raw.slice(0, 120) + '…' : raw;
+                                const textNode = document.createTextNode(excerpt);
+
+                                pDesc.appendChild(strongLabel);
+                                pDesc.appendChild(textNode);
+
+                                bookingBtnForInsert.parentNode.insertBefore(pDesc, bookingBtnForInsert);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Description render error', e);
+                    }
+
+                     // attach click handler to booking button to open modal with full data
+                     const bookingBtn = card.querySelector('.open-booking-btn');
+                     if (bookingBtn) {
+                         bookingBtn.addEventListener('click', () => {
+                             const id = bookingBtn.getAttribute('data-palya-id');
+                             const p = palyakById[String(id)];
+                             if (!p) return;
+                             openBookingModal(p.palya_id, p.nev, p.ar_ora, p.helyszin, p.sportag, formatTimeOnly(p.nyitas), formatTimeOnly(p.zaras), p.leiras, p.email);
+                         });
+                     }
+                 });
             }
 
             // Pályák betöltése az API-ról
@@ -785,7 +827,7 @@
                 return true;
             }
 
-            function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras) {
+            function openBookingModal(palyaId, palyaNev, ar, helyszin, sportag, nyitas, zaras, leiras, ownerEmail) {
                 const user = JSON.parse(localStorage.getItem("user") || sessionStorage.getItem("user"));
 
                 if (!user) {
@@ -808,14 +850,59 @@
                 document.getElementById("palyaNev").textContent = palyaNev;
                 document.getElementById("palyaDetails").textContent = `${sportag} • ${helyszin}`;
                 document.getElementById("palyaArValue").textContent = ar;
-                const old = document.getElementById("palyaNyitvaInfo");
-                if (old) old.remove();
-                document
-                    .getElementById("palyaAr")
-                    .insertAdjacentHTML(
-                        "afterend",
-                        `<p id="palyaNyitvaInfo" class="text-muted mb-3">Nyitás-zárás: ${currentNyitas} - ${currentZaras}</p>`,
-                    );
+                // show optional description and owner contact email if provided
+                try {
+                    const leirasElem = document.getElementById('palyaLeiras');
+                    const emailContainer = document.getElementById('palyaKontaktEmail');
+                    const emailValue = document.getElementById('palyaKontaktEmailValue');
+                    
+                    // Leírás: szép formázás (label + szöveg, megtartja az új sorokat)
+                    if (leirasElem) {
+                        if (leiras) {
+                            leirasElem.innerHTML = ''; // clear
+                            const label = document.createElement('strong');
+                            label.textContent = '📋 Leírás:';
+                            label.style.display = 'block';
+                            label.style.marginBottom = '0.5rem';
+                            label.style.fontWeight = '600';
+                            
+                            const descText = document.createElement('div');
+                            descText.style.whiteSpace = 'pre-wrap';
+                            descText.style.wordWrap = 'break-word';
+                            descText.textContent = String(leiras);
+                            
+                            leirasElem.appendChild(label);
+                            leirasElem.appendChild(descText);
+                            leirasElem.style.display = '';
+                        } else {
+                            leirasElem.style.display = 'none';
+                        }
+                    }
+                    
+                    // Email: csak modalban jelenjen meg, szebben
+                    if (emailContainer && emailValue) {
+                        if (ownerEmail) {
+                            emailValue.innerHTML = '';
+                            const mailIcon = document.createElement('span');
+                            mailIcon.textContent = '📧 ';
+                            mailIcon.style.marginRight = '4px';
+                            
+                            const mailLink = document.createElement('a');
+                            mailLink.href = `mailto:${String(ownerEmail)}`;
+                            mailLink.textContent = String(ownerEmail);
+                            mailLink.className = 'text-decoration-none text-primary';
+                            mailLink.style.fontWeight = '500';
+                            
+                            emailValue.appendChild(mailIcon);
+                            emailValue.appendChild(mailLink);
+                            emailContainer.style.display = '';
+                        } else {
+                            emailContainer.style.display = 'none';
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Hiba a leiras/email megjelenitesaben', e);
+                }
 
                 document.getElementById("foglalasForm").reset();
                 const datumInput = document.getElementById("foglalasDatum");
@@ -825,7 +912,8 @@
                 populateTimeSelectOptions(currentNyitas, currentZaras);
                 syncTimeSelectBounds();
 
-                const modal = new bootstrap.Modal(document.getElementById("foglalasModal"));
+                // use getOrCreateInstance to avoid creating multiple instances/backdrops
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("foglalasModal"));
                 modal.show();
             }
 
@@ -1039,5 +1127,5 @@
             validateBookingDateInput();
             initHelyszinModal();
             loadPalyak();
-        
+
 
