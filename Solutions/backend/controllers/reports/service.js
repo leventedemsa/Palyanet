@@ -214,12 +214,24 @@ const bejelentesStatuszFrissitese = async ({
     }
 
     const ertesitesSzoveg = ujStatusz === "vegrehajtva" ? "A bejelentésedet végrehajtották." : "A bejelentésedet elutasították.";
+    const erintettErtesitesSzoveg =
+        ujStatusz === "vegrehajtva"
+            ? "Az ellened érkezett bejelentést az admin végrehajtotta."
+            : "Az ellened érkezett bejelentést az admin elutasította.";
 
     await ertesitesLetrehozasa({
         kuldoAzonosito: adminAzonosito,
         cimzettAzonosito: bejelentes.kuldo_felhasznalo_id,
         uzenet: ertesitesSzoveg,
     });
+
+    if (bejelentes.bejelentett_felhasznalo_id && bejelentes.bejelentett_felhasznalo_id !== bejelentes.kuldo_felhasznalo_id) {
+        await ertesitesLetrehozasa({
+            kuldoAzonosito: adminAzonosito,
+            cimzettAzonosito: bejelentes.bejelentett_felhasznalo_id,
+            uzenet: erintettErtesitesSzoveg,
+        });
+    }
 
     return { message: "A bejelentés státusza frissítve." };
 };
