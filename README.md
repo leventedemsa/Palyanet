@@ -1,31 +1,17 @@
-**TODO:**
+﻿# Pályanet
 
-***1) forgot_password.html***
-- Cél: egyszerű “Jelszó visszaállítás” oldal, ahol emailt kérünk és van egy visszalépés a loginra.
+A Pályanet egy webalapú pályafoglaló és pályakezelő rendszer, amely lehetőséget biztosít a felhasználók számára sportpályák keresésére és foglalására sportág, illetve település alapján. A pályatulajdonosok saját pályáikat hirdethetik a rendszeren belül, valamint havi pénzügyi statisztikákat is megtekinthetnek.
 
-***2) user_profile.html***
-- Cél: bejelentkezés után a navbar jobb oldalán legyen egy “Profil” (vagy user ikon), arra katt → user_profile.html.
-- Itt legyen két opció:
-- Kijelentkezés
-- user_profile.html-be belemenni és ott ki írni a profil adatokat.
- 
-***3) palyak.html***
-- Cél: “Pályák” listázó oldal.
+## Csapattagok
 
-Tartalom:
-- Oldalcím: “Pályák”
-- Szűrők (még csak UI):
-- Sportág (select)
-- Helyszín (input)
-- Ár max (select / input)
-- Dátum (input type=date)
-- Keresés gomb
+- Tóth Kornél
+- Demsa Levente
 
-Kártyák:
-- Pálya neve
-- Sportág badge
-- Helyszín
-- Ár / óra
-- Egy kép a pályáról
-- Alján a Tulajdonos neve
-- “Részletek” gomb (később mehet palya.html??)
+## Munkamegosztás
+
+- **Tóth Kornél:** frontend UI tervezése és fejlesztése; profil- és foglalási funkciók fejlesztése; fájlfeltöltés és képkezelés; értesítési rendszer; pályaszűrő kialakítása.
+- **Demsa Levente:** admin- és moderációs funkciók fejlesztése; pályaszűrés település alapján; az alap weboldal-struktúra kialakítása; log rendszer; jogosultságkezelés; frontend scriptstruktúra; SQL lekérdezések megírása.
+
+## Teendők
+
+A részletes teendőlista és készültségi állapotok a [to-do.md](./to-do.md) fájlban találhatók.

@@ -1,0 +1,471 @@
+﻿<!doctype html>
+<html lang="hu" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Palyanet - Pályák (Admin)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/line-awesome@1.3.0/dist/line-awesome/css/line-awesome.min.css">
+  <style>
+    :root {
+      --sidebar-width: 300px;
+      --topbar-height: 70px;
+      --accent: #ff7a18;
+      --accent-soft: #ff9b3d;
+      --accent-strong: #e86c0a;
+      --bg: #f4f6fa;
+      --surface: #ffffff;
+      --border: #e4eaf3;
+      --text: #1f2633;
+      --muted: #6f7a90;
+      --shadow-soft: 0 12px 28px rgba(21, 27, 40, 0.08);
+      --shadow-medium: 0 18px 40px rgba(21, 27, 40, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      background:
+        radial-gradient(circle at 7% -10%, rgba(255, 122, 24, 0.16), transparent 36%),
+        radial-gradient(circle at 100% 110%, rgba(255, 155, 61, 0.14), transparent 40%),
+        var(--bg);
+      overflow-x: hidden;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .topbar {
+      height: var(--topbar-height);
+      background: rgba(255, 255, 255, 0.86);
+      border-bottom: 1px solid rgba(255, 122, 24, 0.2);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1040;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      box-shadow: 0 8px 24px rgba(17, 22, 34, 0.08);
+    }
+
+    .menu-toggle {
+      border: none;
+      background: transparent;
+      font-size: 28px;
+      color: var(--accent-strong);
+      padding: 0;
+      line-height: 1;
+    }
+
+    .menu-toggle:hover { color: var(--accent); }
+
+    .sidebar-desktop {
+      position: fixed;
+      top: var(--topbar-height);
+      left: 0;
+      width: var(--sidebar-width);
+      height: calc(100vh - var(--topbar-height));
+      background:
+        linear-gradient(180deg, rgba(255, 122, 24, 0.08), transparent 220px),
+        var(--surface);
+      border-right: 1px solid var(--border);
+      z-index: 1030;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 10px 0 30px rgba(17, 22, 34, 0.08);
+    }
+
+    .sidebar-brand {
+      border-bottom: 1px solid rgba(255, 122, 24, 0.2);
+      padding: 18px 24px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand a {
+      color: #1d2430;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.6rem;
+      letter-spacing: 0.3px;
+      transition: 0.2s;
+    }
+
+    .sidebar-brand a:hover { color: var(--accent); }
+
+    .sidebar-links {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
+
+    .sidebar-links li { border-bottom: 1px solid rgba(228, 234, 243, 0.8); }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: 0.2s;
+      font-size: 0.98rem;
+      font-weight: 500;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-link.is-active {
+      color: var(--accent-strong);
+      border-left-color: var(--accent);
+      background: linear-gradient(90deg, rgba(255, 122, 24, 0.16), rgba(255, 155, 61, 0.05));
+    }
+
+    .sidebar-link .icon {
+      font-size: 1.2rem;
+      width: 24px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .sidebar-user-wrap {
+      margin-top: auto;
+      border-top: 1px solid rgba(255, 122, 24, 0.2);
+      padding: 16px;
+      background: transparent;
+    }
+
+    .sidebar-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-user-avatar {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border: 2px solid rgba(255, 122, 24, 0.28);
+    }
+
+    .offcanvas {
+      width: 300px !important;
+      background:
+        linear-gradient(180deg, rgba(255, 122, 24, 0.09), transparent 220px),
+        var(--surface);
+    }
+
+    .offcanvas-header {
+      padding: 18px 20px;
+      border-color: rgba(255, 122, 24, 0.2) !important;
+    }
+
+    .offcanvas-title {
+      color: #1d2430;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.4rem;
+    }
+
+    .offcanvas-title:hover { color: var(--accent); }
+
+    .offcanvas-body {
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .main-content {
+      margin-top: var(--topbar-height);
+      margin-left: var(--sidebar-width);
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .main-content h1,
+    .main-content h2,
+    .main-content h3,
+    .main-content h4,
+    .main-content h5 {
+      color: #1a2233;
+    }
+
+    .text-muted,
+    .text-body-secondary {
+      color: var(--muted) !important;
+    }
+
+    .card,
+    .modal-content,
+    .alert,
+    .border.rounded {
+      border: 1px solid rgba(226, 232, 243, 0.92) !important;
+      border-radius: 18px !important;
+      box-shadow: var(--shadow-soft);
+      background: var(--surface);
+    }
+
+    #adminPalyakLista .card {
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    #adminPalyakLista .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-medium);
+    }
+
+    .btn-primary {
+      border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+      box-shadow: 0 10px 24px rgba(255, 122, 24, 0.28);
+    }
+
+    .btn-primary:hover,
+    .btn-primary:focus {
+      background: linear-gradient(135deg, var(--accent-soft), var(--accent));
+    }
+
+    .btn-outline-secondary,
+    .btn-outline-primary,
+    .btn-outline-danger {
+      border-radius: 10px;
+    }
+
+    .btn-outline-secondary {
+      border-color: rgba(255, 122, 24, 0.42);
+      color: #9a4f12;
+    }
+
+    .btn-outline-secondary:hover {
+      background: rgba(255, 122, 24, 0.14);
+      color: #8c460f;
+      border-color: rgba(255, 122, 24, 0.58);
+    }
+
+    .btn-outline-danger {
+      border-color: rgba(220, 53, 69, 0.45);
+    }
+
+    .btn-outline-danger:hover {
+      background: rgba(220, 53, 69, 0.12);
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: 10px;
+      border-color: #d9e1ee;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: rgba(255, 122, 24, 0.7);
+      box-shadow: 0 0 0 0.2rem rgba(255, 122, 24, 0.16);
+    }
+
+    .form-label {
+      color: #374255;
+      font-weight: 600;
+    }
+
+    .modal-header,
+    .modal-footer {
+      border-color: #edf1f8;
+    }
+
+    @media (max-width: 991.98px) {
+      .sidebar-desktop { display: none; }
+      .main-content { margin-left: 0; padding: 18px; }
+    }
+
+    @media (min-width: 992px) {
+      .menu-toggle, .topbar { display: none; }
+      .sidebar-desktop { top: 0; height: 100vh; }
+      .main-content { margin-top: 0; }
+    }
+
+    [data-bs-theme="dark"] {
+      --bg: #0d121a;
+      --surface: #151c27;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #e9eef8;
+      --muted: #acb6cc;
+      --shadow-soft: 0 14px 34px rgba(0, 0, 0, 0.34);
+      --shadow-medium: 0 20px 44px rgba(0, 0, 0, 0.42);
+    }
+
+    [data-bs-theme="dark"] body {
+      background:
+        radial-gradient(circle at 7% -10%, rgba(255, 122, 24, 0.24), transparent 36%),
+        radial-gradient(circle at 100% 110%, rgba(255, 155, 61, 0.2), transparent 40%),
+        #0d121a;
+    }
+
+    [data-bs-theme="dark"] .topbar {
+      background: rgba(21, 28, 39, 0.86);
+      border-bottom-color: rgba(255, 122, 24, 0.32);
+    }
+
+    [data-bs-theme="dark"] .sidebar-desktop,
+    [data-bs-theme="dark"] .offcanvas {
+      background:
+        linear-gradient(180deg, rgba(255, 122, 24, 0.18), transparent 220px),
+        #151c27;
+      border-right-color: rgba(255, 255, 255, 0.08);
+    }
+
+    [data-bs-theme="dark"] .sidebar-brand,
+    [data-bs-theme="dark"] .sidebar-links li,
+    [data-bs-theme="dark"] .sidebar-user-wrap {
+      border-color: rgba(255, 255, 255, 0.08) !important;
+    }
+
+    [data-bs-theme="dark"] .sidebar-brand a,
+    [data-bs-theme="dark"] .offcanvas-title,
+    [data-bs-theme="dark"] .main-content h1,
+    [data-bs-theme="dark"] .main-content h2,
+    [data-bs-theme="dark"] .main-content h3,
+    [data-bs-theme="dark"] .main-content h4,
+    [data-bs-theme="dark"] .main-content h5 {
+      color: #eef3fd;
+    }
+
+    [data-bs-theme="dark"] .sidebar-link {
+      color: #b5bfd4;
+    }
+
+    [data-bs-theme="dark"] .sidebar-link:hover,
+    [data-bs-theme="dark"] .sidebar-link.is-active {
+      color: #ffd7b4;
+      background: linear-gradient(90deg, rgba(255, 122, 24, 0.3), rgba(255, 155, 61, 0.1));
+    }
+
+    [data-bs-theme="dark"] .text-muted,
+    [data-bs-theme="dark"] .text-body-secondary {
+      color: #aab5cc !important;
+    }
+
+    [data-bs-theme="dark"] .card,
+    [data-bs-theme="dark"] .modal-content,
+    [data-bs-theme="dark"] .alert,
+    [data-bs-theme="dark"] .border.rounded {
+      background-color: #151c27 !important;
+      border-color: rgba(255, 255, 255, 0.08) !important;
+      color: #e7edf8;
+    }
+
+    [data-bs-theme="dark"] .form-control,
+    [data-bs-theme="dark"] .form-select {
+      background: #0f151f;
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #ebf0f9;
+    }
+
+    [data-bs-theme="dark"] .form-control:focus,
+    [data-bs-theme="dark"] .form-select:focus {
+      border-color: rgba(255, 155, 61, 0.78);
+      box-shadow: 0 0 0 0.2rem rgba(255, 122, 24, 0.22);
+    }
+
+    [data-bs-theme="dark"] .form-label {
+      color: #d2d9e8;
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary {
+      color: #ffcfa6;
+      border-color: rgba(255, 155, 61, 0.52);
+    }
+
+    [data-bs-theme="dark"] .btn-outline-secondary:hover {
+      color: #ffe0c4;
+      background: rgba(255, 122, 24, 0.2);
+    }
+
+    [data-bs-theme="dark"] .btn-outline-danger {
+      color: #ffb4bc;
+      border-color: rgba(255, 145, 156, 0.5);
+    }
+
+    [data-bs-theme="dark"] .btn-outline-danger:hover {
+      color: #ffd8dd;
+      background: rgba(220, 53, 69, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <button class="menu-toggle me-3 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar" aria-label="Menü megnyitása"><i class="las la-bars"></i></button>
+  </div>
+
+  <aside class="sidebar-desktop profile-sidebar">
+    <div class="sidebar-brand"><a href="../../fooldal/index.html">Palyanet</a></div>
+    <ul class="sidebar-links">
+      <li data-sidebar-item="profil"><a href="../profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
+      <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
+      <li data-sidebar-item="admin-palyak"><a href="./palyak-admin.html" class="sidebar-link is-active"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
+      <li data-sidebar-item="admin-felhasznalok"><a href="./felhasznalok.html" class="sidebar-link"><span class="icon"><i class="las la-users"></i></span>Felhasználók</a></li>
+      <li data-sidebar-item="admin-logok"><a href="./log.html" class="sidebar-link"><span class="icon"><i class="las la-clipboard-list"></i></span>Logok</a></li>
+      <li data-sidebar-item="ertesitesek"><a href="../ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+    </ul>
+    <div class="sidebar-user-wrap">
+      <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
+      <a href="#" class="btn btn-outline-secondary btn-sm w-100 sidebar-logout-btn">Kijelentkezés</a>
+    </div>
+  </aside>
+
+  <div class="offcanvas offcanvas-start bg-white border-0 profile-sidebar" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+    <div class="offcanvas-header border-bottom"><a href="../../fooldal/index.html" class="offcanvas-title" id="mobileSidebarLabel">Palyanet</a><button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Bezárás"></button></div>
+    <div class="offcanvas-body">
+      <ul class="sidebar-links">
+        <li data-sidebar-item="profil"><a href="../profil.html" class="sidebar-link"><span class="icon"><i class="lar la-user-circle"></i></span>Profilom</a></li>
+        <li data-sidebar-item="bejelentesek"><a href="./bejelentesek.html" class="sidebar-link"><span class="icon"><i class="las la-flag"></i></span>Bejelentések</a></li>
+        <li data-sidebar-item="admin-palyak"><a href="./palyak-admin.html" class="sidebar-link is-active"><span class="icon"><i class="las la-pager"></i></span>Pályák</a></li>
+        <li data-sidebar-item="admin-felhasznalok"><a href="./felhasznalok.html" class="sidebar-link"><span class="icon"><i class="las la-users"></i></span>Felhasználók</a></li>
+        <li data-sidebar-item="admin-logok"><a href="./log.html" class="sidebar-link"><span class="icon"><i class="las la-clipboard-list"></i></span>Logok</a></li>
+        <li data-sidebar-item="ertesitesek"><a href="../ertesitesek.html" class="sidebar-link"><span class="icon"><i class="lar la-paper-plane"></i></span>Értesítések</a></li>
+      </ul>
+      <div class="sidebar-user-wrap">
+        <div class="sidebar-user mb-2"><img class="sidebar-user-avatar rounded-circle" src="https://github.com/mdo.png" alt="Profilkép"><div class="sidebar-user-name fw-semibold">Felhasználó</div></div>
+        <a href="#" class="btn btn-outline-secondary btn-sm w-100 sidebar-logout-btn">Kijelentkezés</a>
+      </div>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div class="p-4 p-md-5">
+      <h1 class="h3 mb-4">Pályák (Admin)</h1>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label for="adminPalyaId" class="form-label">Pálya ID</label>
+              <input type="number" class="form-control" id="adminPalyaId" min="1" placeholder="pl. 12">
+            </div>
+            <div class="col-md-4">
+              <label for="adminUsername" class="form-label">Felhasználónév</label>
+              <input type="text" class="form-control" id="adminUsername" placeholder="pl. tulaj123">
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+              <button id="adminPalyaKeresesBtn" class="btn btn-primary" type="button">Keresés</button>
+              <button id="adminPalyaResetBtn" class="btn btn-outline-secondary" type="button">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="adminPalyakLista"></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script src="../../scripts/tema-controller.js"></script>
+  <script src="../../scripts/profil/admin/palyak-admin.js"></script>
+</body>
+</html>
+
